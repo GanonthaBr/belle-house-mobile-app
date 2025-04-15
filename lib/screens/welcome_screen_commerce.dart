@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/screens/widgets/button_text.dart';
+import 'package:mobile_app/screens/widgets/call_to_action.dart';
+import 'package:mobile_app/screens/widgets/title_text.dart';
+import 'package:mobile_app/screens/widgets/welcome_screen_description_text.dart';
 import 'package:mobile_app/utils/colors.dart';
 import 'package:mobile_app/utils/dimensions.dart';
-import 'package:mobile_app/widgets/button_text.dart';
-import 'package:mobile_app/widgets/call_to_action.dart';
-import 'package:mobile_app/widgets/title_text.dart';
-import 'package:mobile_app/widgets/welcome_screen_description_text.dart';
 
 class WelcomeScreenCommerce extends StatelessWidget {
   const WelcomeScreenCommerce({super.key});
