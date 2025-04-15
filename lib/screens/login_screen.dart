@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_app/utils/colors.dart';
 import 'package:mobile_app/utils/dimensions.dart';
 import 'package:mobile_app/widgets/button_text.dart';
+import 'package:mobile_app/widgets/call_to_action.dart';
 import 'package:mobile_app/widgets/text_field_input.dart';
 import 'package:mobile_app/widgets/title_text.dart';
 
@@ -22,7 +23,7 @@ class LoginScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               TitleText(
-                text: 'Créer votre compte',
+                text: 'Connecter à votre compte',
                 fontSize: AppDimension.fontSize24,
                 color: AppColors.primaryColor,
               ),
@@ -93,22 +94,10 @@ class LoginScreen extends StatelessWidget {
                   top: AppDimension.distance20 / 2,
                   bottom: AppDimension.distance20 * 2,
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('Pas encore de compte?'),
-                    TextButton(
-                      onPressed: () {},
-                      child: Text(
-                        'S\'inscrire',
-                        style: TextStyle(
-                          color: AppColors.primaryColor,
-                          fontWeight: FontWeight.w400,
-                          fontSize: AppDimension.fontSize18,
-                        ),
-                      ),
-                    ),
-                  ],
+                child: CTAComponent(
+                  text: 'Pas encore de compte?',
+                  actionText: "S'increi",
+                  actionTextColor: AppColors.primaryColor,
                 ),
               ),
             ],

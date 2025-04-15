@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/widgets/button_text.dart';
+import 'package:mobile_app/widgets/call_to_action.dart';
 import 'package:mobile_app/widgets/phone_input_field.dart';
 import 'package:mobile_app/widgets/text_field_input.dart';
 import 'package:mobile_app/widgets/title_text.dart';
@@ -104,22 +105,10 @@ class RegisterScreen extends StatelessWidget {
                   top: AppDimension.distance20 / 2,
                   bottom: AppDimension.distance20 * 2,
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('Avez-vous déjà un compte?'),
-                    TextButton(
-                      onPressed: () {},
-                      child: Text(
-                        'Se connecter',
-                        style: TextStyle(
-                          color: AppColors.primaryColor,
-                          fontWeight: FontWeight.w400,
-                          fontSize: AppDimension.fontSize18,
-                        ),
-                      ),
-                    ),
-                  ],
+                child: CTAComponent(
+                  text: "Avez-vous déjà un compte?",
+                  actionTextColor: AppColors.primaryColor,
+                  actionText: 'Se connecter',
                 ),
               ),
             ],
