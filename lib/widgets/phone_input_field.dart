@@ -39,7 +39,7 @@ class _PhoneInputFieldState extends State<PhoneInputField> {
           helper: Text('Entrer votre numero de Téléphone'),
           labelText: 'Numéro de téléphone',
           labelStyle: TextStyle(
-            fontSize: 1,
+            fontSize: 18,
             fontWeight: FontWeight.w300,
             letterSpacing: 1.4,
             color: AppColors.secondaryColor,

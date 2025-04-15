@@ -1,18 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_app/widgets/button_text.dart';
-import 'package:mobile_app/widgets/phone_input_field.dart';
-import 'package:mobile_app/widgets/text_field_input.dart';
-import 'package:mobile_app/widgets/title_text.dart';
 import 'package:mobile_app/utils/colors.dart';
 import 'package:mobile_app/utils/dimensions.dart';
+import 'package:mobile_app/widgets/button_text.dart';
+import 'package:mobile_app/widgets/text_field_input.dart';
+import 'package:mobile_app/widgets/title_text.dart';
 
-class RegisterScreen extends StatelessWidget {
-  const RegisterScreen({super.key});
+class LoginScreen extends StatelessWidget {
+  const LoginScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     AppDimension.init(context);
-    // print(AppDimension.screenHeight);
     return Scaffold(
       body: Container(
         height: AppDimension.screenHeight,
@@ -33,7 +31,7 @@ class RegisterScreen extends StatelessWidget {
                 flex: 2,
                 child: Image.asset('images/logo.png', width: 300),
               ),
-              // Phone number field
+              //Phone
               Padding(
                 padding: EdgeInsets.symmetric(
                   horizontal: AppDimension.radius14,
@@ -41,7 +39,19 @@ class RegisterScreen extends StatelessWidget {
                 ),
                 child: SizedBox(
                   height: AppDimension.screenHeight * 0.08,
-                  child: PhoneInputField(),
+                  child: InputTextField(
+                    fillBg: true,
+                    hintText: 'Numéro de téléphone',
+                    fillcolor: AppColors.primaryColor,
+                    focuscolor: AppColors.primaryColor,
+                    bordercolor: AppColors.primaryColor,
+                    helperText: 'Entrer votre numero de téléphone',
+                    labelText: "Numéro de téléphone",
+                    fontsize: AppDimension.fontSize18,
+                    borderRadius: AppDimension.radius14,
+                    labelColor: AppColors.secondaryColor,
+                    passwordField: false,
+                  ),
                 ),
               ),
               // password field
@@ -53,45 +63,24 @@ class RegisterScreen extends StatelessWidget {
                 child: SizedBox(
                   height: AppDimension.screenHeight * 0.08,
                   child: InputTextField(
+                    fillBg: true,
                     hintText: 'Mot de passe',
                     fillcolor: AppColors.primaryColor,
                     focuscolor: AppColors.primaryColor,
                     bordercolor: AppColors.primaryColor,
-                    helperText: "Creer un mot de passe",
+                    helperText: "Entrez votre mot de passe",
                     labelText: "Mot de passe",
                     fontsize: AppDimension.fontSize18,
                     borderRadius: AppDimension.radius14,
                     labelColor: AppColors.secondaryColor,
                     passwordField: true,
-                    fillBg: true,
                   ),
                 ),
               ),
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: AppDimension.radius14,
-                  vertical: 0.0,
-                ),
-                child: SizedBox(
-                  height: AppDimension.screenHeight * 0.08,
-                  child: InputTextField(
-                    hintText: 'Mot de passe',
-                    fillcolor: AppColors.primaryColor,
-                    focuscolor: AppColors.primaryColor,
-                    bordercolor: AppColors.primaryColor,
-                    helperText: "Répetez le mot de passe",
-                    labelText: "Tapez mot de passe",
-                    fontsize: AppDimension.fontSize18,
-                    borderRadius: AppDimension.radius14,
-                    labelColor: AppColors.secondaryColor,
-                    passwordField: true,
-                    fillBg: true,
-                  ),
-                ),
-              ),
+
               //TextButton
               TextButtonWidget(
-                text: 'S\'inscrire',
+                text: 'Se connecter',
                 height: AppDimension.distance50,
                 fontSize: AppDimension.fontSize18,
                 bgcolor: AppColors.primaryColor,
@@ -107,11 +96,11 @@ class RegisterScreen extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('Avez-vous déjà un compte?'),
+                    Text('Pas encore de compte?'),
                     TextButton(
                       onPressed: () {},
                       child: Text(
-                        'Se connecter',
+                        'S\'inscrire',
                         style: TextStyle(
                           color: AppColors.primaryColor,
                           fontWeight: FontWeight.w400,
