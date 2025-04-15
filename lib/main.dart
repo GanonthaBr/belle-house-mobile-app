@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_app/screens/register_screen.dart';
-import 'package:mobile_app/screens/welcome_screen_architecture.dart';
+import 'package:mobile_app/screens/house_details.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,7 +12,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Belle House Immobilier',
       debugShowCheckedModeBanner: false,
-      home: RegisterScreen(),
+      home: HouseDetailsScreen(),
     );
   }
 }

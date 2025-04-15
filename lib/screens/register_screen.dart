@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_app/screens/widgets/button_text.dart';
-import 'package:mobile_app/screens/widgets/call_to_action.dart';
-import 'package:mobile_app/screens/widgets/phone_input_field.dart';
-import 'package:mobile_app/screens/widgets/text_field_input.dart';
-import 'package:mobile_app/screens/widgets/title_text.dart';
+import 'package:mobile_app/widgets/button_text.dart';
+import 'package:mobile_app/widgets/call_to_action.dart';
+import 'package:mobile_app/widgets/phone_input_field.dart';
+import 'package:mobile_app/widgets/text_field_input.dart';
+import 'package:mobile_app/widgets/title_text.dart';
 import 'package:mobile_app/utils/colors.dart';
 import 'package:mobile_app/utils/dimensions.dart';
 
