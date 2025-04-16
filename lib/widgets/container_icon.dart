@@ -21,7 +21,9 @@ class ContainerIcon extends StatelessWidget {
         borderRadius: BorderRadius.all(Radius.circular(100)),
         color: bgColor,
       ),
-      child: IconButton(onPressed: () {}, icon: Icon(icon, color: iconColor)),
+      child: Center(
+        child: IconButton(onPressed: () {}, icon: Icon(icon, color: iconColor)),
+      ),
     );
   }
 }
