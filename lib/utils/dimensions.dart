@@ -12,6 +12,7 @@ class AppDimension {
   static double fontSize18 = screenHeight / 51.78;
 
   static double distance20 = screenHeight / 46.6;
+  static double distance30 = screenHeight / 31.1;
   static double distance50 = screenHeight / 18.64;
   static double distance70 = screenHeight / 13.314;
   static double distance45 = screenHeight / 20.71;
