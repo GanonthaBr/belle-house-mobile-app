@@ -3,7 +3,9 @@ import 'package:mobile_app/utils/dimensions.dart';
 
 class MenuItem extends StatelessWidget {
   final String title;
+  final IconData icon;
   final Color? color;
+  final Color? iconColor;
   final Color? bgColor;
   final Function() action;
 
@@ -13,6 +15,8 @@ class MenuItem extends StatelessWidget {
     this.color = Colors.white,
     this.bgColor = Colors.white,
     required this.action,
+    required this.icon,
+    this.iconColor,
   });
 
   @override
@@ -21,7 +25,7 @@ class MenuItem extends StatelessWidget {
       onTap: action,
       child: Container(
         width: AppDimension.distance70,
-        height: AppDimension.distance30,
+        height: AppDimension.distance70,
         margin: EdgeInsets.all(AppDimension.distance20 / 4),
         decoration: BoxDecoration(
           color: bgColor,
@@ -42,9 +46,15 @@ class MenuItem extends StatelessWidget {
           ],
         ),
         child: Center(
-          child: Text(
-            title,
-            style: TextStyle(color: color, fontWeight: FontWeight.w800),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(icon, color: iconColor),
+              Text(
+                title,
+                style: TextStyle(color: color, fontWeight: FontWeight.w800),
+              ),
+            ],
           ),
         ),
       ),

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_app/screens/register_screen.dart';
 import 'package:mobile_app/screens/screen_one.dart';
 import 'package:mobile_app/screens/screen_two.dart';
 import 'package:mobile_app/utils/colors.dart';
@@ -138,6 +137,11 @@ class _NaviMenuState extends State<NaviMenu> {
                           onTapNav(currentpage);
                         },
                         title: 'Accueil',
+                        icon: Icons.apartment,
+                        iconColor:
+                            currentpage == 0
+                                ? AppColors.secondaryColor
+                                : AppColors.primaryColor,
                         color:
                             currentpage == 0
                                 ? AppColors.secondaryColor
@@ -153,6 +157,11 @@ class _NaviMenuState extends State<NaviMenu> {
                           onTapNav(currentpage);
                         },
                         title: 'Parcelles',
+                        icon: Icons.landscape,
+                        iconColor:
+                            currentpage == 2
+                                ? AppColors.secondaryColor
+                                : AppColors.primaryColor,
                         color:
                             currentpage == 2
                                 ? AppColors.secondaryColor
@@ -168,6 +177,11 @@ class _NaviMenuState extends State<NaviMenu> {
                           onTapNav(currentpage);
                         },
                         title: 'Maisons',
+                        icon: Icons.house,
+                        iconColor:
+                            currentpage == 1
+                                ? AppColors.secondaryColor
+                                : AppColors.primaryColor,
                         color:
                             currentpage == 1
                                 ? AppColors.secondaryColor
@@ -183,6 +197,11 @@ class _NaviMenuState extends State<NaviMenu> {
                           onTapNav(currentpage);
                         },
                         title: 'Meubles',
+                        icon: Icons.shopify_sharp,
+                        iconColor:
+                            currentpage == 3
+                                ? AppColors.secondaryColor
+                                : AppColors.primaryColor,
                         color:
                             currentpage == 3
                                 ? AppColors.secondaryColor
