@@ -32,7 +32,7 @@ class _NaviMenuState extends State<NaviMenu> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.gray,
+      backgroundColor: AppColors.secondaryColor,
       body: Column(
         children: [
           //heading

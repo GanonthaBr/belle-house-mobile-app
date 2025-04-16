@@ -16,7 +16,9 @@ class TextFielSearch extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.only(left: AppDimension.distance20 / 2),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
+        // color: Colors.red,
+        borderRadius: BorderRadius.circular(AppDimension.distance20 / 2),
         boxShadow: [
           BoxShadow(
             color: Colors.black12,
@@ -37,17 +39,17 @@ class TextFielSearch extends StatelessWidget {
             AppDimension.distance20 / 2,
           ),
           filled: true,
-          fillColor: AppColors.secondaryColor,
+          fillColor: AppColors.deepGray,
           hintText: 'Tapez pour rechercher',
           hintStyle: TextStyle(
-            color: Colors.black,
+            color: AppColors.secondaryColor,
             fontSize: AppDimension.radius8 * 2,
             letterSpacing: 1.2,
           ),
           prefixIcon: Icon(
             Icons.search,
             size: AppDimension.distance45,
-            color: AppColors.primaryColor,
+            color: AppColors.secondaryColor,
           ),
           border: OutlineInputBorder(
             borderSide: BorderSide.none,
