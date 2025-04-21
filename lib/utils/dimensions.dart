@@ -11,6 +11,9 @@ class AppDimension {
   static double fontSize24 = screenHeight / 35.85;
   static double fontSize18 = screenHeight / 51.78;
 
+  static double pageViewContainer = screenHeight / 3.84;
+  static double pageViewDetails = screenHeight / 11.04;
+
   static double distance20 = screenHeight / 46.6;
   static double distance30 = screenHeight / 31.1;
   static double distance50 = screenHeight / 18.64;

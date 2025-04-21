@@ -38,6 +38,7 @@ dependencies:
   intl_phone_field: ^3.2.0
   geolocator: ^13.0.4
   country_codes: ^3.3.0
+  dots_indicator: ^4.0.1
 
 dev_dependencies:
   flutter_test:

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_app/screens/screen_one.dart';
+import 'package:mobile_app/screens/home_screen.dart';
 import 'package:mobile_app/screens/screen_two.dart';
 import 'package:mobile_app/utils/colors.dart';
 import 'package:mobile_app/utils/dimensions.dart';
@@ -18,9 +18,9 @@ class NaviMenu extends StatefulWidget {
 class _NaviMenuState extends State<NaviMenu> {
   int currentpage = 0;
   final List _pages = [
+    const HomeScreen(),
     const ScreenTwo(),
-    const ScreenTwo(),
-    const ScreenOne(),
+    const HomeScreen(),
     const ScreenTwo(),
   ];
   void onTapNav(int index) {
@@ -153,41 +153,41 @@ class _NaviMenuState extends State<NaviMenu> {
                       ),
                       MenuItem(
                         action: () {
-                          currentpage = 2;
+                          currentpage = 1;
                           onTapNav(currentpage);
                         },
                         title: 'Parcelles',
                         icon: Icons.landscape,
                         iconColor:
-                            currentpage == 2
+                            currentpage == 1
                                 ? AppColors.secondaryColor
                                 : AppColors.primaryColor,
                         color:
-                            currentpage == 2
+                            currentpage == 1
                                 ? AppColors.secondaryColor
                                 : AppColors.primaryColor,
                         bgColor:
-                            currentpage == 2
+                            currentpage == 1
                                 ? AppColors.primaryColor
                                 : AppColors.secondaryColor,
                       ),
                       MenuItem(
                         action: () {
-                          currentpage = 1;
+                          currentpage = 2;
                           onTapNav(currentpage);
                         },
                         title: 'Maisons',
                         icon: Icons.house,
                         iconColor:
-                            currentpage == 1
+                            currentpage == 2
                                 ? AppColors.secondaryColor
                                 : AppColors.primaryColor,
                         color:
-                            currentpage == 1
+                            currentpage == 2
                                 ? AppColors.secondaryColor
                                 : AppColors.primaryColor,
                         bgColor:
-                            currentpage == 1
+                            currentpage == 2
                                 ? AppColors.primaryColor
                                 : AppColors.secondaryColor,
                       ),
@@ -196,7 +196,7 @@ class _NaviMenuState extends State<NaviMenu> {
                           currentpage = 3;
                           onTapNav(currentpage);
                         },
-                        title: 'Meubles',
+                        title: 'Shopping',
                         icon: Icons.shopify_sharp,
                         iconColor:
                             currentpage == 3
