@@ -28,7 +28,7 @@ class TextFielSearch extends StatelessWidget {
           ),
         ],
       ),
-      height: AppDimension.distance20 * 2,
+      height: AppDimension.distance30 * 2,
       child: TextField(
         textAlign: TextAlign.start,
         decoration: InputDecoration(
@@ -48,12 +48,12 @@ class TextFielSearch extends StatelessWidget {
           ),
           prefixIcon: Icon(
             Icons.search,
-            size: AppDimension.distance45,
+            size: AppDimension.distance30,
             color: AppColors.secondaryColor,
           ),
           border: OutlineInputBorder(
             borderSide: BorderSide.none,
-            borderRadius: BorderRadius.circular(AppDimension.distance20 / 2),
+            borderRadius: BorderRadius.circular(AppDimension.distance20),
           ),
         ),
       ),

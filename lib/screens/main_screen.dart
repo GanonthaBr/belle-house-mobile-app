@@ -36,7 +36,7 @@ class _MainScreenState extends State<MainScreen> {
       bottomNavigationBar: Container(
         height: AppDimension.distance70,
         decoration: const BoxDecoration(
-          color: AppColors.primaryColor,
+          color: AppColors.secondaryColor,
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(10),
             topRight: Radius.circular(10),
@@ -48,12 +48,12 @@ class _MainScreenState extends State<MainScreen> {
             topRight: Radius.circular(14),
           ),
           child: BottomNavigationBar(
-            backgroundColor: AppColors.primaryColor,
-            selectedItemColor: AppColors.secondaryColor,
+            backgroundColor: AppColors.secondaryColor,
+            selectedItemColor: AppColors.deepGray,
             onTap: onTapNav,
             currentIndex: currentIndex,
             type: BottomNavigationBarType.fixed,
-            unselectedItemColor: const Color.fromARGB(190, 233, 231, 231),
+            unselectedItemColor: AppColors.deepGray,
             items: [
               BottomNavigationBarItem(
                 icon: _buildNavItem(Icons.home, 0),
@@ -80,16 +80,16 @@ class _MainScreenState extends State<MainScreen> {
 
   Widget _buildNavItem(IconData icon, int index) {
     return Container(
-      height: AppDimension.radius14 * 2,
-      width: AppDimension.radius14 * 4,
+      height: AppDimension.fontSize18 * 2,
+      width: AppDimension.fontSize18 * 4,
       decoration: BoxDecoration(
         color:
             currentIndex == index
-                ? AppColors.secondaryColor.withOpacity(.35)
+                ? AppColors.primaryColorLoose
                 : null, // Change the color based on the selected index
-        borderRadius: BorderRadius.circular(13),
+        borderRadius: BorderRadius.circular(20),
       ),
-      child: Icon(icon),
+      child: Icon(icon, size: AppDimension.distance30),
     );
   }
 }
