@@ -15,11 +15,11 @@ class MyApp extends StatelessWidget {
       title: 'Belle House Immobilier',
       debugShowCheckedModeBanner: false,
       home: MainScreen(),
-      routes: {
-        '': (context) => MainScreen(),
-        '/house_details': (context) => HouseDetailsScreen(),
-        '/home_screen': (context) => HomeScreen(),
-      },
+      // routes: {
+      //   '': (context) => MainScreen(),
+      //   '/house_details': (context) => HouseDetailsScreen(),
+      //   '/home_screen': (context) => HomeScreen(),
+      // },
     );
   }
 }

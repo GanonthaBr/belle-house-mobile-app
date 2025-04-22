@@ -156,8 +156,8 @@ class _NaviMenuState extends State<NaviMenu> {
                           currentpage = 1;
                           onTapNav(currentpage);
                         },
-                        title: 'Parcelles',
-                        icon: Icons.landscape,
+                        title: 'Maisons',
+                        icon: Icons.house,
                         iconColor:
                             currentpage == 1
                                 ? AppColors.secondaryColor
@@ -176,8 +176,8 @@ class _NaviMenuState extends State<NaviMenu> {
                           currentpage = 2;
                           onTapNav(currentpage);
                         },
-                        title: 'Maisons',
-                        icon: Icons.house,
+                        title: 'Parcelles',
+                        icon: Icons.landscape,
                         iconColor:
                             currentpage == 2
                                 ? AppColors.secondaryColor
