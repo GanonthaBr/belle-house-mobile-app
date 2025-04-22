@@ -6,7 +6,21 @@ import 'package:mobile_app/widgets/small_text.dart';
 import 'package:mobile_app/widgets/title_text.dart';
 
 class HouseListing extends StatelessWidget {
-  const HouseListing({super.key});
+  final String image;
+  final String propertyName;
+  final String city;
+  final String contractType;
+  final double price;
+  final String area;
+  const HouseListing({
+    super.key,
+    required this.image,
+    required this.propertyName,
+    required this.city,
+    required this.contractType,
+    required this.price,
+    required this.area,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -21,11 +35,7 @@ class HouseListing extends StatelessWidget {
             bottom: 0,
           ),
           decoration: BoxDecoration(
-            color: Colors.red,
-            image: DecorationImage(
-              image: AssetImage('images/BH39.jpg'),
-              fit: BoxFit.cover,
-            ),
+            image: DecorationImage(image: AssetImage(image), fit: BoxFit.cover),
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(10),
               topRight: Radius.circular(10),
@@ -71,12 +81,12 @@ class HouseListing extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     TitleText(
-                      text: 'BH03, Niamey',
+                      text: '$propertyName, $city',
                       color: AppColors.black,
                       fontSize: AppDimension.fontSize18,
                     ),
                     TitleText(
-                      text: 'En Location',
+                      text: 'En $contractType',
                       color: AppColors.black,
                       fontSize: AppDimension.fontSize18,
                     ),
@@ -88,12 +98,12 @@ class HouseListing extends StatelessWidget {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
+                    SmallText(text: area, size: AppDimension.radius14),
                     SmallText(
-                      text: 'Francophonie',
-                      size: AppDimension.radius14,
-                    ),
-                    SmallText(
-                      text: '200 000 FCFA/Mois',
+                      text:
+                          contractType == 'Location'
+                              ? "$price FCFA/Mois"
+                              : "$price FCFA",
                       size: AppDimension.radius14,
                     ),
                   ],
