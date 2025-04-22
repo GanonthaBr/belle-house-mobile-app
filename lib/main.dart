@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/screens/home_screen.dart';
+import 'package:mobile_app/screens/house_details.dart';
 import 'package:mobile_app/screens/main_screen.dart';
 
 void main() {
@@ -13,6 +15,11 @@ class MyApp extends StatelessWidget {
       title: 'Belle House Immobilier',
       debugShowCheckedModeBanner: false,
       home: MainScreen(),
+      routes: {
+        '': (context) => MainScreen(),
+        '/house_details': (context) => HouseDetailsScreen(),
+        '/home_screen': (context) => HomeScreen(),
+      },
     );
   }
 }

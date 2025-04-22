@@ -49,7 +49,9 @@ class HomeScreen extends StatelessWidget {
                   // SizedBox(height: Dimension.sizeFive),
                   //listings
                   GestureDetector(
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.pushNamed(context, '/house_details');
+                    },
                     child: const PropertyPageBuilder(),
                   ),
                   //news

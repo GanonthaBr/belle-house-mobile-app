@@ -21,9 +21,14 @@ class HouseDetailsScreen extends StatelessWidget {
           //image
           Expanded(
             flex: 3,
-            child: DetailsContainerImage(
-              imagePath: 'images/BH39.jpg',
-              bgColor: Colors.black12,
+            child: GestureDetector(
+              onTap: () {
+                Navigator.pop(context);
+              },
+              child: DetailsContainerImage(
+                imagePath: 'images/BH39.jpg',
+                bgColor: Colors.black12,
+              ),
             ),
           ),
           Expanded(

@@ -6,10 +6,12 @@ import 'package:mobile_app/widgets/container_icon.dart';
 class DetailsContainerImage extends StatelessWidget {
   final String imagePath;
   final Color bgColor;
+  final GestureTapCallback? onBackTap;
   const DetailsContainerImage({
     super.key,
     required this.imagePath,
     required this.bgColor,
+    this.onBackTap,
   });
 
   @override
@@ -33,11 +35,22 @@ class DetailsContainerImage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             //back arrow
-            ContainerIcon(
-              icon: Icons.arrow_back,
-              iconColor: AppColors.secondaryColor,
-              bgColor: AppColors.primaryColor,
+            GestureDetector(
+              onTap: () {
+                Navigator.pop(context);
+                print('Back arrow clicked');
+              },
+              child: Material(
+                elevation: 10000,
+                color: Colors.transparent,
+                child: ContainerIcon(
+                  icon: Icons.arrow_back,
+                  iconColor: AppColors.secondaryColor,
+                  bgColor: AppColors.primaryColor,
+                ),
+              ),
             ),
+
             //favorite
             ContainerIcon(
               icon: Icons.favorite_border,
