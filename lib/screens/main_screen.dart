@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/screens/conversations_screen.dart';
 import 'package:mobile_app/screens/favorites_screen.dart';
 import 'package:mobile_app/screens/house_details.dart';
 import 'package:mobile_app/screens/register_screen.dart';
@@ -18,7 +19,7 @@ class _MainScreenState extends State<MainScreen> {
   List pages = [
     const NaviMenu(),
     const FavoritesScreen(),
-    const RegisterScreen(),
+    ConversationsScreen(),
     const RegisterScreen(),
   ];
   //changing the screen on tapping

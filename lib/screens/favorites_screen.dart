@@ -13,7 +13,7 @@ class FavoritesScreen extends StatelessWidget {
         centerTitle: true,
         title: TitleText(
           text: 'Mes Sauvegardes',
-          color: AppColors.black,
+          color: AppColors.secondaryColor,
           fontSize: AppDimension.fontSize24,
         ),
         backgroundColor: AppColors.primaryColor,
