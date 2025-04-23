@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/screens/ProfileScreen.dart';
 import 'package:mobile_app/screens/conversations_screen.dart';
 import 'package:mobile_app/screens/favorites_screen.dart';
-import 'package:mobile_app/screens/house_details.dart';
-import 'package:mobile_app/screens/register_screen.dart';
 import 'package:mobile_app/utils/colors.dart';
 import 'package:mobile_app/utils/dimensions.dart';
 import 'package:mobile_app/widgets/navigation_menu.dart';
@@ -20,7 +19,7 @@ class _MainScreenState extends State<MainScreen> {
     const NaviMenu(),
     const FavoritesScreen(),
     ConversationsScreen(),
-    const RegisterScreen(),
+    ProfileScreen(),
   ];
   //changing the screen on tapping
   void onTapNav(int index) {
