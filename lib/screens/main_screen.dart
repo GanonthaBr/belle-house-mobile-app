@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/screens/favorites_screen.dart';
 import 'package:mobile_app/screens/house_details.dart';
 import 'package:mobile_app/screens/register_screen.dart';
 import 'package:mobile_app/utils/colors.dart';
@@ -16,19 +17,7 @@ class _MainScreenState extends State<MainScreen> {
   int currentIndex = 0;
   List pages = [
     const NaviMenu(),
-    const HouseDetailsScreen(
-      imagePath: 'images/BH39.jpg',
-      contractType: 'Location',
-      location: 'Francophonie',
-      price: 20000.00,
-      bedrooms: 2,
-      bathrooms: 2,
-      kitchens: 1,
-      description: 'Maison',
-      agentRole: 'Agennce Immobilier',
-      agentName: 'Belle House',
-      agentImage: 'images/logo.png',
-    ),
+    const FavoritesScreen(),
     const RegisterScreen(),
     const RegisterScreen(),
   ];
@@ -105,3 +94,18 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 }
+
+
+//  const HouseDetailsScreen(
+//       imagePath: 'images/BH39.jpg',
+//       contractType: 'Location',
+//       location: 'Francophonie',
+//       price: 20000.00,
+//       bedrooms: 2,
+//       bathrooms: 2,
+//       kitchens: 1,
+//       description: 'Maison',
+//       agentRole: 'Agennce Immobilier',
+//       agentName: 'Belle House',
+//       agentImage: 'images/logo.png',
+//     ),
