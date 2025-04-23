@@ -16,7 +16,19 @@ class _MainScreenState extends State<MainScreen> {
   int currentIndex = 0;
   List pages = [
     const NaviMenu(),
-    const HouseDetailsScreen(),
+    const HouseDetailsScreen(
+      imagePath: 'images/BH39.jpg',
+      contractType: 'Location',
+      location: 'Francophonie',
+      price: 20000.00,
+      bedrooms: 2,
+      bathrooms: 2,
+      kitchens: 1,
+      description: 'Maison',
+      agentRole: 'Agennce Immobilier',
+      agentName: 'Belle House',
+      agentImage: 'images/logo.png',
+    ),
     const RegisterScreen(),
     const RegisterScreen(),
   ];
@@ -35,17 +47,17 @@ class _MainScreenState extends State<MainScreen> {
       body: pages[currentIndex],
       bottomNavigationBar: Container(
         height: AppDimension.distance70,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: AppColors.secondaryColor,
           borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(10),
-            topRight: Radius.circular(10),
+            topLeft: Radius.circular(AppDimension.distance20 / 2),
+            topRight: Radius.circular(AppDimension.distance20 / 2),
           ),
         ),
         child: ClipRRect(
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(14),
-            topRight: Radius.circular(14),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(AppDimension.radius14),
+            topRight: Radius.circular(AppDimension.radius14),
           ),
           child: BottomNavigationBar(
             backgroundColor: AppColors.secondaryColor,

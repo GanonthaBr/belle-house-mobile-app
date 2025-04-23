@@ -7,11 +7,6 @@ class SmallText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Text(
-        text,
-        style: TextStyle(color: Colors.black54, fontSize: size),
-      ),
-    );
+    return Text(text, style: TextStyle(color: Colors.black54, fontSize: size));
   }
 }

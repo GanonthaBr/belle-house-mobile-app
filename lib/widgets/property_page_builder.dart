@@ -14,7 +14,7 @@ class PropertyPageBuilder extends StatefulWidget {
 class _PropertyPageBuilderState extends State<PropertyPageBuilder> {
   PageController pageController = PageController(viewportFraction: 0.78);
   var _currPageValue = 0.0;
-  double _scaleFactor = 0.8;
+  final double _scaleFactor = 0.8;
   final double _height = AppDimension.pageViewContainer;
   @override
   void initState() {
@@ -36,7 +36,7 @@ class _PropertyPageBuilderState extends State<PropertyPageBuilder> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Container(
+        SizedBox(
           height: AppDimension.pageViewContainer * 1.2,
           child: PageView.builder(
             controller: pageController,

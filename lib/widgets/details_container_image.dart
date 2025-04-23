@@ -38,7 +38,6 @@ class DetailsContainerImage extends StatelessWidget {
             GestureDetector(
               onTap: () {
                 Navigator.pop(context);
-                print('Back arrow clicked');
               },
               child: Material(
                 elevation: 10000,

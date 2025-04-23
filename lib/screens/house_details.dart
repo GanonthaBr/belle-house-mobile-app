@@ -9,7 +9,32 @@ import 'package:mobile_app/widgets/small_text.dart';
 import 'package:mobile_app/widgets/title_text.dart';
 
 class HouseDetailsScreen extends StatelessWidget {
-  const HouseDetailsScreen({super.key});
+  final String imagePath;
+  final String contractType;
+  final String location;
+  final double price;
+  final int bedrooms;
+  final int bathrooms;
+  final int kitchens;
+  final String description;
+  final String agentName;
+  final String agentRole;
+  final String agentImage;
+
+  const HouseDetailsScreen({
+    super.key,
+    required this.imagePath,
+    required this.contractType,
+    required this.location,
+    required this.price,
+    required this.bedrooms,
+    required this.bathrooms,
+    required this.kitchens,
+    required this.description,
+    required this.agentName,
+    required this.agentRole,
+    required this.agentImage,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +51,7 @@ class HouseDetailsScreen extends StatelessWidget {
                 Navigator.pop(context);
               },
               child: DetailsContainerImage(
-                imagePath: 'images/BH39.jpg',
+                imagePath: imagePath,
                 bgColor: Colors.black12,
               ),
             ),
@@ -52,7 +77,7 @@ class HouseDetailsScreen extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             TitleText(
-                              text: "Vente",
+                              text: contractType,
                               color: AppColors.black,
                               fontSize: AppDimension.fontSize18,
                             ),
@@ -61,7 +86,7 @@ class HouseDetailsScreen extends StatelessWidget {
                               children: [
                                 Icon(Icons.location_on_outlined),
                                 TitleText(
-                                  text: 'Niamey/Banifandou',
+                                  text: location,
                                   color: AppColors.black,
                                   fontSize: AppDimension.fontSize18,
                                 ),
@@ -71,7 +96,7 @@ class HouseDetailsScreen extends StatelessWidget {
                         ),
                         //price
                         TitleText(
-                          text: "1 200 000 FCFA",
+                          text: price.toString(),
                           color: AppColors.black,
                           fontSize: AppDimension.fontSize18,
                         ),
@@ -87,24 +112,19 @@ class HouseDetailsScreen extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         PropertyDetailsIcon(
-                          number: 4,
+                          number: bedrooms,
                           item: 'bedrooms',
                           icon: Icons.bed,
                         ),
                         PropertyDetailsIcon(
-                          number: 2,
+                          number: bathrooms,
                           item: 'toilettes',
                           icon: Icons.shower,
                         ),
                         PropertyDetailsIcon(
-                          number: 1,
+                          number: kitchens,
                           item: 'cuisine',
                           icon: Icons.kitchen_sharp,
-                        ),
-                        PropertyDetailsIcon(
-                          number: 2,
-                          item: 'bedrooms',
-                          icon: Icons.bed,
                         ),
                       ],
                     ),
@@ -118,10 +138,7 @@ class HouseDetailsScreen extends StatelessWidget {
                   ),
                   Expanded(
                     child: SingleChildScrollView(
-                      child: DescriptionText(
-                        text:
-                            "helhelello hellohello hellohello hellohello hellohello hellohello hellohello hello hello",
-                      ),
+                      child: DescriptionText(text: description),
                     ),
                   ),
                   //location
@@ -162,8 +179,8 @@ class HouseDetailsScreen extends StatelessWidget {
                               borderRadius: BorderRadius.circular(
                                 AppDimension.distance45,
                               ),
-                              image: const DecorationImage(
-                                image: AssetImage('images/BH39.jpg'),
+                              image: DecorationImage(
+                                image: AssetImage(agentImage),
                                 fit: BoxFit.cover,
                               ),
                             ),
@@ -173,12 +190,12 @@ class HouseDetailsScreen extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               TitleText(
-                                text: "Belle House",
+                                text: agentName,
                                 color: AppColors.primaryColor,
                                 fontSize: AppDimension.fontSize18,
                               ),
                               SmallText(
-                                text: 'Agence Immobiliere',
+                                text: agentRole,
                                 size: AppDimension.radius14,
                               ),
                             ],

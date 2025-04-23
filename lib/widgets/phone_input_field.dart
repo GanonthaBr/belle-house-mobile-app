@@ -56,9 +56,7 @@ class _PhoneInputFieldState extends State<PhoneInputField> {
             borderSide: BorderSide(color: AppColors.primaryColor),
           ),
         ),
-        onChanged: (phone) {
-          print(phone.completeNumber);
-        },
+        onChanged: (phone) {},
       ),
     );
   }

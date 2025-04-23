@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/screens/commerce_list.dart';
 import 'package:mobile_app/screens/home_screen.dart';
 import 'package:mobile_app/screens/houses.dart';
+import 'package:mobile_app/screens/lands.dart';
 import 'package:mobile_app/utils/colors.dart';
 import 'package:mobile_app/utils/dimensions.dart';
 import 'package:mobile_app/widgets/icon_element.dart';
@@ -20,8 +22,8 @@ class _NaviMenuState extends State<NaviMenu> {
   final List _pages = [
     const HomeScreen(),
     const Houses(),
-    const HomeScreen(),
-    const Houses(),
+    const LandList(),
+    const Commerce(),
   ];
   void onTapNav(int index) {
     setState(() {
