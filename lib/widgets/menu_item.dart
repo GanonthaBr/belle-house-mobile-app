@@ -51,11 +51,11 @@ class MenuItem extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, color: AppColors.black),
+              Icon(icon, color: AppColors.primaryColor),
               Text(
                 title,
                 style: TextStyle(
-                  color: AppColors.black,
+                  color: AppColors.primaryColor,
                   fontWeight: FontWeight.w800,
                 ),
               ),
