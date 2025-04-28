@@ -6,6 +6,7 @@ import 'package:mobile_app/screens/house_details.dart';
 import 'package:mobile_app/screens/land_details.dart';
 import 'package:mobile_app/screens/main_screen.dart';
 import 'package:mobile_app/screens/message_details.dart';
+import 'package:mobile_app/screens/splashscreen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,7 +22,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Belle House Immobilier',
       debugShowCheckedModeBanner: false,
-      home: MainScreen(),
+      home: SplashScreen(),
 
       /// The `routes` property in the `MaterialApp` widget is used to define named routes in a Flutter
       /// application. In the provided code snippet:
