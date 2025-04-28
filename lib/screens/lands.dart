@@ -16,12 +16,17 @@ class LandList extends StatelessWidget {
         shrinkWrap: true,
         itemCount: 5,
         itemBuilder: (context, index) {
-          return LandListing(
-            image: 'images/lands.jpg',
-            area: 'Yantala',
-            city: 'Niamey',
-            price: 2000000,
-            superficie: 300,
+          return GestureDetector(
+            onTap: () {
+              Navigator.pushNamed(context, '/land_details');
+            },
+            child: LandListing(
+              image: 'images/lands.jpg',
+              area: 'Yantala',
+              city: 'Niamey',
+              price: 2000000,
+              superficie: 300,
+            ),
           );
         },
       ),

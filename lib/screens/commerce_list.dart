@@ -15,11 +15,16 @@ class Commerce extends StatelessWidget {
         shrinkWrap: true,
         itemCount: 5,
         itemBuilder: (context, index) {
-          return _EcommerceProduct(
-            image: 'images/sofa.png',
-            name: 'Sofa',
-            vendeur: 'Zabarkane',
-            price: 200000.00,
+          return GestureDetector(
+            onTap: () {
+              Navigator.pushNamed(context, '/commerce_details');
+            },
+            child: _EcommerceProduct(
+              image: 'images/sofa.png',
+              name: 'Sofa',
+              vendeur: 'Zabarkane',
+              price: 200000.00,
+            ),
           );
         },
       ),

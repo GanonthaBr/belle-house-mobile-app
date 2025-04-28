@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:mobile_app/screens/commerce_details.dart';
 import 'package:mobile_app/screens/home_screen.dart';
 import 'package:mobile_app/screens/house_details.dart';
+import 'package:mobile_app/screens/land_details.dart';
 import 'package:mobile_app/screens/main_screen.dart';
 
 void main() {
@@ -26,8 +27,22 @@ class MyApp extends StatelessWidget {
       routes: {
         '': (context) => MainScreen(),
         '/house_details':
+            (context) => HouseDetailsScreen(
+              imagePath: 'images/BH39.jpg',
+              contractType: 'Vente',
+              location: 'location',
+              price: 2000,
+              bedrooms: 2,
+              bathrooms: 2,
+              kitchens: 2,
+              description: "description",
+              agentName: "BH",
+              agentRole: 'agentRole',
+              agentImage: 'images/logo.png',
+            ),
+        '/commerce_details':
             (context) => CommerceDetailsScreen(
-              imagePath: 'images/lands.jpg',
+              imagePath: 'images/sofa.png',
               contractType: 'Vente',
               location: 'Franco',
               price: 20000,
@@ -37,6 +52,17 @@ class MyApp extends StatelessWidget {
               agentRole: 'immobieier',
             ),
         '/home_screen': (context) => HomeScreen(),
+        '/land_details':
+            (context) => LandDetailsScreen(
+              imagePath: 'images/lands.jpg',
+              contractType: 'Vente',
+              location: 'Franco',
+              price: 20000,
+              description: 'descriptipn',
+              agentImage: 'images/logo.png',
+              agentName: 'BH',
+              agentRole: 'immobieier',
+            ),
       },
     );
   }

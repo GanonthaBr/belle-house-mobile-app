@@ -28,25 +28,27 @@ class HouseListing extends StatelessWidget {
   }
 
   Widget _buildImage() {
-    return Container(
-      height: AppDimension.screenHeight / 3.7,
-      margin: EdgeInsets.only(
-        left: AppDimension.radius14,
-        right: AppDimension.radius14,
-        top: AppDimension.radius14,
-        bottom: 0,
-      ),
-      decoration: BoxDecoration(
-        image: DecorationImage(image: AssetImage(image), fit: BoxFit.cover),
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(AppDimension.distance20 / 2),
-          topRight: Radius.circular(AppDimension.distance20 / 2),
+    return GestureDetector(
+      child: Container(
+        height: AppDimension.screenHeight / 3.7,
+        margin: EdgeInsets.only(
+          left: AppDimension.radius14,
+          right: AppDimension.radius14,
+          top: AppDimension.radius14,
+          bottom: 0,
         ),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [_buildFavoriteIcon()],
+        decoration: BoxDecoration(
+          image: DecorationImage(image: AssetImage(image), fit: BoxFit.cover),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(AppDimension.distance20 / 2),
+            topRight: Radius.circular(AppDimension.distance20 / 2),
+          ),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [_buildFavoriteIcon()],
+        ),
       ),
     );
   }

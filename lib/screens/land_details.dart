@@ -102,9 +102,9 @@ class LandDetailsScreen extends StatelessWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        MoreImage(image: 'images/sofa.png'),
-                        MoreImage(image: 'images/sofa.png'),
-                        MoreImage(image: 'images/sofa.png'),
+                        MoreImage(image: 'images/lands.jpg'),
+                        MoreImage(image: 'images/lands.jpg'),
+                        MoreImage(image: 'images/lands.jpg'),
                       ],
                     ),
                   ),

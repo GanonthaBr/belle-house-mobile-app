@@ -12,13 +12,18 @@ class Houses extends StatelessWidget {
         shrinkWrap: true,
         itemCount: 5,
         itemBuilder: (context, index) {
-          return HouseListing(
-            image: 'images/BH39.jpg',
-            area: 'Yantala',
-            city: 'Niamey',
-            price: 200000,
-            contractType: 'Location',
-            propertyName: 'BH39',
+          return GestureDetector(
+            onTap: () {
+              Navigator.pushNamed(context, '/house_details');
+            },
+            child: HouseListing(
+              image: 'images/BH39.jpg',
+              area: 'Yantala',
+              city: 'Niamey',
+              price: 200000,
+              contractType: 'Location',
+              propertyName: 'BH39',
+            ),
           );
         },
       ),
