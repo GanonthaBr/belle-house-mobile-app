@@ -50,7 +50,8 @@ class HomeScreen extends StatelessWidget {
                   //listings
                   GestureDetector(
                     onTap: () {
-                      // Navigator.pushNamed(context, '/house_details');
+                      Navigator.pushNamed(context, '/house_details');
+                      print('Clicked');
                     },
                     child: const PropertyPageBuilder(),
                   ),

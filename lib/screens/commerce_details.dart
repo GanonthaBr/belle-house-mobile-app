@@ -33,6 +33,7 @@ class CommerceDetailsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     AppDimension.init(context);
     return Scaffold(
+      appBar: AppBar(toolbarHeight: 5),
       backgroundColor: AppColors.secondaryColor,
       body: Column(
         children: [

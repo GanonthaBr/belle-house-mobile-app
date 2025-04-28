@@ -35,13 +35,13 @@ class DetailsContainerImage extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             //back arrow
-            GestureDetector(
-              onTap: () {
-                Navigator.pop(context);
-              },
-              child: Material(
-                elevation: 10000,
-                color: Colors.transparent,
+            Material(
+              color: Colors.transparent,
+              child: GestureDetector(
+                onTap: () {
+                  print('Poped');
+                  Navigator.pop(context);
+                },
                 child: ContainerIcon(
                   icon: Icons.arrow_back,
                   iconColor: AppColors.secondaryColor,

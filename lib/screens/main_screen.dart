@@ -34,8 +34,9 @@ class _MainScreenState extends State<MainScreen> {
     return Scaffold(
       backgroundColor: AppColors.secondaryColor,
       body: IndexedStack(index: _currentIndex, children: _pages),
+      // appBar: AppBar(toolbarHeight: 10),
       bottomNavigationBar: Container(
-        height: AppDimension.distance45 * 2,
+        height: AppDimension.distance45 * 2.2,
         decoration: BoxDecoration(
           color: AppColors.secondaryColor,
           borderRadius: BorderRadius.only(
