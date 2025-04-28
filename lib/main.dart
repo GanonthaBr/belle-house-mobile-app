@@ -5,6 +5,7 @@ import 'package:mobile_app/screens/home_screen.dart';
 import 'package:mobile_app/screens/house_details.dart';
 import 'package:mobile_app/screens/land_details.dart';
 import 'package:mobile_app/screens/main_screen.dart';
+import 'package:mobile_app/screens/message_details.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -52,6 +53,11 @@ class MyApp extends StatelessWidget {
               agentRole: 'immobieier',
             ),
         '/home_screen': (context) => HomeScreen(),
+        "/message_details":
+            (context) => MessageDetailsScreen(
+              receiverName: 'Alissa',
+              receiverImage: 'images/logo.png',
+            ),
         '/land_details':
             (context) => LandDetailsScreen(
               imagePath: 'images/lands.jpg',

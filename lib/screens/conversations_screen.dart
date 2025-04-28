@@ -154,6 +154,7 @@ class ConversationsScreen extends StatelessWidget {
                 ],
               ),
               onTap: () {
+                Navigator.pushNamed(context, '/message_details');
                 // Navigate to chat screen
               },
             ),
