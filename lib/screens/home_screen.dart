@@ -77,7 +77,7 @@ class HomeScreen extends StatelessWidget {
                     // physics: const NeverScrollableScrollPhysics(),
                     shrinkWrap: true,
                     scrollDirection: Axis.vertical,
-                    itemCount: 10,
+                    itemCount: 2,
                     itemBuilder: (context, index) {
                       return Padding(
                         padding: EdgeInsets.only(

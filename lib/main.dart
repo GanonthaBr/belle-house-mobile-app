@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_app/screens/main_screen.dart';
 
 void main() {
+  // debugPaintSizeEnabled = true;
   runApp(const MyApp());
 }
 

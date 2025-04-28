@@ -14,9 +14,9 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  int currentIndex = 0;
-  List pages = [
-    const NaviMenu(),
+  int _currentIndex = 0;
+  final List<Widget> _pages = [
+    NaviMenu(),
     const FavoritesScreen(),
     ConversationsScreen(),
     ProfileScreen(),
@@ -24,7 +24,7 @@ class _MainScreenState extends State<MainScreen> {
   //changing the screen on tapping
   void onTapNav(int index) {
     setState(() {
-      currentIndex = index;
+      _currentIndex = index;
     });
   }
 
@@ -33,9 +33,9 @@ class _MainScreenState extends State<MainScreen> {
     AppDimension.init(context);
     return Scaffold(
       backgroundColor: AppColors.secondaryColor,
-      body: pages[currentIndex],
+      body: IndexedStack(index: _currentIndex, children: _pages),
       bottomNavigationBar: Container(
-        height: AppDimension.distance70,
+        height: AppDimension.distance45 * 2,
         decoration: BoxDecoration(
           color: AppColors.secondaryColor,
           borderRadius: BorderRadius.only(
@@ -52,7 +52,7 @@ class _MainScreenState extends State<MainScreen> {
             backgroundColor: AppColors.secondaryColor,
             selectedItemColor: AppColors.deepGray,
             onTap: onTapNav,
-            currentIndex: currentIndex,
+            currentIndex: _currentIndex,
             type: BottomNavigationBarType.fixed,
             unselectedItemColor: AppColors.deepGray,
             items: [
@@ -85,7 +85,7 @@ class _MainScreenState extends State<MainScreen> {
       width: AppDimension.fontSize18 * 4,
       decoration: BoxDecoration(
         color:
-            currentIndex == index
+            _currentIndex == index
                 ? AppColors.primaryColorLoose
                 : null, // Change the color based on the selected index
         borderRadius: BorderRadius.circular(20),
