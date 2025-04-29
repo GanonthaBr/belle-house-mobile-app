@@ -8,6 +8,7 @@ class TextButtonWidget extends StatelessWidget {
   final double borderRadius;
   final Color bgcolor;
   final Color textcolor;
+  final VoidCallback? onPressed;
 
   const TextButtonWidget({
     super.key,
@@ -17,6 +18,7 @@ class TextButtonWidget extends StatelessWidget {
     required this.bgcolor,
     required this.textcolor,
     required this.text,
+    this.onPressed,
   });
 
   @override
@@ -29,7 +31,7 @@ class TextButtonWidget extends StatelessWidget {
         borderRadius: BorderRadius.all(Radius.circular(borderRadius)),
       ),
       child: TextButton(
-        onPressed: () {},
+        onPressed: onPressed,
         child: Text(
           text,
           style: TextStyle(

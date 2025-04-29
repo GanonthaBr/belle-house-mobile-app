@@ -4,6 +4,7 @@ import 'package:mobile_app/screens/commerce_details.dart';
 import 'package:mobile_app/screens/home_screen.dart';
 import 'package:mobile_app/screens/house_details.dart';
 import 'package:mobile_app/screens/land_details.dart';
+import 'package:mobile_app/screens/login_screen.dart';
 import 'package:mobile_app/screens/main_screen.dart';
 import 'package:mobile_app/screens/message_details.dart';
 import 'package:mobile_app/screens/register_screen.dart';
@@ -71,6 +72,7 @@ class MyApp extends StatelessWidget {
               agentName: 'BH',
               agentRole: 'immobieier',
             ),
+        '/login': (context) => LoginScreen(),
       },
     );
   }

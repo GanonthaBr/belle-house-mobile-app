@@ -50,15 +50,19 @@ class _RegisterScreenState extends State<RegisterScreen> {
     });
 
     if (result['success']) {
-      print(result['token']);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Registration successful!')));
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Registration successful!')));
+        Navigator.pushNamed(context, '/login');
+      }
       // Navigate to another screen or save the token
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(result['message'] ?? 'Registration failed')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(result['message'] ?? 'Registration failed')),
+        );
+      }
     }
   }
 
@@ -167,13 +171,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ? CircularProgressIndicator(color: AppColors.primaryColor)
                   : TextButton(
                     onPressed: _register,
-                    child: Text(
-                      'S\'inscrire',
-                      style: TextStyle(
-                        fontSize: AppDimension.fontSize18,
-                        color: AppColors.secondaryColor,
-                      ),
-                    ),
                     style: TextButton.styleFrom(
                       backgroundColor: AppColors.primaryColor,
                       padding: EdgeInsets.symmetric(
@@ -184,6 +181,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         borderRadius: BorderRadius.circular(
                           AppDimension.radius14,
                         ),
+                      ),
+                    ),
+                    child: Text(
+                      'S\'inscrire',
+                      style: TextStyle(
+                        fontSize: AppDimension.fontSize18,
+                        color: AppColors.secondaryColor,
                       ),
                     ),
                   ),
