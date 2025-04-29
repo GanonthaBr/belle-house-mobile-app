@@ -12,6 +12,7 @@ class InputTextField extends StatelessWidget {
   final double borderRadius;
   final bool passwordField;
   final bool fillBg;
+  final TextEditingController controller;
 
   const InputTextField({
     super.key,
@@ -26,11 +27,13 @@ class InputTextField extends StatelessWidget {
     required this.labelColor,
     required this.passwordField,
     required this.fillBg,
+    required this.controller,
   });
 
   @override
   Widget build(BuildContext context) {
     return TextField(
+      controller: controller,
       obscureText: passwordField, // Hides the text for password input
       decoration: InputDecoration(
         helper: Text(helperText),

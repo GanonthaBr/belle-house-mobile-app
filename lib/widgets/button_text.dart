@@ -23,7 +23,7 @@ class TextButtonWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: height,
-      width: AppDimension.screenWidth / 1.3,
+      width: AppDimension.screenWidth / 1.1,
       decoration: BoxDecoration(
         color: bgcolor,
         borderRadius: BorderRadius.all(Radius.circular(borderRadius)),

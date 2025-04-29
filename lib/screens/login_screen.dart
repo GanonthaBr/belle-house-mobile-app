@@ -6,8 +6,16 @@ import 'package:mobile_app/widgets/title_text.dart';
 import 'package:mobile_app/utils/colors.dart';
 import 'package:mobile_app/utils/dimensions.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController _passwordcontroller = TextEditingController();
+  final TextEditingController _phonecontroller = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +49,7 @@ class LoginScreen extends StatelessWidget {
                 child: SizedBox(
                   height: AppDimension.screenHeight * 0.08,
                   child: InputTextField(
+                    controller: _phonecontroller,
                     fillBg: true,
                     hintText: 'Numéro de téléphone',
                     fillcolor: AppColors.primaryColor,
@@ -64,6 +73,7 @@ class LoginScreen extends StatelessWidget {
                 child: SizedBox(
                   height: AppDimension.screenHeight * 0.08,
                   child: InputTextField(
+                    controller: _passwordcontroller,
                     fillBg: true,
                     hintText: 'Mot de passe',
                     fillcolor: AppColors.primaryColor,

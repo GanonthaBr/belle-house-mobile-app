@@ -5,7 +5,8 @@ import 'package:mobile_app/utils/country_helper_code.dart';
 import 'package:mobile_app/utils/dimensions.dart';
 
 class PhoneInputField extends StatefulWidget {
-  const PhoneInputField({super.key});
+  final TextEditingController controller;
+  const PhoneInputField({super.key, required this.controller});
 
   @override
   State<PhoneInputField> createState() => _PhoneInputFieldState();
@@ -34,6 +35,7 @@ class _PhoneInputFieldState extends State<PhoneInputField> {
     return SizedBox(
       height: 300,
       child: IntlPhoneField(
+        controller: widget.controller,
         initialCountryCode: initialCountryCode,
         decoration: InputDecoration(
           helper: Text('Entrer votre numero de Téléphone'),
