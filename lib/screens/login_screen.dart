@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/services/auth_service.dart';
-import 'package:mobile_app/services/houses_services.dart';
 import 'package:mobile_app/widgets/button_text.dart';
 import 'package:mobile_app/widgets/call_to_action.dart';
 import 'package:mobile_app/widgets/text_field_input.dart';

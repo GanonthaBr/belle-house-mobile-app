@@ -7,7 +7,6 @@ import 'package:mobile_app/screens/land_details.dart';
 import 'package:mobile_app/screens/login_screen.dart';
 import 'package:mobile_app/screens/main_screen.dart';
 import 'package:mobile_app/screens/message_details.dart';
-import 'package:mobile_app/screens/register_screen.dart';
 import 'package:mobile_app/screens/splashscreen.dart';
 
 void main() {

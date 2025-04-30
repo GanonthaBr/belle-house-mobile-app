@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/screens/login_screen.dart';
+import 'package:mobile_app/services/token_storage.dart';
 import 'package:mobile_app/utils/colors.dart';
 import 'package:mobile_app/utils/dimensions.dart';
 import 'package:mobile_app/screens/main_screen.dart';
@@ -13,18 +14,33 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
+  final TokenStorage _tokenStorage = TokenStorage();
   @override
   void initState() {
     super.initState();
-    // Navigate to the main screen after 3 seconds
-    Future.delayed(Duration(seconds: 5), () {
+    // check login status and navigate to a screen
+    _checkLoginStatus();
+  }
+
+  Future<void> _checkLoginStatus() async {
+    final accessToken = await _tokenStorage.getAccessToken();
+    if (accessToken != null) {
+      // Navigate to the main screen if the user is already logged in
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => MainScreen()),
+        );
+      }
+    } else {
+      // Navigate to the login screen if no token is found
       if (mounted) {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => LoginScreen()),
         );
       }
-    });
+    }
   }
 
   @override
