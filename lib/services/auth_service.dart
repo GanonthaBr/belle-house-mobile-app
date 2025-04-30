@@ -87,28 +87,8 @@ class AuthService {
   }
 
   //logout
-  Future<Map<String, dynamic>> logoutUser({
-    required String refreshToken,
-  }) async {
-    final url = Uri.parse('${ApiConstants.baseUrlAuth}/logout/');
-    try {
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'refresh': refreshToken}),
-      );
-
-      if (response.body.isEmpty) {
-        return {'success': false, 'message': 'Empty response from server'};
-      }
-      if (response.statusCode == 204) {
-        return {'success': true, 'message': 'Logged out successfully'};
-      } else {
-        return {'success': false, 'message': 'An unknown error occurred'};
-      }
-    } catch (e) {
-      return {'success': false, 'message': 'An error occurred: $e'};
-    }
+  Future<void> logoutUser() async {
+    await _tokenStorage.clearTokens();
   }
 
   //refresh access token

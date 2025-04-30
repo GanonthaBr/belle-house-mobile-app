@@ -1,10 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/services/auth_service.dart';
 import 'package:mobile_app/utils/colors.dart';
 import 'package:mobile_app/utils/dimensions.dart';
 import 'package:mobile_app/widgets/title_text.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  final AuthService _authService = AuthService();
+
+  Future<void> logout() async {
+    await _authService.logoutUser();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -146,8 +158,11 @@ class ProfileScreen extends StatelessWidget {
               // Logout Button
               Center(
                 child: ElevatedButton.icon(
-                  onPressed: () {
+                  onPressed: () async {
                     // Logout action
+                    await logout();
+                    Navigator.pushReplacementNamed(context, '/login');
+                    print('Log Out');
                   },
                   icon: Icon(Icons.logout, color: AppColors.secondaryColor),
                   label: Text(

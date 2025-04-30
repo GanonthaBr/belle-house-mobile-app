@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/services/auth_service.dart';
+import 'package:mobile_app/services/houses_services.dart';
 import 'package:mobile_app/widgets/button_text.dart';
 import 'package:mobile_app/widgets/call_to_action.dart';
 import 'package:mobile_app/widgets/text_field_input.dart';
@@ -30,7 +31,7 @@ class _LoginScreenState extends State<LoginScreen> {
       _isLoading = true;
     });
 
-    // Mock authentication logic
+    //authentication logic
     final result = await _authService.loginUser(
       username: username,
       password: password,
@@ -44,14 +45,14 @@ class _LoginScreenState extends State<LoginScreen> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Registration successful!')));
+        ).showSnackBar(SnackBar(content: Text('Connecté avec succès')));
         Navigator.pushNamed(context, '/main');
       }
       // Navigate to another screen or save the token
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(result['message'] ?? 'Registration failed')),
+          SnackBar(content: Text(result['message'] ?? 'Erreur de connection')),
         );
       }
     }
