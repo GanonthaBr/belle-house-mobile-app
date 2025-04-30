@@ -34,4 +34,35 @@ class ApiServices {
     }
     return response;
   }
+
+  //post requests
+  Future<http.Response> post(String url, Map<String, dynamic> body) async {
+    final accessToken = await _tokenStorage.getAccessToken();
+
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $accessToken',
+      },
+      body: body,
+    );
+    if (response.statusCode == 401) {
+      //refresh the access token
+      final isRefreshed = await _authService.refreshAccessToken();
+      if (isRefreshed) {
+        //make request
+        final newAccessToken = _tokenStorage.getAccessToken();
+        return await http.post(
+          Uri.parse(url),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $newAccessToken',
+          },
+          body: body,
+        );
+      }
+    }
+    return response;
+  }
 }
