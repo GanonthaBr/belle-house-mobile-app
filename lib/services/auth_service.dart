@@ -1,8 +1,10 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:mobile_app/services/token_storage.dart';
 import 'package:mobile_app/utils/api_constants.dart';
 
 class AuthService {
+  final TokenStorage _tokenStorage = TokenStorage();
   //register
   Future<Map<String, dynamic>> registerUser({
     required String phoneNumber,
@@ -26,7 +28,8 @@ class AuthService {
       }
       if (response.statusCode == 201) {
         final data = jsonDecode(response.body);
-
+        //save tokens
+        await _tokenStorage.saveTokens(data['access'], data['refresh']);
         return {
           'success': true,
           'access': data['access'],
@@ -66,7 +69,8 @@ class AuthService {
       }
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-
+        //save tokens
+        await _tokenStorage.saveTokens(data['access'], data['refresh']);
         return {
           'success': true,
           'access': data['access'],
@@ -104,6 +108,39 @@ class AuthService {
       }
     } catch (e) {
       return {'success': false, 'message': 'An error occurred: $e'};
+    }
+  }
+
+  //refresh access token
+  Future<bool> refreshAccessToken() async {
+    final refreshToken = await _tokenStorage.getRefreshToken();
+
+    if (refreshToken == null) {
+      //no refresh token available
+      return false;
+    }
+    final url = Uri.parse('${ApiConstants.baseUrlAuth}/token/refresh/');
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'refresh': refreshToken}),
+      );
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        await _tokenStorage.saveTokens(
+          data['access_token'],
+          data['refresh_token'],
+        );
+        return true;
+      } else {
+        //refresh token invalid or expired
+        await _tokenStorage.clearTokens();
+        return false;
+      }
+    } catch (e) {
+      print('Error refreshin: $e');
+      return false;
     }
   }
 }

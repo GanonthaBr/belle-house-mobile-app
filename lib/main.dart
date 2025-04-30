@@ -24,12 +24,12 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Belle House Immobilier',
       debugShowCheckedModeBanner: false,
-      home: RegisterScreen(),
+      home: SplashScreen(),
 
       /// The `routes` property in the `MaterialApp` widget is used to define named routes in a Flutter
       /// application. In the provided code snippet:
       routes: {
-        '': (context) => MainScreen(),
+        '/main': (context) => MainScreen(),
         '/house_details':
             (context) => HouseDetailsScreen(
               imagePath: 'images/BH39.jpg',

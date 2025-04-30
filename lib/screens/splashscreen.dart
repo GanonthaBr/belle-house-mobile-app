@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/screens/login_screen.dart';
 import 'package:mobile_app/utils/colors.dart';
 import 'package:mobile_app/utils/dimensions.dart';
 import 'package:mobile_app/screens/main_screen.dart';
@@ -20,7 +21,7 @@ class _SplashScreenState extends State<SplashScreen> {
       if (mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => MainScreen()),
+          MaterialPageRoute(builder: (context) => LoginScreen()),
         );
       }
     });

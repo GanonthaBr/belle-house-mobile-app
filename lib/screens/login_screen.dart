@@ -45,7 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Registration successful!')));
-        Navigator.pushNamed(context, '/home_screen');
+        Navigator.pushNamed(context, '/main');
       }
       // Navigate to another screen or save the token
     } else {
@@ -172,7 +172,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 child: CTAComponent(
                   text: 'Pas encore de compte?',
-                  actionText: "S'increi",
+                  actionText: "S'incrire",
                   actionTextColor: AppColors.primaryColor,
                 ),
               ),
