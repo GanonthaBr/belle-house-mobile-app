@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_app/screens/ProfileScreen.dart';
+import 'package:mobile_app/screens/profileScreen.dart';
 import 'package:mobile_app/screens/conversations_screen.dart';
 import 'package:mobile_app/screens/favorites_screen.dart';
 import 'package:mobile_app/utils/colors.dart';

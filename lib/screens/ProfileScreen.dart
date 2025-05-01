@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/providers/auth_provider.dart';
-import 'package:mobile_app/services/auth_service.dart';
 import 'package:mobile_app/utils/colors.dart';
 import 'package:mobile_app/utils/dimensions.dart';
 import 'package:mobile_app/widgets/title_text.dart';
