@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/providers/auth_provider.dart';
 import 'package:mobile_app/services/auth_service.dart';
 import 'package:mobile_app/utils/colors.dart';
 import 'package:mobile_app/utils/dimensions.dart';
 import 'package:mobile_app/widgets/title_text.dart';
+import 'package:provider/provider.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -12,10 +14,17 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  final AuthService _authService = AuthService();
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<AuthProvider>(context, listen: false).fetchUserInfo();
+    });
+  }
 
   Future<void> logout() async {
-    await _authService.logoutUser();
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    await authProvider.logout();
   }
 
   @override
@@ -32,162 +41,193 @@ class _ProfileScreenState extends State<ProfileScreen> {
           color: AppColors.secondaryColor,
         ),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.all(AppDimension.distance20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // User Info Section
-              Center(
-                child: Column(
-                  children: [
-                    CircleAvatar(
-                      radius: AppDimension.distance50,
-                      backgroundImage: AssetImage('images/logo.png'),
+      body: Consumer<AuthProvider>(
+        builder: (context, authProvider, child) {
+          if (authProvider.isLoading) {
+            return Center(
+              child: CircularProgressIndicator(color: AppColors.primaryColor),
+            );
+          }
+
+          final userInfo = authProvider.userInfo;
+
+          if (userInfo == null) {
+            return Center(
+              child: Text(
+                'Failed to load user information.',
+                style: TextStyle(
+                  fontSize: AppDimension.fontSize18,
+                  color: AppColors.primaryColor,
+                ),
+              ),
+            );
+          }
+          return SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.all(AppDimension.distance20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // User Info Section
+                  Center(
+                    child: Column(
+                      children: [
+                        CircleAvatar(
+                          radius: AppDimension.distance50,
+                          backgroundImage: AssetImage(
+                            userInfo['profile_picture'].toString(),
+                          ),
+                        ),
+                        SizedBox(height: AppDimension.distance20),
+                        Text(
+                          userInfo['username'] ?? 'Unknown Name',
+                          style: TextStyle(
+                            fontSize: AppDimension.fontSize24,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.primaryColor,
+                          ),
+                        ),
+                        SizedBox(height: AppDimension.distance20 / 2),
+                        Text(
+                          userInfo['email'] ?? 'No email',
+                          style: TextStyle(
+                            fontSize: AppDimension.fontSize18,
+                            color: AppColors.primaryColor.withOpacity(0.7),
+                          ),
+                        ),
+                      ],
                     ),
-                    SizedBox(height: AppDimension.distance20),
-                    Text(
-                      'Ali Mohamed',
+                  ),
+                  SizedBox(height: AppDimension.distance30),
+
+                  // Account Details Section
+                  Text(
+                    'Details du Compte',
+                    style: TextStyle(
+                      fontSize: AppDimension.fontSize18,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primaryColor,
+                    ),
+                  ),
+                  SizedBox(height: AppDimension.distance20),
+                  ListTile(
+                    leading: Icon(Icons.phone, color: AppColors.primaryColor),
+                    title: Text(
+                      userInfo['phone_number'] ?? 'No phone added',
                       style: TextStyle(
-                        fontSize: AppDimension.fontSize24,
-                        fontWeight: FontWeight.bold,
+                        fontSize: AppDimension.fontSize18,
                         color: AppColors.primaryColor,
                       ),
                     ),
-                    SizedBox(height: AppDimension.distance20 / 2),
-                    Text(
-                      'mohali@example.com',
+                  ),
+                  ListTile(
+                    leading: Icon(
+                      Icons.location_on,
+                      color: AppColors.primaryColor,
+                    ),
+                    title: Text(
+                      '123 Main Street, City, Country',
                       style: TextStyle(
                         fontSize: AppDimension.fontSize18,
-                        color: AppColors.primaryColor.withOpacity(0.7),
+                        color: AppColors.primaryColor,
                       ),
                     ),
-                  ],
-                ),
-              ),
-              SizedBox(height: AppDimension.distance30),
+                  ),
+                  ListTile(
+                    leading: Icon(
+                      Icons.calendar_today,
+                      color: AppColors.primaryColor,
+                    ),
+                    title: Text(
+                      userInfo['created_at'] ?? '',
+                      style: TextStyle(
+                        fontSize: AppDimension.fontSize18,
+                        color: AppColors.primaryColor,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: AppDimension.distance30),
 
-              // Account Details Section
-              Text(
-                'Details du Compte',
-                style: TextStyle(
-                  fontSize: AppDimension.fontSize18,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.primaryColor,
-                ),
-              ),
-              SizedBox(height: AppDimension.distance20),
-              ListTile(
-                leading: Icon(Icons.phone, color: AppColors.primaryColor),
-                title: Text(
-                  '+227 22 34 67 90',
-                  style: TextStyle(
-                    fontSize: AppDimension.fontSize18,
-                    color: AppColors.primaryColor,
-                  ),
-                ),
-              ),
-              ListTile(
-                leading: Icon(Icons.location_on, color: AppColors.primaryColor),
-                title: Text(
-                  '123 Main Street, City, Country',
-                  style: TextStyle(
-                    fontSize: AppDimension.fontSize18,
-                    color: AppColors.primaryColor,
-                  ),
-                ),
-              ),
-              ListTile(
-                leading: Icon(
-                  Icons.calendar_today,
-                  color: AppColors.primaryColor,
-                ),
-                title: Text(
-                  'Member since: January 2023',
-                  style: TextStyle(
-                    fontSize: AppDimension.fontSize18,
-                    color: AppColors.primaryColor,
-                  ),
-                ),
-              ),
-              SizedBox(height: AppDimension.distance30),
-
-              // App Info Section
-              Text(
-                'App Information',
-                style: TextStyle(
-                  fontSize: AppDimension.fontSize18,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.primaryColor,
-                ),
-              ),
-              SizedBox(height: AppDimension.distance20),
-              // ListTile(
-              //   leading: Icon(Icons.home, color: AppColors.primaryColor),
-              //   title: Text(
-              //     'Properties Listed: 12',
-              //     style: TextStyle(
-              //       fontSize: AppDimension.fontSize18,
-              //       color: AppColors.primaryColor,
-              //     ),
-              //   ),
-              // ),
-              ListTile(
-                leading: Icon(Icons.favorite, color: AppColors.primaryColor),
-                title: Text(
-                  'Favorites: 8',
-                  style: TextStyle(
-                    fontSize: AppDimension.fontSize18,
-                    color: AppColors.primaryColor,
-                  ),
-                ),
-              ),
-              // ListTile(
-              //   leading: Icon(Icons.chat, color: AppColors.primaryColor),
-              //   title: Text(
-              //     'Messages: 5',
-              //     style: TextStyle(
-              //       fontSize: AppDimension.fontSize18,
-              //       color: AppColors.primaryColor,
-              //     ),
-              //   ),
-              // ),
-              SizedBox(height: AppDimension.distance30),
-
-              // Logout Button
-              Center(
-                child: ElevatedButton.icon(
-                  onPressed: () async {
-                    // Logout action
-                    await logout();
-                    Navigator.pushReplacementNamed(context, '/login');
-                  },
-                  icon: Icon(Icons.logout, color: AppColors.secondaryColor),
-                  label: Text(
-                    'Deconnexion',
+                  // App Info Section
+                  Text(
+                    'App Information',
                     style: TextStyle(
                       fontSize: AppDimension.fontSize18,
-                      color: AppColors.secondaryColor,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primaryColor,
                     ),
                   ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryColor,
-                    padding: EdgeInsets.symmetric(
-                      horizontal: AppDimension.distance30,
-                      vertical: AppDimension.distance20 / 2,
+                  SizedBox(height: AppDimension.distance20),
+                  // ListTile(
+                  //   leading: Icon(Icons.home, color: AppColors.primaryColor),
+                  //   title: Text(
+                  //     'Properties Listed: 12',
+                  //     style: TextStyle(
+                  //       fontSize: AppDimension.fontSize18,
+                  //       color: AppColors.primaryColor,
+                  //     ),
+                  //   ),
+                  // ),
+                  ListTile(
+                    leading: Icon(
+                      Icons.favorite,
+                      color: AppColors.primaryColor,
                     ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                        AppDimension.radius14,
+                    title: Text(
+                      'Favorites: 8',
+                      style: TextStyle(
+                        fontSize: AppDimension.fontSize18,
+                        color: AppColors.primaryColor,
                       ),
                     ),
                   ),
-                ),
+                  // ListTile(
+                  //   leading: Icon(Icons.chat, color: AppColors.primaryColor),
+                  //   title: Text(
+                  //     'Messages: 5',
+                  //     style: TextStyle(
+                  //       fontSize: AppDimension.fontSize18,
+                  //       color: AppColors.primaryColor,
+                  //     ),
+                  //   ),
+                  // ),
+                  SizedBox(height: AppDimension.distance30),
+
+                  // Logout Button
+                  Center(
+                    child: ElevatedButton.icon(
+                      onPressed: () async {
+                        // Logout action
+                        await logout();
+                        Navigator.pushReplacementNamed(context, '/login');
+                      },
+                      icon: Icon(Icons.logout, color: AppColors.secondaryColor),
+                      label: Text(
+                        'Deconnexion',
+                        style: TextStyle(
+                          fontSize: AppDimension.fontSize18,
+                          color: AppColors.secondaryColor,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primaryColor,
+                        padding: EdgeInsets.symmetric(
+                          horizontal: AppDimension.distance30,
+                          vertical: AppDimension.distance20 / 2,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(
+                            AppDimension.radius14,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-        ),
+            ),
+          );
+        },
       ),
     );
   }
