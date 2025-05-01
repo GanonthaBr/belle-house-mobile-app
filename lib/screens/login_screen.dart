@@ -166,10 +166,15 @@ class _LoginScreenState extends State<LoginScreen> {
                       top: AppDimension.distance20 / 2,
                       bottom: AppDimension.distance20 * 2,
                     ),
-                    child: CTAComponent(
-                      text: 'Pas encore de compte?',
-                      actionText: "S'incrire",
-                      actionTextColor: AppColors.primaryColor,
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.pushReplacementNamed(context, '/register');
+                      },
+                      child: CTAComponent(
+                        text: 'Pas encore de compte?',
+                        actionText: "S'incrire",
+                        actionTextColor: AppColors.primaryColor,
+                      ),
                     ),
                   ),
                 ],

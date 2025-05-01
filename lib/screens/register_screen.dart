@@ -178,11 +178,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                           ),
                         ),
-                        child: Text(
-                          'S\'inscrire',
-                          style: TextStyle(
-                            fontSize: AppDimension.fontSize18,
-                            color: AppColors.secondaryColor,
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.pushReplacementNamed(context, '/login');
+                          },
+                          child: Text(
+                            'S\'inscrire',
+                            style: TextStyle(
+                              fontSize: AppDimension.fontSize18,
+                              color: AppColors.secondaryColor,
+                            ),
                           ),
                         ),
                       ),

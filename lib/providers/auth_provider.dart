@@ -59,6 +59,7 @@ class AuthProvider with ChangeNotifier {
   Future<void> fetchUserInfo() async {
     setLoading(true);
     final result = await _homeServices.getUserInfos();
+    print("THE R: $result");
     setLoading(false);
 
     if (result.containsKey('data')) {

@@ -94,7 +94,7 @@ class AuthService {
   //refresh access token
   Future<bool> refreshAccessToken() async {
     final refreshToken = await _tokenStorage.getRefreshToken();
-
+    // print("RT: $refreshToken");
     if (refreshToken == null) {
       //no refresh token available
       return false;
@@ -106,12 +106,13 @@ class AuthService {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'refresh': refreshToken}),
       );
+      // print("SC: ${response.statusCode}");
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        await _tokenStorage.saveTokens(
-          data['access_token'],
-          data['refresh_token'],
-        );
+        // print("DATA: $data");
+        await _tokenStorage.saveTokens(data['access']);
+        // print("It WENT WELL");
+
         return true;
       } else {
         //refresh token invalid or expired
@@ -119,7 +120,7 @@ class AuthService {
         return false;
       }
     } catch (e) {
-      print('Error refreshin: $e');
+      print('Error refreshing: $e');
       return false;
     }
   }

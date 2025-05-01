@@ -9,7 +9,7 @@ class ApiServices {
   //get requests
   Future<http.Response> get(String url) async {
     final accessToken = await _tokenStorage.getAccessToken();
-
+    // print("AT: $accessToken");
     final response = await http.get(
       Uri.parse(url),
       headers: {
@@ -18,8 +18,10 @@ class ApiServices {
       },
     );
     if (response.statusCode == 401) {
+      // print('It\'s expired');
       //access token expired, refresh it
       final isRefreshed = await _authService.refreshAccessToken();
+      // print(isRefreshed);
       if (isRefreshed) {
         //make the request again with a new access token
         final newAccessToken = await _tokenStorage.getAccessToken();

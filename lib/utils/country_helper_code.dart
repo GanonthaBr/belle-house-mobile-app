@@ -18,7 +18,7 @@ class CountryCodeHelper {
       );
       //get country code with local
       final details = CountryCodes.detailsForLocale();
-      // print("DETAILS ${details}");
+      print("DETAILS ${details}");
       // print("OUT");
       return details.alpha2Code ?? fallBack;
     } catch (e) {

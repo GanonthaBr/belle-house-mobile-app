@@ -49,6 +49,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           }
 
           final userInfo = authProvider.userInfo;
+          print(userInfo);
 
           if (userInfo == null) {
             return Center(

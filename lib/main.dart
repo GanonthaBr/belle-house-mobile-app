@@ -8,6 +8,7 @@ import 'package:mobile_app/screens/land_details.dart';
 import 'package:mobile_app/screens/login_screen.dart';
 import 'package:mobile_app/screens/main_screen.dart';
 import 'package:mobile_app/screens/message_details.dart';
+import 'package:mobile_app/screens/register_screen.dart';
 import 'package:mobile_app/screens/splashscreen.dart';
 import 'package:provider/provider.dart';
 
@@ -32,6 +33,7 @@ class MyApp extends StatelessWidget {
         routes: {
           '/main': (context) => MainScreen(),
           '/login': (context) => LoginScreen(),
+          '/register': (context) => RegisterScreen(),
           '/house_details':
               (context) => HouseDetailsScreen(
                 imagePath: 'images/BH39.jpg',
