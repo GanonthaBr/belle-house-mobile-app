@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_app/screens/login_screen.dart';
 import 'package:mobile_app/services/token_storage.dart';
 import 'package:mobile_app/utils/colors.dart';
 import 'package:mobile_app/utils/dimensions.dart';
-import 'package:mobile_app/screens/main_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -15,6 +13,7 @@ class SplashScreen extends StatefulWidget {
 
 class _SplashScreenState extends State<SplashScreen> {
   final TokenStorage _tokenStorage = TokenStorage();
+
   @override
   void initState() {
     super.initState();
@@ -27,18 +26,17 @@ class _SplashScreenState extends State<SplashScreen> {
     if (accessToken != null) {
       // Navigate to the main screen if the user is already logged in
       if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => MainScreen()),
-        );
+        Navigator.pushReplacementNamed(context, '/main');
       }
     } else {
-      // Navigate to the login screen if no token is found
       if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => LoginScreen()),
-        );
+        // Navigator.pushReplacement(
+        //   context,
+        //   MaterialPageRoute(
+        //     builder: (BuildContext context) => Center(child: Text('Here')),
+        //   ),
+        // );
+        Navigator.pushReplacementNamed(context, '/login');
       }
     }
   }

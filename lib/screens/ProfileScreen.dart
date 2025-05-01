@@ -162,7 +162,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     // Logout action
                     await logout();
                     Navigator.pushReplacementNamed(context, '/login');
-                    print('Log Out');
                   },
                   icon: Icon(Icons.logout, color: AppColors.secondaryColor),
                   label: Text(
