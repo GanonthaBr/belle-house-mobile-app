@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/services/auth_service.dart';
 import 'package:mobile_app/services/client_services.dart';
+import 'package:mobile_app/utils/country_helper_code.dart';
 
 class AuthProvider with ChangeNotifier {
   final AuthService _authService = AuthService();
   final HomeServices _homeServices = HomeServices();
+  final CountryCodeHelper _countryhelper = CountryCodeHelper();
   bool _isLoading = false;
   Map<String, dynamic>? _userInfo;
 
@@ -68,5 +70,13 @@ class AuthProvider with ChangeNotifier {
       _userInfo = null;
     }
     notifyListeners();
+  }
+
+  //
+  Future<Map<String, String>> getCountryAndCity() async {
+    setLoading(true);
+    final result = _countryhelper.getCountryCity();
+    setLoading(false);
+    return result;
   }
 }

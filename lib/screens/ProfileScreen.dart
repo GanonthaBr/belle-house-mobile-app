@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/providers/auth_provider.dart';
+import 'package:mobile_app/providers/generic_provider.dart';
 import 'package:mobile_app/utils/colors.dart';
 import 'package:mobile_app/utils/dimensions.dart';
 import 'package:mobile_app/widgets/title_text.dart';
@@ -16,8 +17,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       Provider.of<AuthProvider>(context, listen: false).fetchUserInfo();
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final countryCity = await authProvider.getCountryAndCity();
+      print("Country: ${countryCity['country']}");
+      print("City: ${countryCity['city']}");
     });
   }
 
@@ -49,7 +54,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
           }
 
           final userInfo = authProvider.userInfo;
+          // final country_city = authProvider.getCountryAndCity();
+
           print(userInfo);
+          // print("Your Country: ${country_city}");
 
           if (userInfo == null) {
             return Center(
