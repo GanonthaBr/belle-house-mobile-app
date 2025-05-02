@@ -21,7 +21,7 @@ class HomeServices {
     final response = await _apiServices.get(
       '${ApiConstants.baseUrlAuth}/profile/',
     );
-    print(response.statusCode);
+    print("User Info: ${response.statusCode}");
     if (response.statusCode == 200) {
       final data = jsonDecode(response.body);
 

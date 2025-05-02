@@ -17,14 +17,16 @@ class ApiServices {
         'Authorization': 'Bearer $accessToken',
       },
     );
+    print("API Service ${response.statusCode}");
     if (response.statusCode == 401) {
-      // print('It\'s expired');
+      print('It\'s expired');
       //access token expired, refresh it
       final isRefreshed = await _authService.refreshAccessToken();
-      // print(isRefreshed);
+      print(isRefreshed);
       if (isRefreshed) {
         //make the request again with a new access token
         final newAccessToken = await _tokenStorage.getAccessToken();
+        print(newAccessToken);
         return await http.get(
           Uri.parse(url),
           headers: {

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/providers/auth_provider.dart';
-import 'package:mobile_app/providers/generic_provider.dart';
 import 'package:mobile_app/utils/colors.dart';
 import 'package:mobile_app/utils/dimensions.dart';
 import 'package:mobile_app/widgets/title_text.dart';
@@ -19,10 +18,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       Provider.of<AuthProvider>(context, listen: false).fetchUserInfo();
-      final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      final countryCity = await authProvider.getCountryAndCity();
-      print("Country: ${countryCity['country']}");
-      print("City: ${countryCity['city']}");
+      Provider.of<AuthProvider>(context, listen: false).getCountryAndCity();
+
+      // print("City: ${countryCity['city']}");
     });
   }
 
@@ -54,10 +52,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           }
 
           final userInfo = authProvider.userInfo;
-          // final country_city = authProvider.getCountryAndCity();
+          final result = authProvider.countryCity;
 
-          print(userInfo);
-          // print("Your Country: ${country_city}");
+          // print(userInfo);
 
           if (userInfo == null) {
             return Center(
@@ -82,9 +79,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       children: [
                         CircleAvatar(
                           radius: AppDimension.distance50,
-                          backgroundImage: AssetImage(
-                            userInfo['profile_picture'].toString(),
-                          ),
+                          backgroundImage:
+                              userInfo['profile_picture'] != null
+                                  ? AssetImage(userInfo['profile_picture'])
+                                  : AssetImage('images/profilepic.png'),
                         ),
                         SizedBox(height: AppDimension.distance20),
                         Text(
@@ -134,7 +132,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       color: AppColors.primaryColor,
                     ),
                     title: Text(
-                      '123 Main Street, City, Country',
+                      "${result?['city']} - ${result?['country']} ",
                       style: TextStyle(
                         fontSize: AppDimension.fontSize18,
                         color: AppColors.primaryColor,
@@ -147,7 +145,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       color: AppColors.primaryColor,
                     ),
                     title: Text(
-                      userInfo['created_at'] ?? '',
+                      userInfo['created_at'] != null
+                          ? DateTime.tryParse(
+                                userInfo['created_at'],
+                              )?.toLocal().toString().split(' ')[0] ??
+                              ''
+                          : '',
                       style: TextStyle(
                         fontSize: AppDimension.fontSize18,
                         color: AppColors.primaryColor,

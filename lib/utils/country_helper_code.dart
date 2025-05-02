@@ -58,19 +58,18 @@ class CountryCodeHelper {
         position.latitude,
         position.longitude,
       );
-      print("Place $placemarks");
-      print("Place...");
+
       if (placemarks.isNotEmpty) {
         Placemark place = placemarks.first;
         return {
           "country": place.country ?? fallbackCountry,
-          "city": place.locality ?? "Unknown",
+          "city": place.subAdministrativeArea ?? "Unknown",
         };
       } else {
         return {'country': fallbackCountry, 'city': 'Unknown'};
       }
     } catch (e) {
-      print("Error: $e");
+      // print("Error: $e");
       return {'country': fallbackCountry, 'city': 'Unknown'};
     }
   }

@@ -9,9 +9,11 @@ class AuthProvider with ChangeNotifier {
   final CountryCodeHelper _countryhelper = CountryCodeHelper();
   bool _isLoading = false;
   Map<String, dynamic>? _userInfo;
+  Map<String, dynamic>? _countryCity;
 
   bool get isLoading => _isLoading;
   Map<String, dynamic>? get userInfo => _userInfo;
+  Map<String, dynamic>? get countryCity => _countryCity;
 
   void setLoading(bool value) {
     _isLoading = value;
@@ -61,7 +63,7 @@ class AuthProvider with ChangeNotifier {
   Future<void> fetchUserInfo() async {
     setLoading(true);
     final result = await _homeServices.getUserInfos();
-    print("THE R: $result");
+    print("THE result: $result");
     setLoading(false);
 
     if (result.containsKey('data')) {
@@ -73,10 +75,10 @@ class AuthProvider with ChangeNotifier {
   }
 
   //
-  Future<Map<String, String>> getCountryAndCity() async {
+  Future<void> getCountryAndCity() async {
     setLoading(true);
-    final result = _countryhelper.getCountryCity();
+    final response = await _countryhelper.getCountryCity();
     setLoading(false);
-    return result;
+    _countryCity = response;
   }
 }
