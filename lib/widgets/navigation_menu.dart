@@ -25,8 +25,6 @@ class _NaviMenuState extends State<NaviMenu> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       Provider.of<AuthProvider>(context, listen: false).getCountryAndCity();
-
-      // print("City: ${countryCity['city']}");
     });
   }
 
@@ -37,6 +35,7 @@ class _NaviMenuState extends State<NaviMenu> {
     const LandList(),
     const Commerce(),
   ];
+
   void onTapNav(int index) {
     setState(() {
       currentpage = index;
@@ -53,198 +52,204 @@ class _NaviMenuState extends State<NaviMenu> {
           );
         }
         final result = authProvider.countryCity;
-
-        return Column(
-          children: [
-            //heading
-            Container(
-              // height: 30,
-              margin: EdgeInsets.only(
-                top: AppDimension.distance30 * 1.6,
-                left: AppDimension.distance20 / 2,
-                right: AppDimension.distance20 / 2,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  //first component
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.location_on,
-                        color: AppColors.primaryColor,
-                      ),
-                      TitleText(
-                        text: result?['city'] ?? "...",
-                        fontSize: AppDimension.radius8 * 2,
-                        color: AppColors.primaryColor,
-                      ),
-                      // const Icon(
-                      //   Icons.arrow_drop_down,
-                      //   color: AppColors.primaryColor,
-                      // ),
-                    ],
-                  ),
-                  Center(
-                    child: IconElement(
-                      radius: AppDimension.distance20 / 2,
-                      size: AppDimension.distance30,
-                      bgColor: AppColors.secondaryColor,
-                      icon: Icons.notifications,
-                      color: AppColors.primaryColor,
-                      height: AppDimension.distance45,
-                    ),
-                  ),
-                  //second component
-                ],
-              ),
-            ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: AppDimension.distance20 / 4),
-                  //search bar
-                  Row(
-                    children: [
-                      // search bar
-                      TextFielSearch(
-                        controller: TextEditingController(),
-                        onChanged: (value) {},
-                      ),
-                      SizedBox(width: AppDimension.distance20 / 2),
-                      // filter icon
-                      Padding(
-                        padding: EdgeInsets.only(bottom: 14.0),
-                        child: IconElement(
-                          radius: AppDimension.distance20 / 2,
-                          size: AppDimension.distance30,
-                          bgColor: AppColors.secondaryColor,
-                          icon: Icons.filter_list,
-                          color: AppColors.primaryColor,
-                          height: AppDimension.distance45,
-                        ),
-                      ),
-                    ],
-                  ),
-                  //navigation menu
-                  SizedBox(height: AppDimension.distance20 / 4),
-                  Row(
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.only(
-                          left: AppDimension.distance20 / 2,
-                        ),
-                        child: TitleText(
-                          text: 'CATEGORIES',
-                          fontSize: AppDimension.radius14,
-                          color: AppColors.primaryColor,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: AppDimension.distance20 / 4),
-                  //menu items
-                  Padding(
-                    padding: EdgeInsets.only(left: AppDimension.distance20 / 2),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        return CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              // stretch: true,
+              expandedHeight:
+                  MediaQuery.of(context).size.height *
+                  0.3, // Increased to accommodate all content
+              pinned: false, // Keep the AppBar pinned at top when scrolling
+              floating: false,
+              backgroundColor: Colors.white,
+              elevation: 2,
+              flexibleSpace: FlexibleSpaceBar(
+                background: Container(
+                  color: Colors.white,
+                  child: SafeArea(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        MenuItem(
-                          action: () {
-                            currentpage = 0;
-                            onTapNav(currentpage);
-                          },
-                          title: 'Accueil',
-                          icon: Icons.apartment,
-                          iconColor:
-                              currentpage == 0
-                                  ? AppColors.secondaryColor
-                                  : AppColors.primaryColor,
-                          color:
-                              currentpage == 0
-                                  ? AppColors.secondaryColor
-                                  : AppColors.primaryColor,
-                          bgColor:
-                              currentpage == 0
-                                  ? AppColors.primaryColor
-                                  : AppColors.secondaryColor,
+                        // Heading
+                        Container(
+                          margin: EdgeInsets.only(
+                            top: AppDimension.distance20,
+                            left: AppDimension.distance20 / 2,
+                            right: AppDimension.distance20 / 2,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  const Icon(
+                                    Icons.location_on,
+                                    color: AppColors.primaryColor,
+                                  ),
+                                  TitleText(
+                                    text: result?['city'] ?? "...",
+                                    fontSize: AppDimension.radius8 * 2,
+                                    color: AppColors.primaryColor,
+                                  ),
+                                ],
+                              ),
+                              Center(
+                                child: IconElement(
+                                  radius: AppDimension.distance20 / 2,
+                                  size: AppDimension.distance30,
+                                  bgColor: AppColors.secondaryColor,
+                                  icon: Icons.notifications,
+                                  color: AppColors.primaryColor,
+                                  height: AppDimension.distance45,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                        MenuItem(
-                          action: () {
-                            currentpage = 1;
-                            onTapNav(currentpage);
-                          },
-                          title: 'Maisons',
-                          icon: Icons.house,
-                          iconColor:
-                              currentpage == 1
-                                  ? AppColors.secondaryColor
-                                  : AppColors.primaryColor,
-                          color:
-                              currentpage == 1
-                                  ? AppColors.secondaryColor
-                                  : AppColors.primaryColor,
-                          bgColor:
-                              currentpage == 1
-                                  ? AppColors.primaryColor
-                                  : AppColors.secondaryColor,
+
+                        SizedBox(height: AppDimension.distance20 / 5),
+                        // Search bar
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: AppDimension.distance20 / 2,
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: TextFielSearch(
+                                  controller: TextEditingController(),
+                                  onChanged: (value) {},
+                                ),
+                              ),
+                              SizedBox(width: AppDimension.distance20 / 2),
+                              Padding(
+                                padding: EdgeInsets.only(bottom: 14.0),
+                                child: IconElement(
+                                  radius: AppDimension.distance20 / 2,
+                                  size: AppDimension.distance30,
+                                  bgColor: AppColors.secondaryColor,
+                                  icon: Icons.filter_list,
+                                  color: AppColors.primaryColor,
+                                  height: AppDimension.distance45,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                        MenuItem(
-                          action: () {
-                            currentpage = 2;
-                            onTapNav(currentpage);
-                          },
-                          title: 'Parcelles',
-                          icon: Icons.landscape,
-                          iconColor:
-                              currentpage == 2
-                                  ? AppColors.secondaryColor
-                                  : AppColors.primaryColor,
-                          color:
-                              currentpage == 2
-                                  ? AppColors.secondaryColor
-                                  : AppColors.primaryColor,
-                          bgColor:
-                              currentpage == 2
-                                  ? AppColors.primaryColor
-                                  : AppColors.secondaryColor,
+                        SizedBox(height: AppDimension.distance20 / 4),
+                        // Navigation menu
+                        Padding(
+                          padding: EdgeInsets.only(
+                            left: AppDimension.distance20 / 2,
+                          ),
+                          child: TitleText(
+                            text: 'CATEGORIES',
+                            fontSize: AppDimension.radius14,
+                            color: AppColors.primaryColor,
+                          ),
                         ),
-                        MenuItem(
-                          action: () {
-                            currentpage = 3;
-                            onTapNav(currentpage);
-                          },
-                          title: 'Shopping',
-                          icon: Icons.shopify_sharp,
-                          iconColor:
-                              currentpage == 3
-                                  ? AppColors.secondaryColor
-                                  : AppColors.primaryColor,
-                          color:
-                              currentpage == 3
-                                  ? AppColors.secondaryColor
-                                  : AppColors.primaryColor,
-                          bgColor:
-                              currentpage == 3
-                                  ? AppColors.primaryColor
-                                  : AppColors.secondaryColor,
+                        SizedBox(height: AppDimension.distance20 / 4),
+                        Padding(
+                          padding: EdgeInsets.only(
+                            left: AppDimension.distance20 / 2,
+                            right: AppDimension.distance20 / 2,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              MenuItem(
+                                action: () {
+                                  currentpage = 0;
+                                  onTapNav(currentpage);
+                                },
+                                title: 'Accueil',
+                                icon: Icons.apartment,
+                                iconColor:
+                                    currentpage == 0
+                                        ? AppColors.secondaryColor
+                                        : AppColors.primaryColor,
+                                color:
+                                    currentpage == 0
+                                        ? AppColors.secondaryColor
+                                        : AppColors.primaryColor,
+                                bgColor:
+                                    currentpage == 0
+                                        ? AppColors.primaryColor
+                                        : AppColors.secondaryColor,
+                              ),
+                              MenuItem(
+                                action: () {
+                                  currentpage = 1;
+                                  onTapNav(currentpage);
+                                },
+                                title: 'Maisons',
+                                icon: Icons.house,
+                                iconColor:
+                                    currentpage == 1
+                                        ? AppColors.secondaryColor
+                                        : AppColors.primaryColor,
+                                color:
+                                    currentpage == 1
+                                        ? AppColors.secondaryColor
+                                        : AppColors.primaryColor,
+                                bgColor:
+                                    currentpage == 1
+                                        ? AppColors.primaryColor
+                                        : AppColors.secondaryColor,
+                              ),
+                              MenuItem(
+                                action: () {
+                                  currentpage = 2;
+                                  onTapNav(currentpage);
+                                },
+                                title: 'Parcelles',
+                                icon: Icons.landscape,
+                                iconColor:
+                                    currentpage == 2
+                                        ? AppColors.secondaryColor
+                                        : AppColors.primaryColor,
+                                color:
+                                    currentpage == 2
+                                        ? AppColors.secondaryColor
+                                        : AppColors.primaryColor,
+                                bgColor:
+                                    currentpage == 2
+                                        ? AppColors.primaryColor
+                                        : AppColors.secondaryColor,
+                              ),
+                              MenuItem(
+                                action: () {
+                                  currentpage = 3;
+                                  onTapNav(currentpage);
+                                },
+                                title: 'Shopping',
+                                icon: Icons.shopify_sharp,
+                                iconColor:
+                                    currentpage == 3
+                                        ? AppColors.secondaryColor
+                                        : AppColors.primaryColor,
+                                color:
+                                    currentpage == 3
+                                        ? AppColors.secondaryColor
+                                        : AppColors.primaryColor,
+                                bgColor:
+                                    currentpage == 3
+                                        ? AppColors.primaryColor
+                                        : AppColors.secondaryColor,
+                              ),
+                            ],
+                          ),
                         ),
-                        // MenuItem(
-                        //   title: 'Autres',
-                        //   color: AppColors.iconColor1,
-                        // ),
                       ],
                     ),
                   ),
-                  SizedBox(height: AppDimension.distance20 / 4),
-                  //house list
-                  // const Houses()
-                  // FurnitureList()
-                  _pages[currentpage.clamp(0, _pages.length - 1)],
-                  // Center(child: Text('Text Placeholder')),
-                ],
+                ),
               ),
+            ),
+            SliverList(
+              delegate: SliverChildListDelegate([
+                _pages[currentpage.clamp(0, _pages.length - 1)],
+              ]),
             ),
           ],
         );

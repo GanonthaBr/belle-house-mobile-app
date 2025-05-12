@@ -38,7 +38,7 @@ class _PhoneInputFieldState extends State<PhoneInputField> {
         controller: widget.controller,
         initialCountryCode: initialCountryCode,
         decoration: InputDecoration(
-          helper: Text('Entrer votre numero de Téléphone'),
+          // helper: Text('Entrer votre numero de Téléphone'),
           labelText: 'Numéro de téléphone',
           labelStyle: TextStyle(
             fontSize: 18,
@@ -46,7 +46,10 @@ class _PhoneInputFieldState extends State<PhoneInputField> {
             letterSpacing: 1.4,
             color: AppColors.secondaryColor,
           ),
+          floatingLabelBehavior: FloatingLabelBehavior.never,
           filled: true,
+          // alignLabelWithHint: true,
+          // hintText: "HEllo",
           fillColor: AppColors.primaryColor,
           focusColor: AppColors.primaryColor,
           enabledBorder: OutlineInputBorder(

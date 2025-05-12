@@ -6,7 +6,7 @@ class InputTextField extends StatelessWidget {
   final Color focuscolor;
   final Color bordercolor;
   final Color labelColor;
-  final String helperText;
+  // final String helperText;
   final String labelText;
   final double fontsize;
   final double borderRadius;
@@ -20,7 +20,7 @@ class InputTextField extends StatelessWidget {
     required this.fillcolor,
     required this.focuscolor,
     required this.bordercolor,
-    required this.helperText,
+
     required this.labelText,
     required this.fontsize,
     required this.borderRadius,
@@ -36,7 +36,7 @@ class InputTextField extends StatelessWidget {
       controller: controller,
       obscureText: passwordField, // Hides the text for password input
       decoration: InputDecoration(
-        helper: Text(helperText),
+        // helper: Text(helperText),
         labelText: labelText,
         labelStyle: TextStyle(
           fontSize: fontsize,
@@ -44,6 +44,7 @@ class InputTextField extends StatelessWidget {
           letterSpacing: 1.4,
           color: labelColor,
         ),
+        floatingLabelBehavior: FloatingLabelBehavior.never,
         filled: fillBg,
         fillColor: fillcolor,
         focusColor: focuscolor,

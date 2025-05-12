@@ -11,7 +11,7 @@ class Commerce extends StatelessWidget {
     AppDimension.init(context);
     return Expanded(
       child: ListView.builder(
-        // physics: const NeverScrollableScrollPhysics(),
+        physics: const NeverScrollableScrollPhysics(),
         shrinkWrap: true,
         itemCount: 5,
         itemBuilder: (context, index) {
