@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/screens/my_screen.dart';
 import 'package:mobile_app/screens/profileScreen.dart';
 import 'package:mobile_app/screens/conversations_screen.dart';
 import 'package:mobile_app/screens/favorites_screen.dart';
@@ -16,7 +17,7 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
   final List<Widget> _pages = [
-    NaviMenu(),
+    MyScreen(),
     const FavoritesScreen(),
     ConversationsScreen(),
     ProfileScreen(),

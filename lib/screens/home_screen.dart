@@ -69,7 +69,7 @@ class HomeScreen extends StatelessWidget {
               SizedBox(height: 5),
               // listings
               ListView.builder(
-                // physics: const NeverScrollableScrollPhysics(),
+                physics: const NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
                 scrollDirection: Axis.vertical,
                 itemCount: 2,
