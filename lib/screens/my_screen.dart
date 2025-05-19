@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/screens/commerce_details.dart';
 import 'package:mobile_app/screens/lands.dart';
 import 'package:mobile_app/utils/colors.dart';
 import 'package:intl/intl.dart';
@@ -1081,6 +1082,58 @@ class _MyScreenState extends State<MyScreen> {
 
   // Shopping placeholder content
   Widget _buildShoppingContent(double width, double height) {
+    // Sample construction materials and decoration/finishing items
+    final List<Map<String, dynamic>> products = [
+      {
+        'name': 'Premium Cement Bags',
+        'price': 12.99,
+        'unit': 'bag',
+        'weight': '50 kg',
+        'image': 'images/sofa.png',
+        'inStock': true,
+      },
+      {
+        'name': 'Ceramic Floor Tiles',
+        'price': 24.50,
+        'unit': 'sq.m',
+        'size': '60x60 cm',
+        'image': 'assets/images/tiles.jpg',
+        'inStock': true,
+      },
+      {
+        'name': 'Interior Wall Paint',
+        'price': 45.75,
+        'unit': 'bucket',
+        'volume': '5 L',
+        'image': 'assets/images/paint.jpg',
+        'inStock': true,
+      },
+      {
+        'name': 'Decorative Molding',
+        'price': 8.25,
+        'unit': 'piece',
+        'length': '2.5 m',
+        'image': 'assets/images/molding.jpg',
+        'inStock': false,
+      },
+      {
+        'name': 'Steel Rebars',
+        'price': 18.99,
+        'unit': 'piece',
+        'length': '6 m',
+        'image': 'assets/images/rebars.jpg',
+        'inStock': true,
+      },
+      {
+        'name': 'Laminate Flooring',
+        'price': 32.50,
+        'unit': 'pack',
+        'coverage': '2.5 sq.m',
+        'image': 'assets/images/laminate.jpg',
+        'inStock': true,
+      },
+    ];
+
     return SliverToBoxAdapter(
       child: Container(
         padding: EdgeInsets.all(width * 0.05),
@@ -1096,44 +1149,208 @@ class _MyScreenState extends State<MyScreen> {
               ),
             ),
             SizedBox(height: 15),
-            Container(
-              width: double.infinity,
-              height: height * 0.4,
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(15),
+            // Display grid of products
+            GridView.builder(
+              physics:
+                  NeverScrollableScrollPhysics(), // Disable scroll within grid
+              shrinkWrap: true, // Important to work inside CustomScrollView
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                childAspectRatio: 0.75,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 15,
               ),
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.shopping_bag_outlined,
-                      size: 60,
-                      color: AppColors.primaryColor,
-                    ),
-                    SizedBox(height: 15),
-                    Text(
-                      'Contenu Shopping à venir',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.grey[700],
+              itemCount: products.length,
+              itemBuilder: (context, index) {
+                final product = products[index];
+
+                return InkWell(
+                  onTap: () {
+                    // Navigate to product detail screen when a product is tapped
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) => ProductDetailScreen(product: product),
                       ),
+                    );
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.2),
+                          spreadRadius: 1,
+                          blurRadius: 4,
+                          offset: Offset(0, 2),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Product image
+                        Container(
+                          height: 120,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(10),
+                              topRight: Radius.circular(10),
+                            ),
+                            color: Colors.grey[200],
+                            image: DecorationImage(
+                              image: AssetImage(product['image']),
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          alignment: Alignment.topRight,
+                          child: Container(
+                            margin: EdgeInsets.all(8),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color:
+                                  product['inStock']
+                                      ? AppColors.primaryColor
+                                      : Colors.grey,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              product['inStock'] ? 'In Stock' : 'Out of Stock',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                        ),
+                        // Product details
+                        Padding(
+                          padding: EdgeInsets.all(8),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                product['name'],
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              SizedBox(height: 4),
+                              // Display product specifications
+                              if (product.containsKey('weight'))
+                                _buildSpecText('Weight: ${product['weight']}'),
+                              if (product.containsKey('size'))
+                                _buildSpecText('Size: ${product['size']}'),
+                              if (product.containsKey('volume'))
+                                _buildSpecText('Volume: ${product['volume']}'),
+                              if (product.containsKey('length'))
+                                _buildSpecText('Length: ${product['length']}'),
+                              if (product.containsKey('coverage'))
+                                _buildSpecText(
+                                  'Coverage: ${product['coverage']}',
+                                ),
+                              SizedBox(height: 8),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    '\$${product['price'].toStringAsFixed(2)}/${product['unit']}',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                      color: AppColors.primaryColor,
+                                    ),
+                                  ),
+                                  InkWell(
+                                    onTap: () {
+                                      // Add to cart functionality
+                                    },
+                                    child: Container(
+                                      padding: EdgeInsets.all(4),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.primaryColor,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Icon(
+                                        Icons.add_shopping_cart,
+                                        color: Colors.white,
+                                        size: 18,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
             ),
             SizedBox(height: 20),
-            Text(
-              'Aucun produit disponible pour le moment',
-              style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-              textAlign: TextAlign.center,
+            // Filter or category buttons
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  _buildCategoryButton('All Products', true),
+                  _buildCategoryButton('Construction', false),
+                  _buildCategoryButton('Decoration', false),
+                  _buildCategoryButton('Finishing', false),
+                  _buildCategoryButton('Tools', false),
+                ],
+              ),
             ),
-            SizedBox(height: 100), // Additional space at bottom
+            SizedBox(height: 40),
           ],
         ),
+      ),
+    );
+  }
+
+  // Helper method for building specification text
+  Widget _buildSpecText(String text) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 2),
+      child: Text(
+        text,
+        style: TextStyle(fontSize: 12, color: Colors.grey[700]),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+    );
+  }
+
+  // Helper method for building category filter buttons
+  Widget _buildCategoryButton(String label, bool isSelected) {
+    return Container(
+      margin: EdgeInsets.only(right: 10),
+      child: ElevatedButton(
+        onPressed: () {
+          // Filter products based on category
+        },
+        style: ElevatedButton.styleFrom(
+          foregroundColor: isSelected ? AppColors.primaryColor : Colors.white,
+          backgroundColor: isSelected ? Colors.white : Colors.black87,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+            side: BorderSide(color: AppColors.primaryColor),
+          ),
+          elevation: isSelected ? 2 : 0,
+        ),
+        child: Text(label),
       ),
     );
   }

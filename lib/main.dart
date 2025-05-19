@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_app/providers/auth_provider.dart';
-import 'package:mobile_app/screens/commerce_details.dart';
 import 'package:mobile_app/screens/home_screen.dart';
 import 'package:mobile_app/screens/house_details.dart';
 import 'package:mobile_app/screens/land_details.dart';
@@ -48,17 +47,7 @@ class MyApp extends StatelessWidget {
                 agentRole: 'agentRole',
                 agentImage: 'images/logo.png',
               ),
-          '/commerce_details':
-              (context) => CommerceDetailsScreen(
-                imagePath: 'images/sofa.png',
-                contractType: 'Vente',
-                location: 'Franco',
-                price: 20000,
-                description: 'descriptipn',
-                agentImage: 'images/logo.png',
-                agentName: 'BH',
-                agentRole: 'immobieier',
-              ),
+
           '/home_screen': (context) => HomeScreen(),
           "/message_details":
               (context) => MessageDetailsScreen(
