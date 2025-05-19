@@ -5,7 +5,6 @@ import 'package:mobile_app/screens/conversations_screen.dart';
 import 'package:mobile_app/screens/favorites_screen.dart';
 import 'package:mobile_app/utils/colors.dart';
 import 'package:mobile_app/utils/dimensions.dart';
-import 'package:mobile_app/widgets/navigation_menu.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});

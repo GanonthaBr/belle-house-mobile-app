@@ -1,152 +1,214 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/utils/colors.dart';
-import 'package:mobile_app/utils/dimensions.dart';
-import 'package:mobile_app/widgets/container_icon.dart';
-import 'package:mobile_app/widgets/small_text.dart';
-import 'package:mobile_app/widgets/title_text.dart';
 
-class LandList extends StatelessWidget {
-  const LandList({super.key});
+class ParcelleDetailScreen extends StatelessWidget {
+  final Map<String, dynamic> parcelle;
+
+  const ParcelleDetailScreen({Key? key, required this.parcelle})
+    : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: ListView.builder(
-        physics: const NeverScrollableScrollPhysics(),
-        shrinkWrap: true,
-        itemCount: 5,
-        itemBuilder: (context, index) {
-          return GestureDetector(
-            onTap: () {
-              Navigator.pushNamed(context, '/land_details');
-            },
-            child: LandListing(
-              image: 'images/lands.jpg',
-              area: 'Yantala',
-              city: 'Niamey',
-              price: 2000000,
-              superficie: 300,
+    final height = MediaQuery.of(context).size.height;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(parcelle['name']),
+        backgroundColor: AppColors.primaryColor,
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          physics: AlwaysScrollableScrollPhysics(),
+          child: Padding(
+            padding: EdgeInsets.only(bottom: height / 42), // 20 = height/42
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Image
+                Container(
+                  height: height / 3.36, // 250 = height/3.36
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage('images/BH39.jpg'),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+
+                // Details
+                Padding(
+                  padding: EdgeInsets.all(height / 52.5), // 16 = height/52.5
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        parcelle['name'],
+                        style: TextStyle(
+                          fontSize: height / 35, // 24 = height/35
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: height / 105), // 8 = height/105
+                      Row(
+                        children: [
+                          Icon(Icons.location_on, color: Colors.grey),
+                          SizedBox(width: height / 105), // 8 = height/105
+                          Text(
+                            parcelle['location'],
+                            style: TextStyle(
+                              fontSize: height / 52.5, // 16 = height/52.5
+                              color: Colors.grey[700],
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: height / 30),
+                      // Price and size
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          _buildInfoCard(
+                            context,
+                            Icons.straighten,
+                            parcelle['size'],
+                            'Superficie',
+                          ),
+                          _buildInfoCard(
+                            context,
+                            Icons.monetization_on,
+                            '${parcelle['price']} FCFA',
+                            'Prix',
+                          ),
+                        ],
+                      ),
+
+                      SizedBox(height: height / 25),
+                      // Description
+                      Text(
+                        'Description',
+                        style: TextStyle(
+                          fontSize: height / 42, // 18 = height/42
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: height / 105), // 8 = height/105
+                      Text(
+                        'Cette parcelle est située dans une zone résidentielle calme avec un accès facile aux routes principales. Le terrain est plat et prêt pour la construction. Tous les documents administratifs sont disponibles et à jour.',
+                        style: TextStyle(
+                          fontSize: height / 52.5,
+                          height: 1.5,
+                        ), // 16 = height/52.5
+                      ),
+
+                      SizedBox(height: height / 17.5), // 24 = height/17.5
+                      // Contact Button
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: () {
+                            // Contact action
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primaryColor,
+                            padding: EdgeInsets.symmetric(
+                              vertical: height / 50,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                height / 52.5,
+                              ), // 10 = height/52.5
+                            ),
+                          ),
+                          child: Text(
+                            'Contacter le vendeur',
+                            style: TextStyle(
+                              fontSize: height / 52.5, // 16 = height/52.5
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.secondaryColor,
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      SizedBox(height: height / 84), // 10 = height/84
+                      // Save Button
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton(
+                          onPressed: () {
+                            // Save action
+                          },
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(color: AppColors.primaryColor),
+                            padding: EdgeInsets.symmetric(
+                              vertical: height / 50,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                height / 52.5,
+                              ), // 10 = height/52.5
+                            ),
+                          ),
+                          child: Text(
+                            'Sauvegarder',
+                            style: TextStyle(
+                              fontSize: height / 52.5, // 16 = height/52.5
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.primaryColor,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          );
-        },
-      ),
-    );
-  }
-}
-
-class LandListing extends StatelessWidget {
-  final String image;
-
-  final String city;
-  final double superficie;
-  final double price;
-  final String area;
-  const LandListing({
-    super.key,
-    required this.image,
-
-    required this.city,
-    required this.superficie,
-    required this.price,
-    required this.area,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(children: [_buildImage(), _buildDetails()]);
-  }
-
-  Widget _buildImage() {
-    return Container(
-      height: AppDimension.screenHeight / 3.7,
-      margin: EdgeInsets.only(
-        left: AppDimension.radius14,
-        right: AppDimension.radius14,
-        top: AppDimension.radius14,
-        bottom: 0,
-      ),
-      decoration: BoxDecoration(
-        image: DecorationImage(image: AssetImage(image), fit: BoxFit.cover),
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(AppDimension.distance20 / 2),
-          topRight: Radius.circular(AppDimension.distance20 / 2),
+          ),
         ),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [_buildFavoriteIcon()],
-      ),
     );
   }
 
-  Widget _buildFavoriteIcon() {
-    return Padding(
-      padding: EdgeInsets.all(AppDimension.radius8),
-      child: ContainerIcon(
-        icon: Icons.favorite_border,
-        iconColor: AppColors.secondaryColor,
-        bgColor: AppColors.primaryColor,
-      ),
-    );
-  }
-
-  Widget _buildDetails() {
-    return Container(
-      height: AppDimension.screenHeight / 10,
-      margin: EdgeInsets.symmetric(
-        horizontal: AppDimension.radius14,
-        vertical: 0,
-      ),
-      decoration: BoxDecoration(
-        color: AppColors.primaryColorLoose,
-        borderRadius: BorderRadius.only(
-          bottomLeft: Radius.circular(AppDimension.distance20 / 2),
-          bottomRight: Radius.circular(AppDimension.distance20 / 2),
-        ),
-      ),
-      child: Column(children: [_buildTitle(), _buildPriceAndArea()]),
-    );
-  }
-
-  Widget _buildTitle() {
-    return Padding(
-      padding: EdgeInsets.all(AppDimension.radius8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
+  Widget _buildInfoCard(
+    BuildContext context,
+    IconData icon,
+    String value,
+    String label,
+  ) {
+    final height = MediaQuery.of(context).size.height;
+    return Expanded(
+      child: Card(
+        elevation: 2,
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: height / 40),
+          child: Column(
             children: [
-              Icon(Icons.location_on, color: AppColors.primaryColor),
-              TitleText(
-                text: city,
-                color: AppColors.black,
-                fontSize: AppDimension.fontSize18,
+              Icon(
+                icon,
+                size: height / 28,
+                color: AppColors.primaryColor,
+              ), // 30 = height/28
+              SizedBox(height: height / 105), // 8 = height/105
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: height / 52.5,
+                  fontWeight: FontWeight.bold,
+                ), // 16 = height/52.5
+              ),
+              SizedBox(height: height / 210), // 4 = height/210
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: height / 60,
+                  color: Colors.grey[600],
+                ), // 14 = height/60
               ),
             ],
           ),
-          TitleText(
-            text: '$superficie m2',
-            color: AppColors.black,
-            fontSize: AppDimension.fontSize18,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildPriceAndArea() {
-    return Padding(
-      padding: EdgeInsets.all(AppDimension.radius8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          SmallText(text: area, size: AppDimension.radius14),
-          SmallText(
-            text: superficie == 'Location' ? "$price FCFA/Mois" : "$price FCFA",
-            size: AppDimension.radius14,
-          ),
-        ],
+        ),
       ),
     );
   }
