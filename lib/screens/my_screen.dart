@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/providers/auth_provider.dart';
 import 'package:mobile_app/screens/commerce_details.dart';
 import 'package:mobile_app/screens/lands.dart';
 import 'package:mobile_app/utils/colors.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class MyScreen extends StatefulWidget {
   const MyScreen({Key? key}) : super(key: key);
@@ -12,6 +14,14 @@ class MyScreen extends StatefulWidget {
 }
 
 class _MyScreenState extends State<MyScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      Provider.of<AuthProvider>(context, listen: false).getCountryAndCity();
+    });
+  }
+
   int _selectedCategoryIndex = 0;
   final List<String> _categories = [
     'Accueil',
@@ -35,161 +45,173 @@ class _MyScreenState extends State<MyScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
-      body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            // Top Bar with location and notification
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: width * 0.05,
-                  vertical: height * 0.02,
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    // Location with dropdown
-                    Row(
+      body: Consumer<AuthProvider>(
+        builder: (context, authProvider, child) {
+          if (authProvider.isLoading) {
+            return Center(
+              child: CircularProgressIndicator(color: AppColors.primaryColor),
+            );
+          }
+          final result = authProvider.countryCity;
+          return SafeArea(
+            child: CustomScrollView(
+              slivers: [
+                // Top Bar with location and notification
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: width * 0.05,
+                      vertical: height * 0.02,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
+                        // Location with dropdown
+                        Row(
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                color: AppColors.primaryColor.withOpacity(0.15),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              padding: EdgeInsets.all(6),
+                              child: Icon(
+                                Icons.location_on,
+                                color: AppColors.primaryColor,
+                                size: 20,
+                              ),
+                            ),
+                            SizedBox(width: 10),
+                            Text(
+                              "${result?['city'].substring(0, 12)} ",
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
+                              ),
+                            ),
+                            Icon(
+                              Icons.keyboard_arrow_down,
+                              color: Colors.grey[600],
+                            ),
+                          ],
+                        ),
+
+                        // Notification bell in a container
                         Container(
+                          padding: EdgeInsets.all(10),
                           decoration: BoxDecoration(
-                            color: AppColors.primaryColor.withOpacity(0.15),
-                            borderRadius: BorderRadius.circular(8),
+                            color: AppColors.lightPurple,
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                          padding: EdgeInsets.all(6),
-                          child: Icon(
-                            Icons.location_on,
-                            color: AppColors.primaryColor,
-                            size: 20,
+                          child: Stack(
+                            children: [
+                              Icon(
+                                Icons.notifications_none_outlined,
+                                size: 24,
+                                color: Colors.grey[800],
+                              ),
+                              Positioned(
+                                right: 0,
+                                top: 0,
+                                child: Container(
+                                  padding: EdgeInsets.all(2),
+                                  decoration: BoxDecoration(
+                                    color: Colors.red,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  constraints: BoxConstraints(
+                                    minWidth: 8,
+                                    minHeight: 8,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                        SizedBox(width: 10),
-                        Text(
-                          'Niamey',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
-                          ),
-                        ),
-                        Icon(
-                          Icons.keyboard_arrow_down,
-                          color: Colors.grey[600],
                         ),
                       ],
                     ),
+                  ),
+                ),
 
-                    // Notification bell in a container
-                    Container(
-                      padding: EdgeInsets.all(10),
+                // Search bar
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: width * 0.05,
+                      vertical: height * 0.01,
+                    ),
+                    child: Container(
                       decoration: BoxDecoration(
-                        color: AppColors.lightPurple,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Stack(
-                        children: [
-                          Icon(
-                            Icons.notifications_none_outlined,
-                            size: 24,
-                            color: Colors.grey[800],
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(15),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.1),
+                            spreadRadius: 0,
+                            blurRadius: 10,
+                            offset: Offset(0, 1),
                           ),
-                          Positioned(
-                            right: 0,
-                            top: 0,
-                            child: Container(
-                              padding: EdgeInsets.all(2),
-                              decoration: BoxDecoration(
-                                color: Colors.red,
-                                shape: BoxShape.circle,
+                        ],
+                      ),
+                      padding: EdgeInsets.symmetric(horizontal: 15),
+                      child: Row(
+                        children: [
+                          Icon(Icons.search, color: Colors.grey[400]),
+                          SizedBox(width: 10),
+                          Expanded(
+                            child: TextField(
+                              decoration: InputDecoration(
+                                hintText: 'Tapez pour rechercher',
+                                hintStyle: TextStyle(
+                                  color: Colors.grey[400],
+                                  fontSize: 15,
+                                ),
+                                border: InputBorder.none,
+                                contentPadding: EdgeInsets.symmetric(
+                                  vertical: 15,
+                                ),
                               ),
-                              constraints: BoxConstraints(
-                                minWidth: 8,
-                                minHeight: 8,
-                              ),
+                            ),
+                          ),
+                          Container(
+                            padding: EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryColor,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Icon(
+                              Icons.tune,
+                              color: AppColors.secondaryColor,
+                              size: 20,
                             ),
                           ),
                         ],
                       ),
                     ),
-                  ],
-                ),
-              ),
-            ),
-
-            // Search bar
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: width * 0.05,
-                  vertical: height * 0.01,
-                ),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    borderRadius: BorderRadius.circular(15),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.1),
-                        spreadRadius: 0,
-                        blurRadius: 10,
-                        offset: Offset(0, 1),
-                      ),
-                    ],
-                  ),
-                  padding: EdgeInsets.symmetric(horizontal: 15),
-                  child: Row(
-                    children: [
-                      Icon(Icons.search, color: Colors.grey[400]),
-                      SizedBox(width: 10),
-                      Expanded(
-                        child: TextField(
-                          decoration: InputDecoration(
-                            hintText: 'Tapez pour rechercher',
-                            hintStyle: TextStyle(
-                              color: Colors.grey[400],
-                              fontSize: 15,
-                            ),
-                            border: InputBorder.none,
-                            contentPadding: EdgeInsets.symmetric(vertical: 15),
-                          ),
-                        ),
-                      ),
-                      Container(
-                        padding: EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryColor,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Icon(
-                          Icons.tune,
-                          color: AppColors.secondaryColor,
-                          size: 20,
-                        ),
-                      ),
-                    ],
                   ),
                 ),
-              ),
-            ),
 
-            // Categories section - Sticky Header
-            SliverPersistentHeader(
-              pinned: true, // This makes it sticky
-              delegate: _StickyHeaderDelegate(
-                minHeight: 125, // Minimum height when collapsed
-                maxHeight: 125, // Maximum height when expanded
-                child: _buildCategoriesSection(
-                  width,
-                  height,
-                  AppColors.primaryColor,
-                  AppColors.secondaryColor,
+                // Categories section - Sticky Header
+                SliverPersistentHeader(
+                  pinned: true, // This makes it sticky
+                  delegate: _StickyHeaderDelegate(
+                    minHeight: 125, // Minimum height when collapsed
+                    maxHeight: 125, // Maximum height when expanded
+                    child: _buildCategoriesSection(
+                      width,
+                      height,
+                      AppColors.primaryColor,
+                      AppColors.secondaryColor,
+                    ),
+                  ),
                 ),
-              ),
-            ),
 
-            // Content based on selected category
-            _buildCategoryContent(width, height),
-          ],
-        ),
+                // Content based on selected category
+                _buildCategoryContent(width, height),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

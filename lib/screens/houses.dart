@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_app/widgets/houses_listing.dart';
 
 class Houses extends StatefulWidget {
   const Houses({super.key});
@@ -109,7 +108,6 @@ class _HousesState extends State<Houses> {
 
   @override
   Widget build(BuildContext context) {
-    final Size screenSize = MediaQuery.of(context).size;
     const Color primaryColor = Color(0xff61a1d6);
 
     return Column(
