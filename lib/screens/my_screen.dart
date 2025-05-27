@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/providers/auth_provider.dart';
+import 'package:mobile_app/providers/house_provider.dart';
 import 'package:mobile_app/screens/commerce_details.dart';
 import 'package:mobile_app/screens/lands.dart';
 import 'package:mobile_app/utils/colors.dart';
@@ -18,7 +19,24 @@ class _MyScreenState extends State<MyScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      Provider.of<AuthProvider>(context, listen: false).getCountryAndCity();
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      final houseProvider = Provider.of<HouseProvider>(context, listen: false);
+
+      // Load location data
+      await authProvider.getCountryAndCity();
+
+      // Load houses data
+      await houseProvider.getHouseList();
+
+      // Handle any loading errors
+      if (houseProvider.error != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur de chargement: ${houseProvider.error}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     });
   }
 
@@ -52,7 +70,8 @@ class _MyScreenState extends State<MyScreen> {
               child: CircularProgressIndicator(color: AppColors.primaryColor),
             );
           }
-          final result = authProvider.countryCity;
+          final locationInfos = authProvider.countryCity;
+
           return SafeArea(
             child: CustomScrollView(
               slivers: [
@@ -83,7 +102,7 @@ class _MyScreenState extends State<MyScreen> {
                             ),
                             SizedBox(width: 10),
                             Text(
-                              "${result?['city'].substring(0, 12)} ",
+                              "${locationInfos?['city'].substring(0, 12)} ",
                               style: TextStyle(
                                 fontWeight: FontWeight.w600,
                                 fontSize: 16,
@@ -330,21 +349,310 @@ class _MyScreenState extends State<MyScreen> {
     }
   }
 
-  // Home content (original content)
+  // Home content with real API data integration
   Widget _buildHomeContent(double width, double height) {
-    return SliverList(
-      delegate: SliverChildListDelegate([
-        // Most popular section
-        Container(
-          padding: EdgeInsets.only(left: width * 0.05, top: height * 0.02),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Consumer<HouseProvider>(
+      builder: (context, houseProvider, child) {
+        final housesList = houseProvider.housesInfos;
+        print('There you go: $housesList');
+        return SliverList(
+          delegate: SliverChildListDelegate([
+            // Most popular section
+            Container(
+              padding: EdgeInsets.only(left: width * 0.05, top: height * 0.02),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'PLUS POPULAIRES',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey[600],
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(right: width * 0.05),
+                        child: Text(
+                          'Voir tout',
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.primaryColor,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 15),
+
+                  // Check if houses data is loading or empty
+                  if (houseProvider.isLoading)
+                    Container(
+                      height: height * 0.28,
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          color: AppColors.primaryColor,
+                        ),
+                      ),
+                    )
+                  else if (housesList == null || housesList.isEmpty)
+                    Container(
+                      height: height * 0.28,
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.home_outlined,
+                              size: 48,
+                              color: Colors.grey[400],
+                            ),
+                            SizedBox(height: 10),
+                            Text(
+                              'Aucune maison disponible',
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  else
+                    // Horizontal scrolling properties with real data
+                    Container(
+                      height: height * 0.35,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount:
+                            housesList.length > 10
+                                ? 10
+                                : housesList
+                                    .length, // Limit to 10 items for performance
+                        itemBuilder: (context, index) {
+                          final house = housesList[index];
+
+                          // Add type checking to ensure house is a Map
+                          if (house is! Map<String, dynamic>) {
+                            print('Invalid house data at index $index: $house');
+                            return SizedBox.shrink(); // Return empty widget for invalid data
+                          }
+
+                          return GestureDetector(
+                            onTap: () {
+                              // Pass the house data to details screen
+                              Navigator.pushNamed(
+                                context,
+                                '/house_details',
+                                arguments: house, // Pass the house object
+                              );
+                            },
+                            child: Container(
+                              width: width * 0.65,
+                              margin: EdgeInsets.only(right: 15),
+                              decoration: BoxDecoration(
+                                color: AppColors.secondaryColor,
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.1),
+                                    spreadRadius: 0,
+                                    blurRadius: 10,
+                                    offset: Offset(0, 3),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Property image with like button
+                                  Stack(
+                                    children: [
+                                      Container(
+                                        height: height * 0.18,
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(16),
+                                            topRight: Radius.circular(16),
+                                          ),
+                                          image: DecorationImage(
+                                            image: NetworkImage(
+                                              house['images']?.toString() ??
+                                                  'https://images.unsplash.com/photo-1613490493576-7fde63acd811',
+                                            ),
+                                            fit: BoxFit.cover,
+                                            onError: (exception, stackTrace) {
+                                              // Handle image loading error
+                                              print(
+                                                'Error loading image: $exception',
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                        // Fallback for when image fails to load
+                                        child:
+                                            (house['images'] == null ||
+                                                    house['images']
+                                                        .toString()
+                                                        .isEmpty)
+                                                ? Container(
+                                                  decoration: BoxDecoration(
+                                                    color: Colors.grey[300],
+                                                    borderRadius:
+                                                        BorderRadius.only(
+                                                          topLeft:
+                                                              Radius.circular(
+                                                                16,
+                                                              ),
+                                                          topRight:
+                                                              Radius.circular(
+                                                                16,
+                                                              ),
+                                                        ),
+                                                  ),
+                                                  child: Center(
+                                                    child: Icon(
+                                                      Icons.home,
+                                                      size: 40,
+                                                      color: Colors.grey[500],
+                                                    ),
+                                                  ),
+                                                )
+                                                : null,
+                                      ),
+                                      Positioned(
+                                        top: 10,
+                                        right: 10,
+                                        child: Container(
+                                          padding: EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white.withOpacity(
+                                              0.9,
+                                            ),
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Icon(
+                                            Icons.favorite_border,
+                                            color: Colors.grey[600],
+                                            size: 20,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  // Property details
+                                  Padding(
+                                    padding: EdgeInsets.all(12),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Container(
+                                              padding: EdgeInsets.symmetric(
+                                                horizontal: 10,
+                                                vertical: 6,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: AppColors.primaryColor
+                                                    .withOpacity(0.1),
+                                                borderRadius:
+                                                    BorderRadius.circular(20),
+                                              ),
+                                              child: Text(
+                                                (house['type_of_contract']
+                                                                ?.toString() ??
+                                                            '') ==
+                                                        'sale'
+                                                    ? 'Vente'
+                                                    : 'Location',
+                                                style: TextStyle(
+                                                  color: AppColors.primaryColor,
+                                                  fontWeight: FontWeight.w600,
+                                                  fontSize: 12,
+                                                ),
+                                              ),
+                                            ),
+                                            Text(
+                                              '${_formatPrice(house['price'])} FCFA',
+                                              style: TextStyle(
+                                                color: AppColors.primaryColor,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(height: 4),
+                                        // House name
+                                        Text(
+                                          house['name']?.toString() ?? 'Maison',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w600,
+                                            fontSize: 13,
+                                            color: Colors.black87,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        SizedBox(height: 2),
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              Icons.location_on,
+                                              color: Colors.grey[500],
+                                              size: 16,
+                                            ),
+                                            SizedBox(width: 4),
+                                            Text(
+                                              house['area']?.toString() ??
+                                                  'N/A',
+                                              style: TextStyle(
+                                                color: Colors.grey[700],
+                                                fontSize: 13,
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                ],
+              ),
+            ),
+
+            // Rest of your existing content (Sponsored banners section, etc.)
+            // ... (keep the existing _showAnnonceDetails and other sections as they are)
+
+            // Sponsored banners section (Les Annonces)
+            Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: width * 0.05,
+                vertical: height * 0.02,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'PLUS POPULAIRES',
+                    'LES ANNONCES',
                     style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,
@@ -352,277 +660,417 @@ class _MyScreenState extends State<MyScreen> {
                       letterSpacing: 0.5,
                     ),
                   ),
-                  Padding(
-                    padding: EdgeInsets.only(right: width * 0.05),
-                    child: Text(
-                      'Voir tout',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.primaryColor,
+                  SizedBox(height: 15),
+                  GestureDetector(
+                    onTap: () => _showAnnonceDetails(context),
+                    child: Container(
+                      height: height * 0.12,
+                      decoration: BoxDecoration(
+                        color: Colors.orange[50],
+                        borderRadius: BorderRadius.circular(15),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.1),
+                            spreadRadius: 0,
+                            blurRadius: 5,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
                       ),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 15),
-              // Horizontal scrolling properties
-              Container(
-                height: height * 0.28,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: 5,
-                  itemBuilder: (context, index) {
-                    return GestureDetector(
-                      onTap: () {
-                        Navigator.pushNamed(context, '/house_details');
-                        // print('Clicked');
-                      },
-                      child: Container(
-                        width: width * 0.65,
-                        margin: EdgeInsets.only(right: 15),
-                        decoration: BoxDecoration(
-                          color: AppColors.secondaryColor,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.1),
-                              spreadRadius: 0,
-                              blurRadius: 10,
-                              offset: Offset(0, 3),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: width * 0.2,
+                            decoration: BoxDecoration(
+                              color: Colors.orange,
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(15),
+                                bottomLeft: Radius.circular(15),
+                              ),
                             ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Property image with like button
-                            Stack(
-                              children: [
-                                Container(
-                                  height: height * 0.18,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(16),
-                                      topRight: Radius.circular(16),
-                                    ),
-                                    image: DecorationImage(
-                                      image: NetworkImage(
-                                        index == 0
-                                            ? 'https://images.unsplash.com/photo-1613490493576-7fde63acd811'
-                                            : 'https://images.unsplash.com/photo-1531971589569-0d9370cbe1e5',
-                                      ),
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                ),
-                                Positioned(
-                                  top: 10,
-                                  right: 10,
-                                  child: Container(
-                                    padding: EdgeInsets.all(8),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white.withOpacity(0.9),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Icon(
-                                      Icons.favorite_border,
-                                      color: Colors.grey[600],
-                                      size: 20,
-                                    ),
-                                  ),
-                                ),
-                              ],
+                            child: Center(
+                              child: Icon(
+                                Icons.campaign,
+                                color: Colors.white,
+                                size: 30,
+                              ),
                             ),
-                            // Property details
-                            Padding(
-                              padding: EdgeInsets.all(12),
+                          ),
+                          Expanded(
+                            child: Padding(
+                              padding: EdgeInsets.all(10),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Container(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: 10,
-                                          vertical: 6,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          color: AppColors.primaryColor
-                                              .withOpacity(0.1),
-                                          borderRadius: BorderRadius.circular(
-                                            20,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          'Vente',
-                                          style: TextStyle(
-                                            color: AppColors.primaryColor,
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 12,
-                                          ),
-                                        ),
-                                      ),
-                                      Text(
-                                        '2000.0 FCFA',
-                                        style: TextStyle(
-                                          color: AppColors.primaryColor,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                    ],
+                                  Text(
+                                    'Offres spéciales',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15,
+                                    ),
                                   ),
-                                  SizedBox(height: 2),
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        Icons.location_on,
-                                        color: Colors.grey[500],
-                                        size: 16,
-                                      ),
-                                      SizedBox(width: 4),
-                                      Text(
-                                        'Pala-Francophonie',
-                                        style: TextStyle(
-                                          color: Colors.grey[700],
-                                          fontSize: 13,
-                                        ),
-                                      ),
-                                    ],
+                                  SizedBox(height: 4),
+                                  Text(
+                                    'Découvrez nos nouvelles propriétés à prix réduits',
+                                    style: TextStyle(
+                                      color: Colors.grey[600],
+                                      fontSize: 12,
+                                    ),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
                                 ],
                               ),
                             ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        // Sponsored banners section (Les Annonces)
-        Container(
-          padding: EdgeInsets.symmetric(
-            horizontal: width * 0.05,
-            vertical: height * 0.02,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'LES ANNONCES',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.grey[600],
-                  letterSpacing: 0.5,
-                ),
-              ),
-              SizedBox(height: 15),
-              GestureDetector(
-                onTap: () => _showAnnonceDetails(context),
-                child: Container(
-                  height: height * 0.12,
-                  decoration: BoxDecoration(
-                    color: Colors.orange[50],
-                    borderRadius: BorderRadius.circular(15),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.1),
-                        spreadRadius: 0,
-                        blurRadius: 5,
-                        offset: Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: width * 0.2,
-                        decoration: BoxDecoration(
-                          color: Colors.orange,
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(15),
-                            bottomLeft: Radius.circular(15),
                           ),
-                        ),
-                        child: Center(
-                          child: Icon(
-                            Icons.campaign,
-                            color: Colors.white,
-                            size: 30,
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Padding(
-                          padding: EdgeInsets.all(10),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                'Offres spéciales',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 15,
-                                ),
+                          Container(
+                            margin: EdgeInsets.only(right: 10),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryColor,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              'Voir',
+                              style: TextStyle(
+                                color: AppColors.secondaryColor,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 12,
                               ),
-                              SizedBox(height: 4),
-                              Text(
-                                'Découvrez nos nouvelles propriétés à prix réduits',
-                                style: TextStyle(
-                                  color: Colors.grey[600],
-                                  fontSize: 12,
-                                ),
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
+                            ),
                           ),
-                        ),
+                        ],
                       ),
-                      Container(
-                        margin: EdgeInsets.only(right: 10),
-                        padding: EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryColor,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          'Voir',
-                          style: TextStyle(
-                            color: AppColors.secondaryColor,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
+                  SizedBox(height: height * 0.03),
+                ],
               ),
-              // Add more annonces here if needed
-              SizedBox(height: height * 0.03),
-            ],
-          ),
-        ),
+            ),
 
-        // Add some bottom padding
-        SizedBox(height: 20),
-      ]),
+            // Add some bottom padding
+            SizedBox(height: 20),
+          ]),
+        );
+      },
     );
   }
+
+  // Helper method to format price with proper number formatting
+  String _formatPrice(dynamic price) {
+    if (price == null) return '0';
+
+    // Convert to double if it's a string
+    double priceValue;
+    if (price is String) {
+      priceValue = double.tryParse(price) ?? 0.0;
+    } else if (price is num) {
+      priceValue = price.toDouble();
+    } else {
+      return '0';
+    }
+
+    // Format with thousand separators
+    final formatter = NumberFormat('#,###', 'fr_FR');
+    return formatter.format(priceValue);
+  }
+  // Home content (original content)
+  // Widget _buildHomeContent(double width, double height) {
+  //   return SliverList(
+  //     delegate: SliverChildListDelegate([
+  //       // Most popular section
+  //       Container(
+  //         padding: EdgeInsets.only(left: width * 0.05, top: height * 0.02),
+  //         child: Column(
+  //           crossAxisAlignment: CrossAxisAlignment.start,
+  //           children: [
+  //             Row(
+  //               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //               children: [
+  //                 Text(
+  //                   'PLUS POPULAIRES',
+  //                   style: TextStyle(
+  //                     fontSize: 14,
+  //                     fontWeight: FontWeight.w600,
+  //                     color: Colors.grey[600],
+  //                     letterSpacing: 0.5,
+  //                   ),
+  //                 ),
+  //                 Padding(
+  //                   padding: EdgeInsets.only(right: width * 0.05),
+  //                   child: Text(
+  //                     'Voir tout',
+  //                     style: TextStyle(
+  //                       fontSize: 13,
+  //                       fontWeight: FontWeight.w500,
+  //                       color: AppColors.primaryColor,
+  //                     ),
+  //                   ),
+  //                 ),
+  //               ],
+  //             ),
+  //             SizedBox(height: 15),
+  //             // Horizontal scrolling properties
+  //             Container(
+  //               height: height * 0.28,
+  //               child: ListView.builder(
+  //                 scrollDirection: Axis.horizontal,
+  //                 itemCount: 5,
+  //                 itemBuilder: (context, index) {
+  //                   return GestureDetector(
+  //                     onTap: () {
+  //                       Navigator.pushNamed(context, '/house_details');
+  //                       // print('Clicked');
+  //                     },
+  //                     child: Container(
+  //                       width: width * 0.65,
+  //                       margin: EdgeInsets.only(right: 15),
+  //                       decoration: BoxDecoration(
+  //                         color: AppColors.secondaryColor,
+  //                         borderRadius: BorderRadius.circular(16),
+  //                         boxShadow: [
+  //                           BoxShadow(
+  //                             color: Colors.grey.withOpacity(0.1),
+  //                             spreadRadius: 0,
+  //                             blurRadius: 10,
+  //                             offset: Offset(0, 3),
+  //                           ),
+  //                         ],
+  //                       ),
+  //                       child: Column(
+  //                         crossAxisAlignment: CrossAxisAlignment.start,
+  //                         children: [
+  //                           // Property image with like button
+  //                           Stack(
+  //                             children: [
+  //                               Container(
+  //                                 height: height * 0.18,
+  //                                 decoration: BoxDecoration(
+  //                                   borderRadius: BorderRadius.only(
+  //                                     topLeft: Radius.circular(16),
+  //                                     topRight: Radius.circular(16),
+  //                                   ),
+  //                                   image: DecorationImage(
+  //                                     image: NetworkImage(
+  //                                       index == 0
+  //                                           ? 'https://images.unsplash.com/photo-1613490493576-7fde63acd811'
+  //                                           : 'https://images.unsplash.com/photo-1531971589569-0d9370cbe1e5',
+  //                                     ),
+  //                                     fit: BoxFit.cover,
+  //                                   ),
+  //                                 ),
+  //                               ),
+  //                               Positioned(
+  //                                 top: 10,
+  //                                 right: 10,
+  //                                 child: Container(
+  //                                   padding: EdgeInsets.all(8),
+  //                                   decoration: BoxDecoration(
+  //                                     color: Colors.white.withOpacity(0.9),
+  //                                     shape: BoxShape.circle,
+  //                                   ),
+  //                                   child: Icon(
+  //                                     Icons.favorite_border,
+  //                                     color: Colors.grey[600],
+  //                                     size: 20,
+  //                                   ),
+  //                                 ),
+  //                               ),
+  //                             ],
+  //                           ),
+  //                           // Property details
+  //                           Padding(
+  //                             padding: EdgeInsets.all(12),
+  //                             child: Column(
+  //                               crossAxisAlignment: CrossAxisAlignment.start,
+  //                               children: [
+  //                                 Row(
+  //                                   mainAxisAlignment:
+  //                                       MainAxisAlignment.spaceBetween,
+  //                                   children: [
+  //                                     Container(
+  //                                       padding: EdgeInsets.symmetric(
+  //                                         horizontal: 10,
+  //                                         vertical: 6,
+  //                                       ),
+  //                                       decoration: BoxDecoration(
+  //                                         color: AppColors.primaryColor
+  //                                             .withOpacity(0.1),
+  //                                         borderRadius: BorderRadius.circular(
+  //                                           20,
+  //                                         ),
+  //                                       ),
+  //                                       child: Text(
+  //                                         'Vente',
+  //                                         style: TextStyle(
+  //                                           color: AppColors.primaryColor,
+  //                                           fontWeight: FontWeight.w600,
+  //                                           fontSize: 12,
+  //                                         ),
+  //                                       ),
+  //                                     ),
+  //                                     Text(
+  //                                       '2000.0 FCFA',
+  //                                       style: TextStyle(
+  //                                         color: AppColors.primaryColor,
+  //                                         fontWeight: FontWeight.bold,
+  //                                         fontSize: 14,
+  //                                       ),
+  //                                     ),
+  //                                   ],
+  //                                 ),
+  //                                 SizedBox(height: 2),
+  //                                 Row(
+  //                                   children: [
+  //                                     Icon(
+  //                                       Icons.location_on,
+  //                                       color: Colors.grey[500],
+  //                                       size: 16,
+  //                                     ),
+  //                                     SizedBox(width: 4),
+  //                                     Text(
+  //                                       'Pala-Francophonie',
+  //                                       style: TextStyle(
+  //                                         color: Colors.grey[700],
+  //                                         fontSize: 13,
+  //                                       ),
+  //                                     ),
+  //                                   ],
+  //                                 ),
+  //                               ],
+  //                             ),
+  //                           ),
+  //                         ],
+  //                       ),
+  //                     ),
+  //                   );
+  //                 },
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //       ),
+
+  //       // Sponsored banners section (Les Annonces)
+  //       Container(
+  //         padding: EdgeInsets.symmetric(
+  //           horizontal: width * 0.05,
+  //           vertical: height * 0.02,
+  //         ),
+  //         child: Column(
+  //           crossAxisAlignment: CrossAxisAlignment.start,
+  //           children: [
+  //             Text(
+  //               'LES ANNONCES',
+  //               style: TextStyle(
+  //                 fontSize: 14,
+  //                 fontWeight: FontWeight.w600,
+  //                 color: Colors.grey[600],
+  //                 letterSpacing: 0.5,
+  //               ),
+  //             ),
+  //             SizedBox(height: 15),
+  //             GestureDetector(
+  //               onTap: () => _showAnnonceDetails(context),
+  //               child: Container(
+  //                 height: height * 0.12,
+  //                 decoration: BoxDecoration(
+  //                   color: Colors.orange[50],
+  //                   borderRadius: BorderRadius.circular(15),
+  //                   boxShadow: [
+  //                     BoxShadow(
+  //                       color: Colors.grey.withOpacity(0.1),
+  //                       spreadRadius: 0,
+  //                       blurRadius: 5,
+  //                       offset: Offset(0, 2),
+  //                     ),
+  //                   ],
+  //                 ),
+  //                 child: Row(
+  //                   children: [
+  //                     Container(
+  //                       width: width * 0.2,
+  //                       decoration: BoxDecoration(
+  //                         color: Colors.orange,
+  //                         borderRadius: BorderRadius.only(
+  //                           topLeft: Radius.circular(15),
+  //                           bottomLeft: Radius.circular(15),
+  //                         ),
+  //                       ),
+  //                       child: Center(
+  //                         child: Icon(
+  //                           Icons.campaign,
+  //                           color: Colors.white,
+  //                           size: 30,
+  //                         ),
+  //                       ),
+  //                     ),
+  //                     Expanded(
+  //                       child: Padding(
+  //                         padding: EdgeInsets.all(10),
+  //                         child: Column(
+  //                           crossAxisAlignment: CrossAxisAlignment.start,
+  //                           mainAxisAlignment: MainAxisAlignment.center,
+  //                           children: [
+  //                             Text(
+  //                               'Offres spéciales',
+  //                               style: TextStyle(
+  //                                 fontWeight: FontWeight.bold,
+  //                                 fontSize: 15,
+  //                               ),
+  //                             ),
+  //                             SizedBox(height: 4),
+  //                             Text(
+  //                               'Découvrez nos nouvelles propriétés à prix réduits',
+  //                               style: TextStyle(
+  //                                 color: Colors.grey[600],
+  //                                 fontSize: 12,
+  //                               ),
+  //                               maxLines: 2,
+  //                               overflow: TextOverflow.ellipsis,
+  //                             ),
+  //                           ],
+  //                         ),
+  //                       ),
+  //                     ),
+  //                     Container(
+  //                       margin: EdgeInsets.only(right: 10),
+  //                       padding: EdgeInsets.symmetric(
+  //                         horizontal: 12,
+  //                         vertical: 6,
+  //                       ),
+  //                       decoration: BoxDecoration(
+  //                         color: AppColors.primaryColor,
+  //                         borderRadius: BorderRadius.circular(20),
+  //                       ),
+  //                       child: Text(
+  //                         'Voir',
+  //                         style: TextStyle(
+  //                           color: AppColors.secondaryColor,
+  //                           fontWeight: FontWeight.w600,
+  //                           fontSize: 12,
+  //                         ),
+  //                       ),
+  //                     ),
+  //                   ],
+  //                 ),
+  //               ),
+  //             ),
+  //             // Add more annonces here if needed
+  //             SizedBox(height: height * 0.03),
+  //           ],
+  //         ),
+  //       ),
+
+  //       // Add some bottom padding
+  //       SizedBox(height: 20),
+  //     ]),
+  //   );
+  // }
 
   // Maisons placeholder content
   Widget _buildMaisonsContent(double width, double height) {
@@ -1323,19 +1771,19 @@ class _MyScreenState extends State<MyScreen> {
             ),
             SizedBox(height: 20),
             // Filter or category buttons
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: [
-                  _buildCategoryButton('All Products', true),
-                  _buildCategoryButton('Construction', false),
-                  _buildCategoryButton('Decoration', false),
-                  _buildCategoryButton('Finishing', false),
-                  _buildCategoryButton('Tools', false),
-                ],
-              ),
-            ),
-            SizedBox(height: 40),
+            // SingleChildScrollView(
+            //   scrollDirection: Axis.horizontal,
+            //   child: Row(
+            //     children: [
+            //       _buildCategoryButton('All Products', true),
+            //       _buildCategoryButton('Construction', false),
+            //       _buildCategoryButton('Decoration', false),
+            //       _buildCategoryButton('Finishing', false),
+            //       _buildCategoryButton('Tools', false),
+            //     ],
+            //   ),
+            // ),
+            // SizedBox(height: 40),
           ],
         ),
       ),

@@ -7,14 +7,20 @@ class HomeServices {
   final ApiServices _apiServices = ApiServices();
   //fetch all houses
   Future<Map<String, dynamic>> fetchHouses() async {
-    final response = await _apiServices.get('${ApiConstants.baseUrl}/houses/');
-    if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
-      print('Houses data: $data');
-      return {'data': data};
-    } else {
-      print('Error: ${response.statusCode}');
-      return {'error': 'something went wrong'};
+    try {
+      final response = await _apiServices.get(
+        '${ApiConstants.baseUrl}/houses/',
+      );
+      if (response.statusCode == 200) {
+        final resp = jsonDecode(response.body);
+
+        return {'data': resp};
+      } else {
+        print('Error: ${response.statusCode}');
+        return {'error': 'something went wrong'};
+      }
+    } catch (e) {
+      return {'error': 'Network error: $e'};
     }
   }
 
