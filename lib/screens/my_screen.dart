@@ -354,9 +354,83 @@ class _MyScreenState extends State<MyScreen> {
     return Consumer<HouseProvider>(
       builder: (context, houseProvider, child) {
         final housesList = houseProvider.housesInfos;
-        print('There you go: $housesList');
+
         return SliverList(
           delegate: SliverChildListDelegate([
+            // Error handling section at the top
+            if (houseProvider.error != null)
+              Container(
+                margin: EdgeInsets.symmetric(
+                  horizontal: width * 0.05,
+                  vertical: 8,
+                ),
+                padding: EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.red.shade50,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.red.shade200),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.error_outline,
+                          color: Colors.red.shade600,
+                          size: 20,
+                        ),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            housesList != null && housesList.isNotEmpty
+                                ? 'Données non actualisées'
+                                : 'Erreur de chargement',
+                            style: TextStyle(
+                              color: Colors.red.shade800,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                        if (!houseProvider.isLoading)
+                          GestureDetector(
+                            onTap: () => houseProvider.retryLastOperation(),
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.red.shade600,
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Text(
+                                'Réessayer',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                    if (housesList == null || housesList.isEmpty) ...[
+                      SizedBox(height: 8),
+                      Text(
+                        houseProvider.error!,
+                        style: TextStyle(
+                          color: Colors.red.shade700,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+
             // Most popular section
             Container(
               padding: EdgeInsets.only(left: width * 0.05, top: height * 0.02),
@@ -377,12 +451,18 @@ class _MyScreenState extends State<MyScreen> {
                       ),
                       Padding(
                         padding: EdgeInsets.only(right: width * 0.05),
-                        child: Text(
-                          'Voir tout',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w500,
-                            color: AppColors.primaryColor,
+                        child: GestureDetector(
+                          onTap: () {
+                            // Navigate to houses list screen
+                            Navigator.pushNamed(context, '/houses');
+                          },
+                          child: Text(
+                            'Voir tout',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.primaryColor,
+                            ),
                           ),
                         ),
                       ),
@@ -390,18 +470,34 @@ class _MyScreenState extends State<MyScreen> {
                   ),
                   SizedBox(height: 15),
 
-                  // Check if houses data is loading or empty
-                  if (houseProvider.isLoading)
-                    Container(
+                  // Loading state for initial load
+                  if (houseProvider.isLoading &&
+                      (housesList == null || housesList.isEmpty))
+                    SizedBox(
                       height: height * 0.28,
                       child: Center(
-                        child: CircularProgressIndicator(
-                          color: AppColors.primaryColor,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            CircularProgressIndicator(
+                              color: AppColors.primaryColor,
+                            ),
+                            SizedBox(height: 12),
+                            Text(
+                              'Chargement des maisons...',
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     )
-                  else if (housesList == null || housesList.isEmpty)
-                    Container(
+                  // Empty state (no data and no loading)
+                  else if ((housesList == null || housesList.isEmpty) &&
+                      !houseProvider.isLoading)
+                    SizedBox(
                       height: height * 0.28,
                       child: Center(
                         child: Column(
@@ -412,235 +508,278 @@ class _MyScreenState extends State<MyScreen> {
                               size: 48,
                               color: Colors.grey[400],
                             ),
-                            SizedBox(height: 10),
+                            SizedBox(height: 12),
                             Text(
-                              'Aucune maison disponible',
+                              houseProvider.error != null
+                                  ? 'Impossible de charger les maisons'
+                                  : 'Aucune maison disponible',
                               style: TextStyle(
                                 color: Colors.grey[600],
                                 fontSize: 16,
+                                fontWeight: FontWeight.w500,
                               ),
                             ),
+                            if (houseProvider.error != null) ...[
+                              SizedBox(height: 12),
+                              ElevatedButton.icon(
+                                onPressed:
+                                    () => houseProvider.retryLastOperation(),
+                                icon: Icon(Icons.refresh, size: 18),
+                                label: Text('Réessayer'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.primaryColor,
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 20,
+                                    vertical: 8,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ],
                         ),
                       ),
                     )
+                  // Houses list with data
                   else
-                    // Horizontal scrolling properties with real data
-                    Container(
+                    SizedBox(
                       height: height * 0.35,
-                      child: ListView.builder(
-                        scrollDirection: Axis.horizontal,
-                        itemCount:
-                            housesList.length > 10
-                                ? 10
-                                : housesList
-                                    .length, // Limit to 10 items for performance
-                        itemBuilder: (context, index) {
-                          final house = housesList[index];
+                      child: Stack(
+                        children: [
+                          ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount:
+                                housesList!.length > 10
+                                    ? 10
+                                    : housesList.length,
+                            itemBuilder: (context, index) {
+                              final house = housesList[index];
 
-                          // Add type checking to ensure house is a Map
-                          if (house is! Map<String, dynamic>) {
-                            print('Invalid house data at index $index: $house');
-                            return SizedBox.shrink(); // Return empty widget for invalid data
-                          }
+                              // Type checking to ensure house is a Map
+                              if (house is! Map<String, dynamic>) {
+                                print(
+                                  'Invalid house data at index $index: $house',
+                                );
+                                return SizedBox.shrink();
+                              }
 
-                          return GestureDetector(
-                            onTap: () {
-                              // Pass the house data to details screen
-                              Navigator.pushNamed(
-                                context,
-                                '/house_details',
-                                arguments: house, // Pass the house object
-                              );
-                            },
-                            child: Container(
-                              width: width * 0.65,
-                              margin: EdgeInsets.only(right: 15),
-                              decoration: BoxDecoration(
-                                color: AppColors.secondaryColor,
-                                borderRadius: BorderRadius.circular(16),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.1),
-                                    spreadRadius: 0,
-                                    blurRadius: 10,
-                                    offset: Offset(0, 3),
-                                  ),
-                                ],
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Property image with like button
-                                  Stack(
-                                    children: [
-                                      Container(
-                                        height: height * 0.18,
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.only(
-                                            topLeft: Radius.circular(16),
-                                            topRight: Radius.circular(16),
-                                          ),
-                                          image: DecorationImage(
-                                            image: NetworkImage(
-                                              house['images']?.toString() ??
-                                                  'https://images.unsplash.com/photo-1613490493576-7fde63acd811',
-                                            ),
-                                            fit: BoxFit.cover,
-                                            onError: (exception, stackTrace) {
-                                              // Handle image loading error
-                                              print(
-                                                'Error loading image: $exception',
-                                              );
-                                            },
-                                          ),
-                                        ),
-                                        // Fallback for when image fails to load
-                                        child:
-                                            (house['images'] == null ||
-                                                    house['images']
-                                                        .toString()
-                                                        .isEmpty)
-                                                ? Container(
-                                                  decoration: BoxDecoration(
-                                                    color: Colors.grey[300],
-                                                    borderRadius:
-                                                        BorderRadius.only(
-                                                          topLeft:
-                                                              Radius.circular(
-                                                                16,
-                                                              ),
-                                                          topRight:
-                                                              Radius.circular(
-                                                                16,
-                                                              ),
-                                                        ),
-                                                  ),
-                                                  child: Center(
-                                                    child: Icon(
-                                                      Icons.home,
-                                                      size: 40,
-                                                      color: Colors.grey[500],
-                                                    ),
-                                                  ),
-                                                )
-                                                : null,
-                                      ),
-                                      Positioned(
-                                        top: 10,
-                                        right: 10,
-                                        child: Container(
-                                          padding: EdgeInsets.all(8),
-                                          decoration: BoxDecoration(
-                                            color: Colors.white.withOpacity(
-                                              0.9,
-                                            ),
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: Icon(
-                                            Icons.favorite_border,
-                                            color: Colors.grey[600],
-                                            size: 20,
-                                          ),
-                                        ),
+                              return GestureDetector(
+                                onTap: () {
+                                  Navigator.pushNamed(
+                                    context,
+                                    '/house_details',
+                                    arguments: house,
+                                  );
+                                },
+                                child: Container(
+                                  width: width * 0.65,
+                                  margin: EdgeInsets.only(right: 15),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.secondaryColor,
+                                    borderRadius: BorderRadius.circular(16),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.grey.withOpacity(0.1),
+                                        spreadRadius: 0,
+                                        blurRadius: 10,
+                                        offset: Offset(0, 3),
                                       ),
                                     ],
                                   ),
-                                  // Property details
-                                  Padding(
-                                    padding: EdgeInsets.all(12),
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Container(
-                                              padding: EdgeInsets.symmetric(
-                                                horizontal: 10,
-                                                vertical: 6,
-                                              ),
-                                              decoration: BoxDecoration(
-                                                color: AppColors.primaryColor
-                                                    .withOpacity(0.1),
-                                                borderRadius:
-                                                    BorderRadius.circular(20),
-                                              ),
-                                              child: Text(
-                                                (house['type_of_contract']
-                                                                ?.toString() ??
-                                                            '') ==
-                                                        'sale'
-                                                    ? 'Vente'
-                                                    : 'Location',
-                                                style: TextStyle(
-                                                  color: AppColors.primaryColor,
-                                                  fontWeight: FontWeight.w600,
-                                                  fontSize: 12,
-                                                ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      // Property image with like button
+                                      Stack(
+                                        children: [
+                                          Container(
+                                            height: height * 0.18,
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.only(
+                                                topLeft: Radius.circular(16),
+                                                topRight: Radius.circular(16),
                                               ),
                                             ),
-                                            Text(
-                                              '${_formatPrice(house['price'])} FCFA',
-                                              style: TextStyle(
-                                                color: AppColors.primaryColor,
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 14,
+                                            child: ClipRRect(
+                                              borderRadius: BorderRadius.only(
+                                                topLeft: Radius.circular(16),
+                                                topRight: Radius.circular(16),
+                                              ),
+                                              child: _buildHouseImage(
+                                                house['images'],
                                               ),
                                             ),
-                                          ],
-                                        ),
-                                        SizedBox(height: 4),
-                                        // House name
-                                        Text(
-                                          house['name']?.toString() ?? 'Maison',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 13,
-                                            color: Colors.black87,
                                           ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        SizedBox(height: 2),
-                                        Row(
-                                          children: [
-                                            Icon(
-                                              Icons.location_on,
-                                              color: Colors.grey[500],
-                                              size: 16,
+                                          Positioned(
+                                            top: 10,
+                                            right: 10,
+                                            child: Container(
+                                              padding: EdgeInsets.all(8),
+                                              decoration: BoxDecoration(
+                                                color: Colors.white.withOpacity(
+                                                  0.9,
+                                                ),
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: Icon(
+                                                Icons.favorite_border,
+                                                color: Colors.grey[600],
+                                                size: 20,
+                                              ),
                                             ),
-                                            SizedBox(width: 4),
+                                          ),
+                                        ],
+                                      ),
+
+                                      // Property details
+                                      Padding(
+                                        padding: EdgeInsets.all(12),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment
+                                                      .spaceBetween,
+                                              children: [
+                                                Container(
+                                                  padding: EdgeInsets.symmetric(
+                                                    horizontal: 10,
+                                                    vertical: 6,
+                                                  ),
+                                                  decoration: BoxDecoration(
+                                                    color: AppColors
+                                                        .primaryColor
+                                                        .withOpacity(0.1),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          20,
+                                                        ),
+                                                  ),
+                                                  child: Text(
+                                                    (house['type_of_contract']
+                                                                    ?.toString() ??
+                                                                '') ==
+                                                            'sale'
+                                                        ? 'Vente'
+                                                        : 'Location',
+                                                    style: TextStyle(
+                                                      color:
+                                                          AppColors
+                                                              .primaryColor,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      fontSize: 12,
+                                                    ),
+                                                  ),
+                                                ),
+                                                Text(
+                                                  '${_formatPrice(house['price'])} FCFA',
+                                                  style: TextStyle(
+                                                    color:
+                                                        AppColors.primaryColor,
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 14,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            SizedBox(height: 6),
+
+                                            // House name
                                             Text(
-                                              house['area']?.toString() ??
-                                                  'N/A',
+                                              house['name']?.toString() ??
+                                                  'Maison',
                                               style: TextStyle(
-                                                color: Colors.grey[700],
-                                                fontSize: 13,
+                                                fontWeight: FontWeight.w600,
+                                                fontSize: 14,
+                                                color: Colors.black87,
                                               ),
                                               maxLines: 1,
                                               overflow: TextOverflow.ellipsis,
                                             ),
+                                            SizedBox(height: 4),
+
+                                            // Location
+                                            Row(
+                                              children: [
+                                                Icon(
+                                                  Icons.location_on,
+                                                  color: Colors.grey[500],
+                                                  size: 16,
+                                                ),
+                                                SizedBox(width: 4),
+                                                Expanded(
+                                                  child: Text(
+                                                    house['area']?.toString() ??
+                                                        'N/A',
+                                                    style: TextStyle(
+                                                      color: Colors.grey[700],
+                                                      fontSize: 13,
+                                                    ),
+                                                    maxLines: 1,
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
                                           ],
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
-                                ],
+                                ),
+                              );
+                            },
+                          ),
+
+                          // Loading overlay for refresh
+                          if (houseProvider.isLoading && housesList.isNotEmpty)
+                            Positioned(
+                              top: 8,
+                              right: 8,
+                              child: Container(
+                                padding: EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withOpacity(0.9),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: AppColors.primaryColor,
+                                      ),
+                                    ),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      'Actualisation...',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: AppColors.primaryColor,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          );
-                        },
+                        ],
                       ),
                     ),
                 ],
               ),
             ),
-
-            // Rest of your existing content (Sponsored banners section, etc.)
-            // ... (keep the existing _showAnnonceDetails and other sections as they are)
 
             // Sponsored banners section (Les Annonces)
             Container(
@@ -760,6 +899,67 @@ class _MyScreenState extends State<MyScreen> {
     );
   }
 
+  // Helper method to build house image with proper error handling
+  Widget _buildHouseImage(dynamic imageUrl) {
+    if (imageUrl == null || imageUrl.toString().isEmpty) {
+      return Container(
+        width: double.infinity,
+        height: double.infinity,
+        color: Colors.grey[300],
+        child: Center(
+          child: Icon(Icons.home, size: 40, color: Colors.grey[500]),
+        ),
+      );
+    }
+
+    return Image.network(
+      imageUrl.toString(),
+      width: double.infinity,
+      height: double.infinity,
+      fit: BoxFit.cover,
+      loadingBuilder: (context, child, loadingProgress) {
+        if (loadingProgress == null) return child;
+        return Container(
+          width: double.infinity,
+          height: double.infinity,
+          color: Colors.grey[200],
+          child: Center(
+            child: CircularProgressIndicator(
+              color: AppColors.primaryColor,
+              strokeWidth: 2,
+              value:
+                  loadingProgress.expectedTotalBytes != null
+                      ? loadingProgress.cumulativeBytesLoaded /
+                          loadingProgress.expectedTotalBytes!
+                      : null,
+            ),
+          ),
+        );
+      },
+      errorBuilder: (context, error, stackTrace) {
+        // print('Error loading house image: $error');
+        return Container(
+          width: double.infinity,
+          height: double.infinity,
+          color: Colors.grey[300],
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.broken_image, size: 32, color: Colors.grey[500]),
+                SizedBox(height: 4),
+                Text(
+                  'Image non disponible',
+                  style: TextStyle(color: Colors.grey[600], fontSize: 10),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   // Helper method to format price with proper number formatting
   String _formatPrice(dynamic price) {
     if (price == null) return '0';
@@ -778,404 +978,281 @@ class _MyScreenState extends State<MyScreen> {
     final formatter = NumberFormat('#,###', 'fr_FR');
     return formatter.format(priceValue);
   }
-  // Home content (original content)
-  // Widget _buildHomeContent(double width, double height) {
-  //   return SliverList(
-  //     delegate: SliverChildListDelegate([
-  //       // Most popular section
-  //       Container(
-  //         padding: EdgeInsets.only(left: width * 0.05, top: height * 0.02),
-  //         child: Column(
-  //           crossAxisAlignment: CrossAxisAlignment.start,
-  //           children: [
-  //             Row(
-  //               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //               children: [
-  //                 Text(
-  //                   'PLUS POPULAIRES',
-  //                   style: TextStyle(
-  //                     fontSize: 14,
-  //                     fontWeight: FontWeight.w600,
-  //                     color: Colors.grey[600],
-  //                     letterSpacing: 0.5,
-  //                   ),
-  //                 ),
-  //                 Padding(
-  //                   padding: EdgeInsets.only(right: width * 0.05),
-  //                   child: Text(
-  //                     'Voir tout',
-  //                     style: TextStyle(
-  //                       fontSize: 13,
-  //                       fontWeight: FontWeight.w500,
-  //                       color: AppColors.primaryColor,
-  //                     ),
-  //                   ),
-  //                 ),
-  //               ],
-  //             ),
-  //             SizedBox(height: 15),
-  //             // Horizontal scrolling properties
-  //             Container(
-  //               height: height * 0.28,
-  //               child: ListView.builder(
-  //                 scrollDirection: Axis.horizontal,
-  //                 itemCount: 5,
-  //                 itemBuilder: (context, index) {
-  //                   return GestureDetector(
-  //                     onTap: () {
-  //                       Navigator.pushNamed(context, '/house_details');
-  //                       // print('Clicked');
-  //                     },
-  //                     child: Container(
-  //                       width: width * 0.65,
-  //                       margin: EdgeInsets.only(right: 15),
-  //                       decoration: BoxDecoration(
-  //                         color: AppColors.secondaryColor,
-  //                         borderRadius: BorderRadius.circular(16),
-  //                         boxShadow: [
-  //                           BoxShadow(
-  //                             color: Colors.grey.withOpacity(0.1),
-  //                             spreadRadius: 0,
-  //                             blurRadius: 10,
-  //                             offset: Offset(0, 3),
-  //                           ),
-  //                         ],
-  //                       ),
-  //                       child: Column(
-  //                         crossAxisAlignment: CrossAxisAlignment.start,
-  //                         children: [
-  //                           // Property image with like button
-  //                           Stack(
-  //                             children: [
-  //                               Container(
-  //                                 height: height * 0.18,
-  //                                 decoration: BoxDecoration(
-  //                                   borderRadius: BorderRadius.only(
-  //                                     topLeft: Radius.circular(16),
-  //                                     topRight: Radius.circular(16),
-  //                                   ),
-  //                                   image: DecorationImage(
-  //                                     image: NetworkImage(
-  //                                       index == 0
-  //                                           ? 'https://images.unsplash.com/photo-1613490493576-7fde63acd811'
-  //                                           : 'https://images.unsplash.com/photo-1531971589569-0d9370cbe1e5',
-  //                                     ),
-  //                                     fit: BoxFit.cover,
-  //                                   ),
-  //                                 ),
-  //                               ),
-  //                               Positioned(
-  //                                 top: 10,
-  //                                 right: 10,
-  //                                 child: Container(
-  //                                   padding: EdgeInsets.all(8),
-  //                                   decoration: BoxDecoration(
-  //                                     color: Colors.white.withOpacity(0.9),
-  //                                     shape: BoxShape.circle,
-  //                                   ),
-  //                                   child: Icon(
-  //                                     Icons.favorite_border,
-  //                                     color: Colors.grey[600],
-  //                                     size: 20,
-  //                                   ),
-  //                                 ),
-  //                               ),
-  //                             ],
-  //                           ),
-  //                           // Property details
-  //                           Padding(
-  //                             padding: EdgeInsets.all(12),
-  //                             child: Column(
-  //                               crossAxisAlignment: CrossAxisAlignment.start,
-  //                               children: [
-  //                                 Row(
-  //                                   mainAxisAlignment:
-  //                                       MainAxisAlignment.spaceBetween,
-  //                                   children: [
-  //                                     Container(
-  //                                       padding: EdgeInsets.symmetric(
-  //                                         horizontal: 10,
-  //                                         vertical: 6,
-  //                                       ),
-  //                                       decoration: BoxDecoration(
-  //                                         color: AppColors.primaryColor
-  //                                             .withOpacity(0.1),
-  //                                         borderRadius: BorderRadius.circular(
-  //                                           20,
-  //                                         ),
-  //                                       ),
-  //                                       child: Text(
-  //                                         'Vente',
-  //                                         style: TextStyle(
-  //                                           color: AppColors.primaryColor,
-  //                                           fontWeight: FontWeight.w600,
-  //                                           fontSize: 12,
-  //                                         ),
-  //                                       ),
-  //                                     ),
-  //                                     Text(
-  //                                       '2000.0 FCFA',
-  //                                       style: TextStyle(
-  //                                         color: AppColors.primaryColor,
-  //                                         fontWeight: FontWeight.bold,
-  //                                         fontSize: 14,
-  //                                       ),
-  //                                     ),
-  //                                   ],
-  //                                 ),
-  //                                 SizedBox(height: 2),
-  //                                 Row(
-  //                                   children: [
-  //                                     Icon(
-  //                                       Icons.location_on,
-  //                                       color: Colors.grey[500],
-  //                                       size: 16,
-  //                                     ),
-  //                                     SizedBox(width: 4),
-  //                                     Text(
-  //                                       'Pala-Francophonie',
-  //                                       style: TextStyle(
-  //                                         color: Colors.grey[700],
-  //                                         fontSize: 13,
-  //                                       ),
-  //                                     ),
-  //                                   ],
-  //                                 ),
-  //                               ],
-  //                             ),
-  //                           ),
-  //                         ],
-  //                       ),
-  //                     ),
-  //                   );
-  //                 },
-  //               ),
-  //             ),
-  //           ],
-  //         ),
-  //       ),
-
-  //       // Sponsored banners section (Les Annonces)
-  //       Container(
-  //         padding: EdgeInsets.symmetric(
-  //           horizontal: width * 0.05,
-  //           vertical: height * 0.02,
-  //         ),
-  //         child: Column(
-  //           crossAxisAlignment: CrossAxisAlignment.start,
-  //           children: [
-  //             Text(
-  //               'LES ANNONCES',
-  //               style: TextStyle(
-  //                 fontSize: 14,
-  //                 fontWeight: FontWeight.w600,
-  //                 color: Colors.grey[600],
-  //                 letterSpacing: 0.5,
-  //               ),
-  //             ),
-  //             SizedBox(height: 15),
-  //             GestureDetector(
-  //               onTap: () => _showAnnonceDetails(context),
-  //               child: Container(
-  //                 height: height * 0.12,
-  //                 decoration: BoxDecoration(
-  //                   color: Colors.orange[50],
-  //                   borderRadius: BorderRadius.circular(15),
-  //                   boxShadow: [
-  //                     BoxShadow(
-  //                       color: Colors.grey.withOpacity(0.1),
-  //                       spreadRadius: 0,
-  //                       blurRadius: 5,
-  //                       offset: Offset(0, 2),
-  //                     ),
-  //                   ],
-  //                 ),
-  //                 child: Row(
-  //                   children: [
-  //                     Container(
-  //                       width: width * 0.2,
-  //                       decoration: BoxDecoration(
-  //                         color: Colors.orange,
-  //                         borderRadius: BorderRadius.only(
-  //                           topLeft: Radius.circular(15),
-  //                           bottomLeft: Radius.circular(15),
-  //                         ),
-  //                       ),
-  //                       child: Center(
-  //                         child: Icon(
-  //                           Icons.campaign,
-  //                           color: Colors.white,
-  //                           size: 30,
-  //                         ),
-  //                       ),
-  //                     ),
-  //                     Expanded(
-  //                       child: Padding(
-  //                         padding: EdgeInsets.all(10),
-  //                         child: Column(
-  //                           crossAxisAlignment: CrossAxisAlignment.start,
-  //                           mainAxisAlignment: MainAxisAlignment.center,
-  //                           children: [
-  //                             Text(
-  //                               'Offres spéciales',
-  //                               style: TextStyle(
-  //                                 fontWeight: FontWeight.bold,
-  //                                 fontSize: 15,
-  //                               ),
-  //                             ),
-  //                             SizedBox(height: 4),
-  //                             Text(
-  //                               'Découvrez nos nouvelles propriétés à prix réduits',
-  //                               style: TextStyle(
-  //                                 color: Colors.grey[600],
-  //                                 fontSize: 12,
-  //                               ),
-  //                               maxLines: 2,
-  //                               overflow: TextOverflow.ellipsis,
-  //                             ),
-  //                           ],
-  //                         ),
-  //                       ),
-  //                     ),
-  //                     Container(
-  //                       margin: EdgeInsets.only(right: 10),
-  //                       padding: EdgeInsets.symmetric(
-  //                         horizontal: 12,
-  //                         vertical: 6,
-  //                       ),
-  //                       decoration: BoxDecoration(
-  //                         color: AppColors.primaryColor,
-  //                         borderRadius: BorderRadius.circular(20),
-  //                       ),
-  //                       child: Text(
-  //                         'Voir',
-  //                         style: TextStyle(
-  //                           color: AppColors.secondaryColor,
-  //                           fontWeight: FontWeight.w600,
-  //                           fontSize: 12,
-  //                         ),
-  //                       ),
-  //                     ),
-  //                   ],
-  //                 ),
-  //               ),
-  //             ),
-  //             // Add more annonces here if needed
-  //             SizedBox(height: height * 0.03),
-  //           ],
-  //         ),
-  //       ),
-
-  //       // Add some bottom padding
-  //       SizedBox(height: 20),
-  //     ]),
-  //   );
-  // }
 
   // Maisons placeholder content
   Widget _buildMaisonsContent(double width, double height) {
-    // Sample property data (you would normally fetch this from your backend)
-    final List<Map<String, dynamic>> properties = [
-      {
-        'name': 'Villa Moderne',
-        'price': 450000.00,
-        'size': 240.50,
-        'description':
-            'Magnifique villa contemporaine avec jardin spacieux et piscine. Quartier calme et sécurisé.',
-        'area': 'Plateau',
-        'type_of_contract': 'sale',
-        'image': 'assets/images/house1.jpg',
-      },
-      {
-        'name': 'Appartement de Luxe',
-        'price': 180000.00,
-        'size': 120.75,
-        'description':
-            'Appartement haut de gamme avec vue imprenable, finitions de qualité, cuisine équipée.',
-        'area': 'Cocody',
-        'type_of_contract': 'sale',
-        'image': 'assets/images/house2.jpg',
-      },
-      {
-        'name': 'Maison Familiale',
-        'price': 2500.00,
-        'size': 180.30,
-        'description':
-            'Grande maison familiale avec 4 chambres, jardin, cuisine spacieuse et garage pour 2 voitures.',
-        'area': 'Treichville',
-        'type_of_contract': 'rent',
-        'image': 'assets/images/house3.jpg',
-      },
-      {
-        'name': 'Studio Moderne',
-        'price': 850.00,
-        'size': 45.00,
-        'description':
-            'Studio meublé et rénové, idéal pour étudiant ou jeune professionnel. Proche des transports.',
-        'area': 'Marcory',
-        'type_of_contract': 'rent',
-        'image': 'assets/images/house4.jpg',
-      },
-      {
-        'name': 'Résidence Les Palmiers',
-        'price': 350000.00,
-        'size': 195.80,
-        'description':
-            'Résidence sécurisée avec 3 chambres, terrasse, piscine commune et espace vert partagé.',
-        'area': 'Riviera',
-        'type_of_contract': 'sale',
-        'image': 'assets/images/house5.jpg',
-      },
-    ];
+    return Consumer<HouseProvider>(
+      builder: (context, houseProvider, child) {
+        final housesList = houseProvider.housesInfos;
 
-    return SliverToBoxAdapter(
-      child: Container(
-        padding: EdgeInsets.all(width * 0.05),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        return SliverToBoxAdapter(
+          child: Container(
+            padding: EdgeInsets.all(width * 0.05),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'MAISONS',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.primaryColor,
-                  ),
-                ),
-                TextButton(
-                  onPressed: () {
-                    // Navigate to all properties page
-                  },
-                  child: Text(
-                    'Voir tout',
-                    style: TextStyle(
-                      color: AppColors.primaryColor,
-                      fontWeight: FontWeight.w500,
+                // Error handling section at the top
+                if (houseProvider.error != null)
+                  Container(
+                    margin: EdgeInsets.only(bottom: 16),
+                    padding: EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade50,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.red.shade200),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.error_outline,
+                              color: Colors.red.shade600,
+                              size: 20,
+                            ),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                housesList != null && housesList.isNotEmpty
+                                    ? 'Données non actualisées'
+                                    : 'Erreur de chargement',
+                                style: TextStyle(
+                                  color: Colors.red.shade800,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                            if (!houseProvider.isLoading)
+                              GestureDetector(
+                                onTap: () => houseProvider.retryLastOperation(),
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.red.shade600,
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  child: Text(
+                                    'Réessayer',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                        if (housesList == null || housesList.isEmpty) ...[
+                          SizedBox(height: 8),
+                          Text(
+                            houseProvider.error!,
+                            style: TextStyle(
+                              color: Colors.red.shade700,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ],
                     ),
                   ),
+
+                // Header section
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'MAISONS',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primaryColor,
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        // Navigate to all properties page
+                      },
+                      child: Text(
+                        'Voir tout',
+                        style: TextStyle(
+                          color: AppColors.primaryColor,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
+                SizedBox(height: 15),
+
+                // Loading state for initial load
+                if (houseProvider.isLoading &&
+                    (housesList == null || housesList.isEmpty))
+                  Container(
+                    height: height * 0.28,
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          CircularProgressIndicator(
+                            color: AppColors.primaryColor,
+                          ),
+                          SizedBox(height: 12),
+                          Text(
+                            'Chargement des maisons...',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                // Empty state (no data and no loading)
+                else if ((housesList == null || housesList.isEmpty) &&
+                    !houseProvider.isLoading)
+                  Container(
+                    height: height * 0.28,
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.home_outlined,
+                            size: 48,
+                            color: Colors.grey[400],
+                          ),
+                          SizedBox(height: 12),
+                          Text(
+                            houseProvider.error != null
+                                ? 'Impossible de charger les maisons'
+                                : 'Aucune maison disponible',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          if (houseProvider.error != null) ...[
+                            SizedBox(height: 12),
+                            ElevatedButton.icon(
+                              onPressed:
+                                  () => houseProvider.retryLastOperation(),
+                              icon: Icon(Icons.refresh, size: 18),
+                              label: Text('Réessayer'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primaryColor,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 8,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  )
+                // Houses list with data
+                else
+                  Column(
+                    children: [
+                      // Show loading overlay if refreshing with existing data
+                      if (houseProvider.isLoading &&
+                          housesList != null &&
+                          housesList.isNotEmpty)
+                        Container(
+                          padding: EdgeInsets.all(8),
+                          margin: EdgeInsets.only(bottom: 12),
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryColor.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: AppColors.primaryColor,
+                                ),
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                'Actualisation des données...',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.primaryColor,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                      // Houses cards
+                      if (housesList != null && housesList.isNotEmpty)
+                        ...housesList.map((house) {
+                          if (house is! Map<String, dynamic>) {
+                            return SizedBox.shrink();
+                          }
+                          return _buildPropertyCard(house, width);
+                        })
+                      else
+                        SizedBox(
+                          height: 200,
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.home_outlined,
+                                  size: 48,
+                                  color: Colors.grey[400],
+                                ),
+                                SizedBox(height: 12),
+                                Text(
+                                  'Aucune maison disponible',
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+
+                SizedBox(height: 50), // Bottom spacing
               ],
             ),
-            SizedBox(height: 15),
-            ...properties.map(
-              (property) => _buildPropertyCard(property, width),
-            ),
-            SizedBox(height: 50), // Additional space at bottom
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
   Widget _buildPropertyCard(Map<String, dynamic> property, double width) {
     final isRent = property['type_of_contract'] == 'rent';
+    final price = double.tryParse(property['price']?.toString() ?? '0') ?? 0.0;
     final formattedPrice = NumberFormat.currency(
-      symbol: isRent ? 'FCFA ' : 'FCFA ',
+      symbol: 'FCFA ',
       decimalDigits: 0,
-    ).format(property['price']);
+    ).format(price);
 
     return Container(
       margin: EdgeInsets.only(bottom: 20),
@@ -1199,22 +1276,71 @@ class _MyScreenState extends State<MyScreen> {
             borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
             child: Stack(
               children: [
-                Image.asset(
-                  property['image'],
+                SizedBox(
                   width: double.infinity,
                   height: 200,
-                  fit: BoxFit.cover,
-                  errorBuilder:
-                      (context, error, stackTrace) => Container(
-                        width: double.infinity,
-                        height: 200,
-                        color: Colors.grey[300],
-                        child: Icon(
-                          Icons.home,
-                          size: 60,
-                          color: Colors.grey[500],
-                        ),
-                      ),
+                  child:
+                      property['images'] != null &&
+                              property['images'].toString().isNotEmpty
+                          ? Image.network(
+                            property['images'].toString(),
+                            fit: BoxFit.cover,
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return Container(
+                                color: Colors.grey[200],
+                                child: Center(
+                                  child: CircularProgressIndicator(
+                                    color: AppColors.primaryColor,
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                              );
+                            },
+                            errorBuilder:
+                                (context, error, stackTrace) => Container(
+                                  color: Colors.grey[300],
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.broken_image,
+                                        size: 40,
+                                        color: Colors.grey[500],
+                                      ),
+                                      SizedBox(height: 8),
+                                      Text(
+                                        'Image non disponible',
+                                        style: TextStyle(
+                                          color: Colors.grey[600],
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                          )
+                          : Container(
+                            color: Colors.grey[300],
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.home,
+                                  size: 60,
+                                  color: Colors.grey[500],
+                                ),
+                                SizedBox(height: 8),
+                                Text(
+                                  'Pas d\'image',
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                 ),
                 Positioned(
                   top: 10,
@@ -1246,10 +1372,11 @@ class _MyScreenState extends State<MyScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
                       child: Text(
-                        property['name'],
+                        property['name']?.toString() ?? 'Maison',
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -1281,15 +1408,20 @@ class _MyScreenState extends State<MyScreen> {
                       color: Colors.grey[600],
                     ),
                     SizedBox(width: 4),
-                    Text(
-                      property['area'],
-                      style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                    Expanded(
+                      child: Text(
+                        property['area']?.toString() ?? 'N/A',
+                        style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 ),
                 SizedBox(height: 12),
                 Text(
-                  property['description'],
+                  property['description']?.toString() ??
+                      'Pas de description disponible',
                   style: TextStyle(fontSize: 14, color: Colors.grey[700]),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -1298,23 +1430,29 @@ class _MyScreenState extends State<MyScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.square_foot,
-                          size: 16,
-                          color: Colors.grey[600],
-                        ),
-                        SizedBox(width: 4),
-                        Text(
-                          '${property['size']} m²',
-                          style: TextStyle(
-                            fontSize: 14,
+                    if (property['size'] != null)
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.square_foot,
+                            size: 16,
                             color: Colors.grey[600],
                           ),
-                        ),
-                      ],
-                    ),
+                          SizedBox(width: 4),
+                          Text(
+                            '${property['size']} m²',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      )
+                    else
+                      Text(
+                        'ID: ${property['id'] ?? 'N/A'}',
+                        style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                      ),
                     Text(
                       formattedPrice + (isRent ? '/mois' : ''),
                       style: TextStyle(
@@ -1328,11 +1466,15 @@ class _MyScreenState extends State<MyScreen> {
                 SizedBox(height: 15),
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.pushNamed(context, '/house_details');
-                    // print('Clicked');
+                    Navigator.pushNamed(
+                      context,
+                      '/house_details',
+                      arguments: property,
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryColor,
+                    foregroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
@@ -1340,10 +1482,7 @@ class _MyScreenState extends State<MyScreen> {
                   ),
                   child: Text(
                     'Voir détails',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w500,
-                    ),
+                    style: TextStyle(fontWeight: FontWeight.w500),
                   ),
                 ),
               ],
@@ -1804,26 +1943,26 @@ class _MyScreenState extends State<MyScreen> {
   }
 
   // Helper method for building category filter buttons
-  Widget _buildCategoryButton(String label, bool isSelected) {
-    return Container(
-      margin: EdgeInsets.only(right: 10),
-      child: ElevatedButton(
-        onPressed: () {
-          // Filter products based on category
-        },
-        style: ElevatedButton.styleFrom(
-          foregroundColor: isSelected ? AppColors.primaryColor : Colors.white,
-          backgroundColor: isSelected ? Colors.white : Colors.black87,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-            side: BorderSide(color: AppColors.primaryColor),
-          ),
-          elevation: isSelected ? 2 : 0,
-        ),
-        child: Text(label),
-      ),
-    );
-  }
+  // Widget _buildCategoryButton(String label, bool isSelected) {
+  //   return Container(
+  //     margin: EdgeInsets.only(right: 10),
+  //     child: ElevatedButton(
+  //       onPressed: () {
+  //         // Filter products based on category
+  //       },
+  //       style: ElevatedButton.styleFrom(
+  //         foregroundColor: isSelected ? AppColors.primaryColor : Colors.white,
+  //         backgroundColor: isSelected ? Colors.white : Colors.black87,
+  //         shape: RoundedRectangleBorder(
+  //           borderRadius: BorderRadius.circular(20),
+  //           side: BorderSide(color: AppColors.primaryColor),
+  //         ),
+  //         elevation: isSelected ? 2 : 0,
+  //       ),
+  //       child: Text(label),
+  //     ),
+  //   );
+  // }
 
   // Method to show annonce details modal
   void _showAnnonceDetails(BuildContext context) {
