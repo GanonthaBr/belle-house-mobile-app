@@ -42,7 +42,7 @@ class HouseProvider with ChangeNotifier {
         !isDataStale &&
         _housesInfos != null &&
         _housesInfos!.isNotEmpty) {
-      print('Using cached house data');
+      // print('Using cached house data');
       return;
     }
 

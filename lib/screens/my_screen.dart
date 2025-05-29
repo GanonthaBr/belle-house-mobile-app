@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/providers/auth_provider.dart';
 import 'package:mobile_app/providers/house_provider.dart';
+import 'package:mobile_app/providers/lands_provider.dart';
+import 'package:mobile_app/providers/products_provider.dart';
 import 'package:mobile_app/screens/commerce_details.dart';
-import 'package:mobile_app/screens/lands.dart';
 import 'package:mobile_app/utils/colors.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -21,13 +22,22 @@ class _MyScreenState extends State<MyScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       final houseProvider = Provider.of<HouseProvider>(context, listen: false);
+      final landProvider = Provider.of<LandsProvider>(context, listen: false);
+      final productsProvider = Provider.of<ProductsProvider>(
+        context,
+        listen: false,
+      );
 
       // Load location data
       await authProvider.getCountryAndCity();
 
       // Load houses data
       await houseProvider.getHouseList();
+      //Load lands
+      await landProvider.getLandsList();
 
+      //load products
+      await productsProvider.getProductsList();
       // Handle any loading errors
       if (houseProvider.error != null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -1494,205 +1504,853 @@ class _MyScreenState extends State<MyScreen> {
   }
 
   // Parcelles placeholder content
+  // Corrected _buildParcellesContent method with proper null safety
   Widget _buildParcellesContent(double width, double height) {
-    // Example data - replace with your actual data source
-    final List<Map<String, dynamic>> parcelles = [
-      {
-        'id': 1,
-        'name': 'Parcelle A',
-        'location': 'Niamey Nord',
-        'size': '500 m²',
-        'price': 250000,
-        'image': 'assets/images/land1.jpg',
-      },
-      {
-        'id': 2,
-        'name': 'Parcelle B',
-        'location': 'Zone Résidentielle',
-        'size': '800 m²',
-        'price': 450000,
-        'image': 'assets/images/land2.jpg',
-      },
-      {
-        'id': 3,
-        'name': 'Parcelle C',
-        'location': 'Quartier Plateau',
-        'size': '600 m²',
-        'price': 320000,
-        'image': 'assets/images/land3.jpg',
-      },
-      {
-        'id': 4,
-        'name': 'Parcelle D',
-        'location': 'Yantala',
-        'size': '450 m²',
-        'price': 190000,
-        'image': 'assets/images/land4.jpg',
-      },
-      {
-        'id': 5,
-        'name': 'Parcelle E',
-        'location': 'Boukoki',
-        'size': '750 m²',
-        'price': 380000,
-        'image': 'assets/images/land5.jpg',
-      },
-    ];
+    return Consumer<LandsProvider>(
+      builder: (context, landProvider, child) {
+        final landsList = landProvider.landsInfos; // This can be null
 
-    return SliverToBoxAdapter(
-      child: Container(
-        padding: EdgeInsets.all(width * 0.05),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        return SliverToBoxAdapter(
+          child: Container(
+            padding: EdgeInsets.all(width * 0.05),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'PARCELLES',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.primaryColor,
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 15),
-            GridView.builder(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: width > 700 ? 3 : 2,
-                childAspectRatio: 0.75,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-              ),
-              itemCount: parcelles.length,
-              itemBuilder: (context, index) {
-                final parcelle = parcelles[index];
-                return GestureDetector(
-                  onTap: () {
-                    // Navigate to detail page
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder:
-                            (context) =>
-                                ParcelleDetailScreen(parcelle: parcelle),
-                      ),
-                    );
-                  },
-                  child: Card(
-                    elevation: 3,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
+                // Error handling section at the top
+                if (landProvider.error != null)
+                  Container(
+                    margin: EdgeInsets.only(bottom: 16),
+                    padding: EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade50,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.red.shade200),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Land image
-                        Expanded(
-                          flex: 3,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.vertical(
-                                top: Radius.circular(15),
-                              ),
-                              image: DecorationImage(
-                                image: AssetImage(parcelle['image']),
-                                fit: BoxFit.cover,
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.error_outline,
+                              color: Colors.red.shade600,
+                              size: 20,
+                            ),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                // CORRECTED: Proper null safety check
+                                (landsList != null && landsList.isNotEmpty)
+                                    ? 'Données non actualisées'
+                                    : 'Erreur de chargement',
+                                style: TextStyle(
+                                  color: Colors.red.shade800,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                ),
                               ),
                             ),
+                            if (!landProvider.isLoading)
+                              GestureDetector(
+                                onTap: () => landProvider.retryLastOperation(),
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.red.shade600,
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  child: Text(
+                                    'Réessayer',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                        // CORRECTED: Proper null safety check
+                        if (landsList == null || landsList.isEmpty) ...[
+                          SizedBox(height: 8),
+                          Text(
+                            landProvider.error!,
+                            style: TextStyle(
+                              color: Colors.red.shade700,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+
+                // Header section
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'PARCELLES',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primaryColor,
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        // Navigate to all lands page
+                      },
+                      child: Text(
+                        'Voir tout',
+                        style: TextStyle(
+                          color: AppColors.primaryColor,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 15),
+
+                // Loading state for initial load
+                // CORRECTED: Proper null safety check
+                if (landProvider.isLoading &&
+                    (landsList == null || landsList.isEmpty))
+                  SizedBox(
+                    height: height * 0.3,
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          CircularProgressIndicator(
+                            color: AppColors.primaryColor,
+                          ),
+                          SizedBox(height: 12),
+                          Text(
+                            'Chargement des parcelles...',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                else if ((landsList == null || landsList.isEmpty) &&
+                    !landProvider.isLoading)
+                  Container(
+                    height: height * 0.3,
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.landscape_outlined,
+                            size: 48,
+                            color: Colors.grey[400],
+                          ),
+                          SizedBox(height: 12),
+                          Text(
+                            landProvider.error != null
+                                ? 'Impossible de charger les parcelles'
+                                : 'Aucune parcelle disponible',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          if (landProvider.error != null) ...[
+                            SizedBox(height: 12),
+                            ElevatedButton.icon(
+                              onPressed:
+                                  () => landProvider.retryLastOperation(),
+                              icon: Icon(Icons.refresh, size: 18),
+                              label: Text('Réessayer'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primaryColor,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 8,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  )
+                // Lands grid with data
+                else
+                  Column(
+                    children: [
+                      if (landProvider.isLoading &&
+                          landsList != null &&
+                          landsList.isNotEmpty)
+                        Container(
+                          padding: EdgeInsets.all(8),
+                          margin: EdgeInsets.only(bottom: 12),
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryColor.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: AppColors.primaryColor,
+                                ),
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                'Actualisation des parcelles...',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.primaryColor,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        // Land details
-                        Expanded(
-                          flex: 2,
-                          child: Padding(
-                            padding: EdgeInsets.all(10),
+
+                      if (landsList != null && landsList.isNotEmpty)
+                        GridView.builder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          gridDelegate:
+                              SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: width > 700 ? 3 : 2,
+                                childAspectRatio: 0.75,
+                                crossAxisSpacing: 10,
+                                mainAxisSpacing: 10,
+                              ),
+                          itemCount: landsList.length,
+                          itemBuilder: (context, index) {
+                            final land = landsList[index];
+                            return _buildLandCard(land, context);
+                          },
+                        )
+                      else
+                        SizedBox(
+                          height: 200,
+                          child: Center(
                             child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      parcelle['name'],
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    SizedBox(height: 4),
-                                    Row(
-                                      children: [
-                                        Icon(
-                                          Icons.location_on,
-                                          size: 14,
-                                          color: Colors.grey,
-                                        ),
-                                        SizedBox(width: 4),
-                                        Expanded(
-                                          child: Text(
-                                            parcelle['location'],
-                                            style: TextStyle(
-                                              color: Colors.grey[600],
-                                              fontSize: 12,
-                                            ),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
+                                Icon(
+                                  Icons.landscape_outlined,
+                                  size: 48,
+                                  color: Colors.grey[400],
                                 ),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      '${parcelle['size']}',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w500,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                    Text(
-                                      '${parcelle['price']} FCFA',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: AppColors.primaryColor,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                  ],
+                                SizedBox(height: 12),
+                                Text(
+                                  'Aucune parcelle disponible',
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 16,
+                                  ),
                                 ),
                               ],
                             ),
                           ),
                         ),
+                    ],
+                  ),
+                SizedBox(height: 20),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // Helper method to build land card
+  Widget _buildLandCard(dynamic land, BuildContext context) {
+    // Handle both Land objects and Map<String, dynamic>
+    final Map<String, dynamic> landData;
+
+    if (land is Map<String, dynamic>) {
+      landData = land;
+    } else {
+      // If using Land model class, convert to map
+      landData = {
+        'id': land.id,
+        'name': land.name,
+        'area': land.area,
+        'size': land.size,
+        'price': land.price,
+        'images': land.images?.isNotEmpty == true ? land.images!.first : null,
+        'type_of_contract': land.typeOfContract,
+        'land_type': land.landType,
+        'description': land.description,
+      };
+    }
+
+    final price = double.tryParse(landData['price']?.toString() ?? '0') ?? 0.0;
+    final formattedPrice = NumberFormat.currency(
+      symbol: 'FCFA ',
+      decimalDigits: 0,
+    ).format(price);
+
+    final isRent = landData['type_of_contract'] == 'rent';
+    final landType = landData['land_type'] ?? 'residential';
+
+    return GestureDetector(
+      onTap: () {
+        // Navigate to land detail page
+        Navigator.pushNamed(context, '/land_details', arguments: landData);
+      },
+      child: Card(
+        elevation: 3,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Land image
+            Expanded(
+              flex: 3,
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(15)),
+                ),
+                child: Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(15),
+                      ),
+                      child: Container(
+                        width: double.infinity,
+                        height: double.infinity,
+                        child:
+                            landData['images'] != null &&
+                                    landData['images'].toString().isNotEmpty
+                                ? Image.network(
+                                  landData['images'].toString(),
+                                  fit: BoxFit.cover,
+                                  loadingBuilder: (
+                                    context,
+                                    child,
+                                    loadingProgress,
+                                  ) {
+                                    if (loadingProgress == null) return child;
+                                    return Container(
+                                      color: Colors.grey[200],
+                                      child: Center(
+                                        child: CircularProgressIndicator(
+                                          color: AppColors.primaryColor,
+                                          strokeWidth: 2,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                  errorBuilder:
+                                      (context, error, stackTrace) => Container(
+                                        color: Colors.grey[300],
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Icon(
+                                              Icons.broken_image,
+                                              size: 30,
+                                              color: Colors.grey[500],
+                                            ),
+                                            SizedBox(height: 4),
+                                            Text(
+                                              'Image non disponible',
+                                              style: TextStyle(
+                                                color: Colors.grey[600],
+                                                fontSize: 10,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                )
+                                : Container(
+                                  color: Colors.grey[300],
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.landscape,
+                                        size: 40,
+                                        color: Colors.grey[500],
+                                      ),
+                                      SizedBox(height: 4),
+                                      Text(
+                                        'Pas d\'image',
+                                        style: TextStyle(
+                                          color: Colors.grey[600],
+                                          fontSize: 10,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                      ),
+                    ),
+
+                    // Contract type badge
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: isRent ? Colors.blue : AppColors.primaryColor,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          isRent ? 'Louer' : 'Vente',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // Land type badge
+                    Positioned(
+                      top: 8,
+                      left: 8,
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.7),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          _getLandTypeLabel(landType),
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // Land details
+            Expanded(
+              flex: 2,
+              child: Padding(
+                padding: EdgeInsets.all(10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          landData['name']?.toString() ?? 'Parcelle',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        SizedBox(height: 4),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.location_on,
+                              size: 12,
+                              color: Colors.grey[600],
+                            ),
+                            SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                landData['area']?.toString() ?? 'N/A',
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 11,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
-                  ),
-                );
-              },
+                    Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              '${landData['size'] ?? 'N/A'} m²',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 12,
+                                color: Colors.grey[700],
+                              ),
+                            ),
+                            Text(
+                              formattedPrice,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.primaryColor,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                        if (isRent)
+                          Padding(
+                            padding: EdgeInsets.only(top: 2),
+                            child: Align(
+                              alignment: Alignment.centerRight,
+                              child: Text(
+                                '/mois',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: AppColors.primaryColor,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
             ),
-            SizedBox(height: 20),
           ],
         ),
       ),
     );
   }
 
+  // Helper method to get land type label in French
+  String _getLandTypeLabel(String landType) {
+    switch (landType.toLowerCase()) {
+      case 'residential':
+        return 'Résidentiel';
+      case 'commercial':
+        return 'Commercial';
+      case 'agricultural':
+        return 'Agricole';
+      case 'industrial':
+        return 'Industriel';
+      default:
+        return 'Terrain';
+    }
+  }
+
   // Shopping placeholder content
+  // Shopping content with ProductsProvider consumer
   Widget _buildShoppingContent(double width, double height) {
-    // Sample construction materials and decoration/finishing items
-    final List<Map<String, dynamic>> products = [
+    return Consumer<ProductsProvider>(
+      builder: (context, productsProvider, child) {
+        final productsList = productsProvider.productsInfos;
+
+        return SliverToBoxAdapter(
+          child: Container(
+            padding: EdgeInsets.all(width * 0.05),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Error handling section at the top
+                if (productsProvider.error != null)
+                  Container(
+                    margin: EdgeInsets.only(bottom: 16),
+                    padding: EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade50,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.red.shade200),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.error_outline,
+                              color: Colors.red.shade600,
+                              size: 20,
+                            ),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                productsList != null && productsList.isNotEmpty
+                                    ? 'Données non actualisées'
+                                    : 'Erreur de chargement',
+                                style: TextStyle(
+                                  color: Colors.red.shade800,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                            if (!productsProvider.isLoading)
+                              GestureDetector(
+                                onTap:
+                                    () => productsProvider.retryLastOperation(),
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.red.shade600,
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  child: Text(
+                                    'Réessayer',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                        if (productsList == null || productsList.isEmpty) ...[
+                          SizedBox(height: 8),
+                          Text(
+                            productsProvider.error!,
+                            style: TextStyle(
+                              color: Colors.red.shade700,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+
+                // Header section
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'SHOPPING',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primaryColor,
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        // Navigate to all products page
+                      },
+                      child: Text(
+                        'Voir tout',
+                        style: TextStyle(
+                          color: AppColors.primaryColor,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 15),
+
+                // Loading state for initial load
+                if (productsProvider.isLoading &&
+                    (productsList == null || productsList.isEmpty))
+                  Container(
+                    height: height * 0.28,
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          CircularProgressIndicator(
+                            color: AppColors.primaryColor,
+                          ),
+                          SizedBox(height: 12),
+                          Text(
+                            'Chargement des produits...',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
+                // Empty state (no data and no loading)
+                else if ((productsList == null || productsList.isEmpty) &&
+                    !productsProvider.isLoading)
+                  Container(
+                    height: height * 0.28,
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.shopping_cart_outlined,
+                            size: 48,
+                            color: Colors.grey[400],
+                          ),
+                          SizedBox(height: 12),
+                          Text(
+                            productsProvider.error != null
+                                ? 'Impossible de charger les produits'
+                                : 'Aucun produit disponible',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          if (productsProvider.error != null) ...[
+                            SizedBox(height: 12),
+                            ElevatedButton.icon(
+                              onPressed:
+                                  () => productsProvider.retryLastOperation(),
+                              icon: Icon(Icons.refresh, size: 18),
+                              label: Text('Réessayer'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primaryColor,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 20,
+                                  vertical: 8,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                  )
+                // Products grid with data
+                else
+                  Column(
+                    children: [
+                      // Show loading overlay if refreshing with existing data
+                      if (productsProvider.isLoading &&
+                          productsList != null &&
+                          productsList.isNotEmpty)
+                        Container(
+                          padding: EdgeInsets.all(8),
+                          margin: EdgeInsets.only(bottom: 12),
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryColor.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: AppColors.primaryColor,
+                                ),
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                'Actualisation des données...',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.primaryColor,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                      // Products grid - Use provider data if available, otherwise fallback to static data
+                      GridView.builder(
+                        physics: NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          childAspectRatio: 0.75,
+                          crossAxisSpacing: 10,
+                          mainAxisSpacing: 15,
+                        ),
+                        itemCount:
+                            (productsList != null && productsList.isNotEmpty)
+                                ? productsList.length
+                                : _getStaticProducts().length,
+                        itemBuilder: (context, index) {
+                          final product =
+                              (productsList != null && productsList.isNotEmpty)
+                                  ? productsList[index]
+                                  : _getStaticProducts()[index];
+
+                          if (product is! Map<String, dynamic>) {
+                            return SizedBox.shrink();
+                          }
+                          return _buildProductCard(product, context);
+                        },
+                      ),
+                    ],
+                  ),
+
+                SizedBox(height: 20),
+                // Filter or category buttons (commented out as in original)
+                // SingleChildScrollView(
+                //   scrollDirection: Axis.horizontal,
+                //   child: Row(
+                //     children: [
+                //       _buildCategoryButton('All Products', true),
+                //       _buildCategoryButton('Construction', false),
+                //       _buildCategoryButton('Decoration', false),
+                //       _buildCategoryButton('Finishing', false),
+                //       _buildCategoryButton('Tools', false),
+                //     ],
+                //   ),
+                // ),
+                // SizedBox(height: 40),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // Static fallback products (original content)
+  List<Map<String, dynamic>> _getStaticProducts() {
+    return [
       {
         'name': 'Premium Cement Bags',
         'price': 12.99,
@@ -1742,206 +2400,222 @@ class _MyScreenState extends State<MyScreen> {
         'inStock': true,
       },
     ];
+  }
 
-    return SliverToBoxAdapter(
+  Widget _buildProductCard(Map<String, dynamic> product, BuildContext context) {
+    return InkWell(
+      onTap: () {
+        // Navigate to product detail screen when a product is tapped
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProductDetailScreen(product: product),
+          ),
+        );
+      },
       child: Container(
-        padding: EdgeInsets.all(width * 0.05),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.2),
+              spreadRadius: 1,
+              blurRadius: 4,
+              offset: Offset(0, 2),
+            ),
+          ],
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              'SHOPPING',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppColors.primaryColor,
+            // Product image
+            Container(
+              height: 120,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(10),
+                  topRight: Radius.circular(10),
+                ),
+                color: Colors.grey[200],
               ),
-            ),
-            SizedBox(height: 15),
-            // Display grid of products
-            GridView.builder(
-              physics:
-                  NeverScrollableScrollPhysics(), // Disable scroll within grid
-              shrinkWrap: true, // Important to work inside CustomScrollView
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 0.75,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 15,
-              ),
-              itemCount: products.length,
-              itemBuilder: (context, index) {
-                final product = products[index];
-
-                return InkWell(
-                  onTap: () {
-                    // Navigate to product detail screen when a product is tapped
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder:
-                            (context) => ProductDetailScreen(product: product),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.grey.withOpacity(0.2),
-                          spreadRadius: 1,
-                          blurRadius: 4,
-                          offset: Offset(0, 2),
-                        ),
-                      ],
+              child: Stack(
+                children: [
+                  // Image container
+                  ClipRRect(
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(10),
+                      topRight: Radius.circular(10),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Product image
-                        Container(
-                          height: 120,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(10),
-                              topRight: Radius.circular(10),
-                            ),
-                            color: Colors.grey[200],
-                            image: DecorationImage(
-                              image: AssetImage(product['image']),
+                    child:
+                        product['image'] != null
+                            ? Image.asset(
+                              product['image'],
+                              width: double.infinity,
+                              height: 120,
                               fit: BoxFit.cover,
-                            ),
-                          ),
-                          alignment: Alignment.topRight,
-                          child: Container(
-                            margin: EdgeInsets.all(8),
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color:
-                                  product['inStock']
-                                      ? AppColors.primaryColor
-                                      : Colors.grey,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              product['inStock'] ? 'In Stock' : 'Out of Stock',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 10,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                        // Product details
-                        Padding(
-                          padding: EdgeInsets.all(8),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                product['name'],
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              SizedBox(height: 4),
-                              // Display product specifications
-                              if (product.containsKey('weight'))
-                                _buildSpecText('Weight: ${product['weight']}'),
-                              if (product.containsKey('size'))
-                                _buildSpecText('Size: ${product['size']}'),
-                              if (product.containsKey('volume'))
-                                _buildSpecText('Volume: ${product['volume']}'),
-                              if (product.containsKey('length'))
-                                _buildSpecText('Length: ${product['length']}'),
-                              if (product.containsKey('coverage'))
-                                _buildSpecText(
-                                  'Coverage: ${product['coverage']}',
-                                ),
-                              SizedBox(height: 8),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    '\$${product['price'].toStringAsFixed(2)}/${product['unit']}',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
-                                      color: AppColors.primaryColor,
+                              errorBuilder:
+                                  (context, error, stackTrace) => Container(
+                                    color: Colors.grey[300],
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.broken_image,
+                                          size: 30,
+                                          color: Colors.grey[500],
+                                        ),
+                                        SizedBox(height: 4),
+                                        Text(
+                                          'Image non disponible',
+                                          style: TextStyle(
+                                            color: Colors.grey[600],
+                                            fontSize: 10,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  InkWell(
-                                    onTap: () {
-                                      // Add to cart functionality
-                                    },
-                                    child: Container(
-                                      padding: EdgeInsets.all(4),
-                                      decoration: BoxDecoration(
-                                        color: AppColors.primaryColor,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Icon(
-                                        Icons.add_shopping_cart,
-                                        color: Colors.white,
-                                        size: 18,
-                                      ),
+                            )
+                            : Container(
+                              width: double.infinity,
+                              height: 120,
+                              color: Colors.grey[300],
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.shopping_bag,
+                                    size: 40,
+                                    color: Colors.grey[500],
+                                  ),
+                                  SizedBox(height: 4),
+                                  Text(
+                                    'Pas d\'image',
+                                    style: TextStyle(
+                                      color: Colors.grey[600],
+                                      fontSize: 10,
                                     ),
                                   ),
                                 ],
                               ),
-                            ],
+                            ),
+                  ),
+                  // Stock status badge
+                  Positioned(
+                    top: 8,
+                    right: 8,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color:
+                            (product['inStock'] ?? true)
+                                ? AppColors.primaryColor
+                                : Colors.grey,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        (product['inStock'] ?? true)
+                            ? 'In Stock'
+                            : 'Out of Stock',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Product details
+            Expanded(
+              child: Padding(
+                padding: EdgeInsets.all(8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      product['name']?.toString() ?? 'Product',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    SizedBox(height: 4),
+                    // Display product specifications
+                    if (product.containsKey('weight'))
+                      _buildSpecText('Weight: ${product['weight']}'),
+                    if (product.containsKey('size'))
+                      _buildSpecText('Size: ${product['size']}'),
+                    if (product.containsKey('volume'))
+                      _buildSpecText('Volume: ${product['volume']}'),
+                    if (product.containsKey('length'))
+                      _buildSpecText('Length: ${product['length']}'),
+                    if (product.containsKey('coverage'))
+                      _buildSpecText('Coverage: ${product['coverage']}'),
+
+                    Spacer(),
+                    SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Expanded(
+                          child: Text(
+                            '\$${(product['price'] ?? 0.0).toStringAsFixed(2)}/${product['unit'] ?? 'item'}',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                              color: AppColors.primaryColor,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        InkWell(
+                          onTap: () {
+                            // Add to cart functionality
+                          },
+                          child: Container(
+                            padding: EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryColor,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              Icons.add_shopping_cart,
+                              color: Colors.white,
+                              size: 18,
+                            ),
                           ),
                         ),
                       ],
                     ),
-                  ),
-                );
-              },
+                  ],
+                ),
+              ),
             ),
-            SizedBox(height: 20),
-            // Filter or category buttons
-            // SingleChildScrollView(
-            //   scrollDirection: Axis.horizontal,
-            //   child: Row(
-            //     children: [
-            //       _buildCategoryButton('All Products', true),
-            //       _buildCategoryButton('Construction', false),
-            //       _buildCategoryButton('Decoration', false),
-            //       _buildCategoryButton('Finishing', false),
-            //       _buildCategoryButton('Tools', false),
-            //     ],
-            //   ),
-            // ),
-            // SizedBox(height: 40),
           ],
         ),
       ),
     );
   }
 
-  // Helper method for building specification text
   Widget _buildSpecText(String text) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 2),
+      padding: EdgeInsets.only(top: 2),
       child: Text(
         text,
-        style: TextStyle(fontSize: 12, color: Colors.grey[700]),
+        style: TextStyle(color: Colors.grey[600], fontSize: 11),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
     );
   }
-
   // Helper method for building category filter buttons
   // Widget _buildCategoryButton(String label, bool isSelected) {
   //   return Container(

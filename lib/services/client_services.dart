@@ -113,9 +113,10 @@ class HomeServices {
     try {
       // print('Fetching parcelles...');
       final response = await _apiServices.get('${ApiConstants.baseUrl}/lands/');
+
       return _handleResponse(response, 'fetch parcelles');
     } catch (e) {
-      print('Error fetching parcelles: $e');
+      // print('Error fetching parcelles: $e');
       return {'error': 'Network error: $e'};
     }
   }
