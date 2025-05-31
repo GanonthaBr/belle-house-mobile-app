@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:mobile_app/services/client_services.dart';
 
@@ -7,6 +9,7 @@ class LandsProvider with ChangeNotifier {
   List<dynamic>? _landsInfos;
   String? _error;
   DateTime? _lastFetchTime;
+  Timer? _autoRefreshTimer;
 
   // Getters
   bool get isLoading => _isLoading;
@@ -14,10 +17,29 @@ class LandsProvider with ChangeNotifier {
   String? get error => _error;
   DateTime? get lastFetchTime => _lastFetchTime;
 
+  void startAutoRefresh({Duration interval = const Duration(minutes: 5)}) {
+    _autoRefreshTimer?.cancel();
+    _autoRefreshTimer = Timer.periodic(interval, (timer) {
+      refreshLands();
+    });
+  }
+
+  // Call this to stop auto-refresh (e.g., on dispose)
+  void stopAutoRefresh() {
+    _autoRefreshTimer?.cancel();
+    _autoRefreshTimer = null;
+  }
+
+  @override
+  void dispose() {
+    stopAutoRefresh();
+    super.dispose();
+  }
+
   // Check if data is stale (older than 5 minutes)
   bool get isDataStale {
     if (_lastFetchTime == null) return true;
-    return DateTime.now().difference(_lastFetchTime!).inMinutes > 5;
+    return DateTime.now().difference(_lastFetchTime!).inMinutes > 1;
   }
 
   // Set loading state

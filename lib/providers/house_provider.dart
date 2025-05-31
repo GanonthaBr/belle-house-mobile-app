@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:mobile_app/services/client_services.dart'; // Your HomeServices
 
@@ -9,6 +11,7 @@ class HouseProvider with ChangeNotifier {
   Map<String, dynamic>? _houseInfos;
   String? _error;
   DateTime? _lastFetchTime;
+  Timer? _autoRefreshTimer;
 
   // Getters
   bool get isLoading => _isLoading;
@@ -33,6 +36,25 @@ class HouseProvider with ChangeNotifier {
   void clearError() {
     _error = null;
     notifyListeners();
+  }
+
+  void startAutoRefresh({Duration interval = const Duration(minutes: 5)}) {
+    _autoRefreshTimer?.cancel();
+    _autoRefreshTimer = Timer.periodic(interval, (timer) {
+      refreshHouses();
+    });
+  }
+
+  // Call this to stop auto-refresh (e.g., on dispose)
+  void stopAutoRefresh() {
+    _autoRefreshTimer?.cancel();
+    _autoRefreshTimer = null;
+  }
+
+  @override
+  void dispose() {
+    stopAutoRefresh();
+    super.dispose();
   }
 
   // Fetch house list with automatic retry (built into ApiServices)

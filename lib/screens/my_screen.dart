@@ -23,10 +23,13 @@ class _MyScreenState extends State<MyScreen> {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       final houseProvider = Provider.of<HouseProvider>(context, listen: false);
       final landProvider = Provider.of<LandsProvider>(context, listen: false);
+      Provider.of<LandsProvider>(context, listen: false).startAutoRefresh();
+      Provider.of<HouseProvider>(context, listen: false).startAutoRefresh();
       final productsProvider = Provider.of<ProductsProvider>(
         context,
         listen: false,
       );
+      Provider.of<ProductsProvider>(context, listen: false).startAutoRefresh();
 
       // Load location data
       await authProvider.getCountryAndCity();
@@ -38,6 +41,7 @@ class _MyScreenState extends State<MyScreen> {
 
       //load products
       await productsProvider.getProductsList();
+
       // Handle any loading errors
       if (houseProvider.error != null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -1736,8 +1740,8 @@ class _MyScreenState extends State<MyScreen> {
                               SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: width > 700 ? 3 : 2,
                                 childAspectRatio: 0.75,
-                                crossAxisSpacing: 10,
-                                mainAxisSpacing: 10,
+                                crossAxisSpacing: 5,
+                                mainAxisSpacing: 7,
                               ),
                           itemCount: landsList.length,
                           itemBuilder: (context, index) {
@@ -1972,14 +1976,21 @@ class _MyScreenState extends State<MyScreen> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          landData['name']?.toString() ?? 'Parcelle',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                        Row(
+                          children: [
+                            Text('Agent: '),
+                            Text(
+                              landData['name'].length >= 10
+                                  ? landData['name'].substring(0, 15)
+                                  : landData['name'] ?? 'Belle House',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 11,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
                         ),
                         SizedBox(height: 4),
                         Row(
@@ -2566,7 +2577,7 @@ class _MyScreenState extends State<MyScreen> {
                       children: [
                         Expanded(
                           child: Text(
-                            '\$${(product['price'] ?? 0.0).toStringAsFixed(2)}/${product['unit'] ?? 'item'}',
+                            '\$${(product['price'] ?? 0.0).toString()}/${product['unit'] ?? 'item'}',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 14,

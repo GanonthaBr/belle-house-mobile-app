@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:mobile_app/services/client_services.dart';
 
@@ -7,6 +9,7 @@ class ProductsProvider with ChangeNotifier {
   List<dynamic>? _productsInfos;
   String? _error;
   DateTime? _lastFetchTime;
+  Timer? _autoRefreshTimer;
 
   // Getters
   bool get isLoading => _isLoading;
@@ -17,7 +20,7 @@ class ProductsProvider with ChangeNotifier {
   // Check if data is stale (older than 5 minutes)
   bool get isDataStale {
     if (_lastFetchTime == null) return true;
-    return DateTime.now().difference(_lastFetchTime!).inMinutes > 5;
+    return DateTime.now().difference(_lastFetchTime!).inMinutes > 1;
   }
 
   // Set loading state
@@ -30,6 +33,25 @@ class ProductsProvider with ChangeNotifier {
   void clearError() {
     _error = null;
     notifyListeners();
+  }
+
+  void startAutoRefresh({Duration interval = const Duration(minutes: 5)}) {
+    _autoRefreshTimer?.cancel();
+    _autoRefreshTimer = Timer.periodic(interval, (timer) {
+      refreshProducts();
+    });
+  }
+
+  // Call this to stop auto-refresh (e.g., on dispose)
+  void stopAutoRefresh() {
+    _autoRefreshTimer?.cancel();
+    _autoRefreshTimer = null;
+  }
+
+  @override
+  void dispose() {
+    stopAutoRefresh();
+    super.dispose();
   }
 
   // Fetch products list with automatic retry (built into ApiServices)
