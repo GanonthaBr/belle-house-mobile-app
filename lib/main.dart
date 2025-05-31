@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_app/models/houses_mode.dart';
+import 'package:mobile_app/models/land_model.dart';
 import 'package:mobile_app/providers/auth_provider.dart';
 import 'package:mobile_app/providers/house_provider.dart';
 import 'package:mobile_app/providers/lands_provider.dart';
@@ -13,6 +14,7 @@ import 'package:mobile_app/screens/main_screen.dart';
 import 'package:mobile_app/screens/message_details.dart';
 import 'package:mobile_app/screens/register_screen.dart';
 import 'package:mobile_app/screens/splashscreen.dart';
+import 'package:mobile_app/widgets/error_widget.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -44,79 +46,65 @@ class MyApp extends StatelessWidget {
           '/register': (context) => RegisterScreen(),
           '/house_details': (context) {
             final args = ModalRoute.of(context)!.settings.arguments;
+
             Property property;
 
-            // Check if arguments is already a Property object or a Map
             if (args is Property) {
               property = args;
             } else if (args is Map<String, dynamic>) {
-              // Create Property from Map using fromJson
               property = Property.fromJson(args);
             } else {
-              // Handle error case
-              return Scaffold(
-                appBar: AppBar(
-                  title: Text('Error'),
-                  backgroundColor: Color(0xff61a1d6),
-                ),
-                body: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.error_outline, size: 64, color: Colors.red),
-                      SizedBox(height: 16),
-                      Text(
-                        'Invalid property data',
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      Text('Please try again or contact support.'),
-                      SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: Text('Go Back'),
-                      ),
-                    ],
-                  ),
-                ),
-              );
+              return buildErrorScreen(context, 'Invalid property data');
             }
+
             return HouseDetailsScreen(
-              imagePath: property.imagePath, // Uses images from API
-              contractType:
-                  property.contractType, // Uses type_of_contract from API
-              location: property.location, // Uses area from API
+              imagePath: property.imagePath,
+              contractType: property.contractType,
+              location: property.location,
               price: property.price,
               bedrooms: property.bedrooms,
               bathrooms: property.bathrooms,
-              kitchens: property.kitchens, // Uses kitchen from API
+              kitchens: property.kitchens,
               description: property.description,
-              agentName: property.agentName, // Uses agent_name from API
-              agentRole: 'Real Estate Agent', // Default role since not in API
-              agentImage:
-                  'images/default_agent.png', // Default image since not in API
+              agentName: property.agentName,
+              agentRole: 'Real Estate Agent',
+              agentImage: 'images/default_agent.png',
             );
           },
 
+          // New land route
+          '/land_details': (context) {
+            final args = ModalRoute.of(context)!.settings.arguments;
+
+            Land land;
+
+            if (args is Land) {
+              land = args;
+            } else if (args is Map<String, dynamic>) {
+              land = Land.fromJson(args);
+            } else {
+              return buildErrorScreen(context, 'Invalid land data');
+            }
+
+            return LandDetailsScreen(
+              contractType: '',
+              agentRole: '',
+              agentImage: '',
+              imagePath: land.imagePath,
+              agentName: land.name,
+              location: land.location,
+              price: land.price,
+              // size: land.size,
+              // landType: land.landType,
+              description: land.description,
+              // ownerName: land.ownerName, contractType: '', agentName: '', agentRole: '', agentImage: '',
+            );
+          },
           '/home_screen': (context) => HomeScreen(),
           "/message_details":
               (context) => MessageDetailsScreen(
                 receiverName: 'Alissa',
                 receiverImage: 'images/logo.png',
-              ),
-          '/land_details':
-              (context) => LandDetailsScreen(
-                imagePath: 'images/lands.jpg',
-                contractType: 'Vente',
-                location: 'Franco',
-                price: 20000,
-                description: 'descriptipn',
-                agentImage: 'images/logo.png',
-                agentName: 'BH',
-                agentRole: 'immobieier',
               ),
         },
       ),

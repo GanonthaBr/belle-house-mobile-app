@@ -574,9 +574,6 @@ class _MyScreenState extends State<MyScreen> {
 
                               // Type checking to ensure house is a Map
                               if (house is! Map<String, dynamic>) {
-                                print(
-                                  'Invalid house data at index $index: $house',
-                                );
                                 return SizedBox.shrink();
                               }
 
@@ -998,7 +995,6 @@ class _MyScreenState extends State<MyScreen> {
     return Consumer<HouseProvider>(
       builder: (context, houseProvider, child) {
         final housesList = houseProvider.housesInfos;
-        print(housesList);
         return SliverToBoxAdapter(
           child: Container(
             padding: EdgeInsets.all(width * 0.05),
@@ -1527,7 +1523,7 @@ class _MyScreenState extends State<MyScreen> {
     return Consumer<LandsProvider>(
       builder: (context, landProvider, child) {
         final landsList = landProvider.landsInfos; // This can be null
-
+        // print(landsList);
         return SliverToBoxAdapter(
           child: Container(
             padding: EdgeInsets.all(width * 0.05),

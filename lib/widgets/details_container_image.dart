@@ -19,7 +19,10 @@ class DetailsContainerImage extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: bgColor,
-        image: DecorationImage(image: AssetImage(imagePath), fit: BoxFit.cover),
+        image: DecorationImage(
+          image: NetworkImage(imagePath),
+          fit: BoxFit.cover,
+        ),
         borderRadius: BorderRadius.only(
           bottomRight: Radius.circular(AppDimension.fontSize18),
           bottomLeft: Radius.circular(AppDimension.fontSize18),
