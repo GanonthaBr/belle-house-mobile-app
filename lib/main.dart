@@ -44,6 +44,8 @@ class MyApp extends StatelessWidget {
           '/main': (context) => MainScreen(),
           '/login': (context) => LoginScreen(),
           '/register': (context) => RegisterScreen(),
+          '/lands': (context) => RegisterScreen(),
+
           '/house_details': (context) {
             final args = ModalRoute.of(context)!.settings.arguments;
 
@@ -87,17 +89,14 @@ class MyApp extends StatelessWidget {
             }
 
             return LandDetailsScreen(
-              contractType: '',
-              agentRole: '',
-              agentImage: '',
               imagePath: land.imagePath,
-              agentName: land.name,
+              name: land.name,
               location: land.location,
               price: land.price,
-              // size: land.size,
-              // landType: land.landType,
+              size: land.size,
+              landType: land.landType,
               description: land.description,
-              // ownerName: land.ownerName, contractType: '', agentName: '', agentRole: '', agentImage: '',
+              ownerName: land.ownerName,
             );
           },
           '/home_screen': (context) => HomeScreen(),
