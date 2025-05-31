@@ -1522,7 +1522,7 @@ class _MyScreenState extends State<MyScreen> {
     return Consumer<LandsProvider>(
       builder: (context, landProvider, child) {
         final landsList = landProvider.landsInfos; // This can be null
-        // print(landsList);
+        print(landsList);
         return SliverToBoxAdapter(
           child: Container(
             padding: EdgeInsets.all(width * 0.05),
