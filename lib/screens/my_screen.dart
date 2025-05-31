@@ -3,7 +3,6 @@ import 'package:mobile_app/providers/auth_provider.dart';
 import 'package:mobile_app/providers/house_provider.dart';
 import 'package:mobile_app/providers/lands_provider.dart';
 import 'package:mobile_app/providers/products_provider.dart';
-import 'package:mobile_app/screens/commerce_details.dart';
 import 'package:mobile_app/utils/colors.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -2098,7 +2097,6 @@ class _MyScreenState extends State<MyScreen> {
     return Consumer<ProductsProvider>(
       builder: (context, productsProvider, child) {
         final productsList = productsProvider.productsInfos;
-
         return SliverToBoxAdapter(
           child: Container(
             padding: EdgeInsets.all(width * 0.05),
@@ -2332,11 +2330,7 @@ class _MyScreenState extends State<MyScreen> {
                                 ? productsList.length
                                 : _getStaticProducts().length,
                         itemBuilder: (context, index) {
-                          final product =
-                              (productsList != null && productsList.isNotEmpty)
-                                  ? productsList[index]
-                                  : _getStaticProducts()[index];
-
+                          final product = productsList?[index];
                           if (product is! Map<String, dynamic>) {
                             return SizedBox.shrink();
                           }
@@ -2427,12 +2421,7 @@ class _MyScreenState extends State<MyScreen> {
     return InkWell(
       onTap: () {
         // Navigate to product detail screen when a product is tapped
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ProductDetailScreen(product: product),
-          ),
-        );
+        Navigator.pushNamed(context, '/product_details', arguments: product);
       },
       child: Container(
         decoration: BoxDecoration(

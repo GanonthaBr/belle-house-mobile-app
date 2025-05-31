@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_app/models/houses_mode.dart';
 import 'package:mobile_app/models/land_model.dart';
+import 'package:mobile_app/models/product_model.dart';
 import 'package:mobile_app/providers/auth_provider.dart';
 import 'package:mobile_app/providers/house_provider.dart';
 import 'package:mobile_app/providers/lands_provider.dart';
 import 'package:mobile_app/providers/products_provider.dart';
+import 'package:mobile_app/screens/commerce_details.dart';
 import 'package:mobile_app/screens/home_screen.dart';
 import 'package:mobile_app/screens/house_details.dart';
 import 'package:mobile_app/screens/land_details.dart';
@@ -99,6 +101,25 @@ class MyApp extends StatelessWidget {
               ownerName: land.ownerName,
             );
           },
+          '/product_details': (context) {
+            final args = ModalRoute.of(context)!.settings.arguments;
+            print("ARG $args");
+            Product product;
+
+            if (args is Product) {
+              product = args;
+            } else if (args is Map<String, dynamic>) {
+              product = Product.fromJson(args);
+            } else {
+              return buildErrorScreen(context, 'Invalid product data');
+            }
+
+            // Convert Product to format expected by ProductDetailScreen
+            return ProductDetailScreen(
+              product: product.toProductDetailFormat(),
+            );
+          },
+
           '/home_screen': (context) => HomeScreen(),
           "/message_details":
               (context) => MessageDetailsScreen(

@@ -20,12 +20,18 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   Widget build(BuildContext context) {
     final double screenHeight = MediaQuery.of(context).size.height;
 
-    // Extract additional product details that might not be shown in the grid
-    final Map<String, dynamic> additionalDetails =
-        widget.product['additionalDetails'] ?? {};
-    final List<String> availableOptions = widget.product['options'] ?? [];
+    final List<String> availableOptions = List<String>.from(
+      widget.product['options'] ?? [],
+    );
     final List<Map<String, dynamic>> similarProducts =
-        widget.product['similarProducts'] ?? [];
+        List<Map<String, dynamic>>.from(
+          widget.product['similarProducts'] ?? [],
+        );
+
+    // Get image URL with null safety
+    final String imageUrl = widget.product['image'] ?? '';
+    final bool hasValidImage =
+        imageUrl.isNotEmpty && imageUrl.startsWith('http');
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -62,11 +68,52 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               ],
               flexibleSpace: FlexibleSpaceBar(
                 background: Hero(
-                  tag: 'product-${widget.product['name']}',
+                  tag: 'product-${widget.product['name'] ?? 'unknown'}',
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      Image.asset(widget.product['image'], fit: BoxFit.cover),
+                      // Handle both network and asset images
+                      hasValidImage
+                          ? Image.network(
+                            imageUrl,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                color: Colors.grey[300],
+                                child: Center(
+                                  child: Icon(
+                                    Icons.shopping_bag,
+                                    size: 64,
+                                    color: Colors.grey[600],
+                                  ),
+                                ),
+                              );
+                            },
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return Center(
+                                child: CircularProgressIndicator(
+                                  value:
+                                      loadingProgress.expectedTotalBytes != null
+                                          ? loadingProgress
+                                                  .cumulativeBytesLoaded /
+                                              loadingProgress
+                                                  .expectedTotalBytes!
+                                          : null,
+                                ),
+                              );
+                            },
+                          )
+                          : Container(
+                            color: Colors.grey[300],
+                            child: Center(
+                              child: Icon(
+                                Icons.shopping_bag,
+                                size: 64,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                          ),
                       // Gradient overlay for better text visibility
                       Positioned(
                         bottom: 0,
@@ -110,18 +157,18 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           ),
                           decoration: BoxDecoration(
                             color:
-                                widget.product['inStock']
+                                (widget.product['inStock'] ?? true)
                                     ? Colors.green.withOpacity(0.1)
                                     : Colors.red.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
-                            widget.product['inStock']
+                            (widget.product['inStock'] ?? true)
                                 ? 'In Stock'
                                 : 'Out of Stock',
                             style: TextStyle(
                               color:
-                                  widget.product['inStock']
+                                  (widget.product['inStock'] ?? true)
                                       ? Colors.green
                                       : Colors.red,
                               fontWeight: FontWeight.bold,
@@ -130,8 +177,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           ),
                         ),
                         Text(
-                          widget.product['category'] ??
-                              'Construction Materials',
+                          widget.product['category'] ?? 'General Products',
                           style: TextStyle(
                             color: Colors.grey[600],
                             fontSize: 14,
@@ -144,7 +190,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
                     // Product name
                     Text(
-                      widget.product['name'],
+                      widget.product['name'] ?? 'Product Name',
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -158,7 +204,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          '\$${widget.product['price'].toStringAsFixed(2)}/${widget.product['unit']}',
+                          '${(widget.product['price'] ?? 0.0).toStringAsFixed(2)} FCFA',
                           style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
@@ -229,34 +275,39 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                             widget.product['brand'] ?? 'Premium Brand',
                             true,
                           ),
-                          if (widget.product.containsKey('weight'))
+                          if (widget.product.containsKey('weight') &&
+                              widget.product['weight'] != null)
                             _buildSpecificationRow(
                               'Weight',
-                              widget.product['weight'],
+                              widget.product['weight'].toString(),
                               false,
                             ),
-                          if (widget.product.containsKey('size'))
+                          if (widget.product.containsKey('size') &&
+                              widget.product['size'] != null)
                             _buildSpecificationRow(
                               'Size',
-                              widget.product['size'],
+                              widget.product['size'].toString(),
                               true,
                             ),
-                          if (widget.product.containsKey('volume'))
+                          if (widget.product.containsKey('volume') &&
+                              widget.product['volume'] != null)
                             _buildSpecificationRow(
                               'Volume',
-                              widget.product['volume'],
+                              widget.product['volume'].toString(),
                               false,
                             ),
-                          if (widget.product.containsKey('length'))
+                          if (widget.product.containsKey('length') &&
+                              widget.product['length'] != null)
                             _buildSpecificationRow(
                               'Length',
-                              widget.product['length'],
+                              widget.product['length'].toString(),
                               true,
                             ),
-                          if (widget.product.containsKey('coverage'))
+                          if (widget.product.containsKey('coverage') &&
+                              widget.product['coverage'] != null)
                             _buildSpecificationRow(
                               'Coverage',
-                              widget.product['coverage'],
+                              widget.product['coverage'].toString(),
                               false,
                             ),
                           _buildSpecificationRow(
@@ -272,7 +323,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           _buildSpecificationRow(
                             'SKU',
                             widget.product['sku'] ??
-                                'CM-${widget.product['name'].hashCode}',
+                                'PRD-${widget.product['id'] ?? 'unknown'}',
                             true,
                           ),
                         ],
@@ -294,7 +345,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
                     Text(
                       widget.product['description'] ??
-                          'This premium ${widget.product['name']} is perfect for construction and decoration projects. Made with high-quality materials to ensure durability and excellent performance. Suitable for both professional contractors and DIY enthusiasts.',
+                          'This premium ${widget.product['name'] ?? 'product'} is perfect for your needs. Made with high-quality materials to ensure durability and excellent performance.',
                       style: TextStyle(
                         fontSize: 15,
                         color: Colors.grey[800],
@@ -396,13 +447,21 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         _buildTipItem(
                           'Use appropriate protective equipment when handling.',
                         ),
-                        if (widget.product['category'] == 'Cement' ||
-                            widget.product['name'].contains('Cement'))
+                        if ((widget.product['category'] ?? '').contains(
+                              'Construction',
+                            ) ||
+                            (widget.product['name'] ?? '')
+                                .toLowerCase()
+                                .contains('cement'))
                           _buildTipItem(
                             'Mix with clean water at the recommended ratio.',
                           ),
-                        if (widget.product['category'] == 'Paint' ||
-                            widget.product['name'].contains('Paint'))
+                        if ((widget.product['category'] ?? '').contains(
+                              'Paint',
+                            ) ||
+                            (widget.product['name'] ?? '')
+                                .toLowerCase()
+                                .contains('paint'))
                           _buildTipItem(
                             'Apply in thin, even coats and allow proper drying time between applications.',
                           ),
@@ -430,6 +489,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           itemCount: similarProducts.length,
                           itemBuilder: (context, index) {
                             final similarProduct = similarProducts[index];
+                            final String similarImageUrl =
+                                similarProduct['image'] ?? '';
+                            final bool hasSimilarImage =
+                                similarImageUrl.isNotEmpty;
+
                             return Container(
                               width: 160,
                               margin: EdgeInsets.only(right: 16),
@@ -447,13 +511,39 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                       borderRadius: BorderRadius.vertical(
                                         top: Radius.circular(8),
                                       ),
-                                      image: DecorationImage(
-                                        image: AssetImage(
-                                          similarProduct['image'],
-                                        ),
-                                        fit: BoxFit.cover,
-                                      ),
+                                      color: Colors.grey[200],
                                     ),
+                                    child:
+                                        hasSimilarImage
+                                            ? ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.vertical(
+                                                    top: Radius.circular(8),
+                                                  ),
+                                              child: Image.network(
+                                                similarImageUrl,
+                                                fit: BoxFit.cover,
+                                                width: double.infinity,
+                                                errorBuilder: (
+                                                  context,
+                                                  error,
+                                                  stackTrace,
+                                                ) {
+                                                  return Center(
+                                                    child: Icon(
+                                                      Icons.shopping_bag,
+                                                      color: Colors.grey[400],
+                                                    ),
+                                                  );
+                                                },
+                                              ),
+                                            )
+                                            : Center(
+                                              child: Icon(
+                                                Icons.shopping_bag,
+                                                color: Colors.grey[400],
+                                              ),
+                                            ),
                                   ),
 
                                   Padding(
@@ -463,7 +553,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          similarProduct['name'],
+                                          similarProduct['name'] ?? 'Product',
                                           style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                             fontSize: 13,
@@ -473,7 +563,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                         ),
                                         SizedBox(height: 4),
                                         Text(
-                                          '\$${similarProduct['price'].toStringAsFixed(2)}',
+                                          '\$${(similarProduct['price'] ?? 0.0).toStringAsFixed(2)}',
                                           style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                             fontSize: 12,
@@ -527,7 +617,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                     ),
                     Text(
-                      '\$${(widget.product['price'] * quantity).toStringAsFixed(2)}',
+                      '\$${((widget.product['price'] ?? 0.0) * quantity).toStringAsFixed(2)}',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -543,13 +633,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 flex: 2,
                 child: ElevatedButton(
                   onPressed:
-                      widget.product['inStock']
+                      (widget.product['inStock'] ?? true)
                           ? () {
                             // Implement add to cart functionality
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
-                                  'Added ${quantity} ${widget.product['name']} to cart',
+                                  'Added ${quantity} ${widget.product['name'] ?? 'item'} to cart',
                                   style: TextStyle(
                                     color: AppColors.secondaryColor,
                                   ),
@@ -568,7 +658,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     elevation: 0,
                   ),
                   child: Text(
-                    widget.product['inStock'] ? 'Add to Cart' : 'Out of Stock',
+                    (widget.product['inStock'] ?? true)
+                        ? 'Add to Cart'
+                        : 'Out of Stock',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
