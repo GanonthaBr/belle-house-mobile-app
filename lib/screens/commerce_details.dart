@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/models/product_model.dart';
 import 'package:mobile_app/utils/colors.dart';
+import 'package:mobile_app/widgets/image_gallery.dart';
 
 class ProductDetailScreen extends StatefulWidget {
-  final Map<String, dynamic> product;
+  final Product product; // Use Product object instead of Map
 
-  const ProductDetailScreen({Key? key, required this.product})
-    : super(key: key);
+  const ProductDetailScreen({super.key, required this.product});
 
   @override
+  // ignore: library_private_types_in_public_api
   _ProductDetailScreenState createState() => _ProductDetailScreenState();
 }
 
@@ -15,30 +17,28 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   int quantity = 1;
   bool isFavorite = false;
   List<String> selectedOptions = [];
+  PageController _pageController = PageController();
+  int _currentImageIndex = 0;
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final double screenHeight = MediaQuery.of(context).size.height;
 
-    final List<String> availableOptions = List<String>.from(
-      widget.product['options'] ?? [],
-    );
-    final List<Map<String, dynamic>> similarProducts =
-        List<Map<String, dynamic>>.from(
-          widget.product['similarProducts'] ?? [],
-        );
-
-    // Get image URL with null safety
-    final String imageUrl = widget.product['image'] ?? '';
-    final bool hasValidImage =
-        imageUrl.isNotEmpty && imageUrl.startsWith('http');
+    // Get all images from the product
+    final List<String> allImages = widget.product.allImages;
 
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
-            // App Bar
+            // App Bar with Image Gallery
             SliverAppBar(
               expandedHeight: screenHeight * 0.35,
               pinned: true,
@@ -65,44 +65,125 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     // Implement share functionality
                   },
                 ),
+                // Gallery button (if more than one image)
+                if (allImages.length > 1)
+                  IconButton(
+                    icon: Icon(Icons.photo_library, color: Colors.white),
+                    onPressed: () => _showImageGallery(context, allImages),
+                  ),
               ],
               flexibleSpace: FlexibleSpaceBar(
                 background: Hero(
-                  tag: 'product-${widget.product['name'] ?? 'unknown'}',
+                  tag: 'product-${widget.product.name}',
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
-                      // Handle both network and asset images
-                      hasValidImage
-                          ? Image.network(
-                            imageUrl,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Container(
-                                color: Colors.grey[300],
-                                child: Center(
-                                  child: Icon(
-                                    Icons.shopping_bag,
-                                    size: 64,
-                                    color: Colors.grey[600],
+                      // Image Gallery
+                      allImages.isNotEmpty
+                          ? Stack(
+                            children: [
+                              // Image PageView
+                              PageView.builder(
+                                controller: _pageController,
+                                onPageChanged: (index) {
+                                  setState(() {
+                                    _currentImageIndex = index;
+                                  });
+                                },
+                                itemCount: allImages.length,
+                                itemBuilder: (context, index) {
+                                  return Image.network(
+                                    allImages[index],
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Container(
+                                        color: Colors.grey[300],
+                                        child: Center(
+                                          child: Icon(
+                                            Icons.shopping_bag,
+                                            size: 64,
+                                            color: Colors.grey[600],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    loadingBuilder: (
+                                      context,
+                                      child,
+                                      loadingProgress,
+                                    ) {
+                                      if (loadingProgress == null) return child;
+                                      return Center(
+                                        child: CircularProgressIndicator(
+                                          value:
+                                              loadingProgress
+                                                          .expectedTotalBytes !=
+                                                      null
+                                                  ? loadingProgress
+                                                          .cumulativeBytesLoaded /
+                                                      loadingProgress
+                                                          .expectedTotalBytes!
+                                                  : null,
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
+                              // Image indicators (if more than one image)
+                              if (allImages.length > 1)
+                                Positioned(
+                                  bottom: 90,
+                                  left: 0,
+                                  right: 0,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: List.generate(
+                                      allImages.length,
+                                      (index) => Container(
+                                        margin: EdgeInsets.symmetric(
+                                          horizontal: 4,
+                                        ),
+                                        width: 8,
+                                        height: 8,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color:
+                                              _currentImageIndex == index
+                                                  ? Colors.white
+                                                  : Colors.white.withOpacity(
+                                                    0.5,
+                                                  ),
+                                        ),
+                                      ),
+                                    ),
                                   ),
                                 ),
-                              );
-                            },
-                            loadingBuilder: (context, child, loadingProgress) {
-                              if (loadingProgress == null) return child;
-                              return Center(
-                                child: CircularProgressIndicator(
-                                  value:
-                                      loadingProgress.expectedTotalBytes != null
-                                          ? loadingProgress
-                                                  .cumulativeBytesLoaded /
-                                              loadingProgress
-                                                  .expectedTotalBytes!
-                                          : null,
+                              // Image counter (if more than one image)
+                              if (allImages.length > 1)
+                                Positioned(
+                                  bottom: 115,
+                                  right: 20,
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.black.withOpacity(0.6),
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                    child: Text(
+                                      '${_currentImageIndex + 1}/${allImages.length}',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                              );
-                            },
+                            ],
                           )
                           : Container(
                             color: Colors.grey[300],
@@ -114,6 +195,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                               ),
                             ),
                           ),
+
                       // Gradient overlay for better text visibility
                       Positioned(
                         bottom: 0,
@@ -157,18 +239,18 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           ),
                           decoration: BoxDecoration(
                             color:
-                                (widget.product['inStock'] ?? true)
+                                widget.product.inStock
                                     ? Colors.green.withOpacity(0.1)
                                     : Colors.red.withOpacity(0.1),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
-                            (widget.product['inStock'] ?? true)
+                            widget.product.inStock
                                 ? 'In Stock'
                                 : 'Out of Stock',
                             style: TextStyle(
                               color:
-                                  (widget.product['inStock'] ?? true)
+                                  widget.product.inStock
                                       ? Colors.green
                                       : Colors.red,
                               fontWeight: FontWeight.bold,
@@ -177,7 +259,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           ),
                         ),
                         Text(
-                          widget.product['category'] ?? 'General Products',
+                          widget.product.categoryName,
                           style: TextStyle(
                             color: Colors.grey[600],
                             fontSize: 14,
@@ -190,7 +272,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
                     // Product name
                     Text(
-                      widget.product['name'] ?? 'Product Name',
+                      widget.product.name,
                       style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
@@ -204,7 +286,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          '${(widget.product['price'] ?? 0.0).toStringAsFixed(2)} FCFA',
+                          '${widget.product.price.toStringAsFixed(2)} FCFA',
                           style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
@@ -251,6 +333,81 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
                     SizedBox(height: 24),
 
+                    // Image gallery section (if more images exist)
+                    if (widget.product.moreImages.isNotEmpty) ...[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Gallery',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          TextButton(
+                            onPressed:
+                                () => _showImageGallery(context, allImages),
+                            child: Text('View All (${allImages.length})'),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 12),
+                      Container(
+                        height: 100,
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount:
+                              allImages.length > 4 ? 4 : allImages.length,
+                          itemBuilder: (context, index) {
+                            return GestureDetector(
+                              onTap:
+                                  () => _showImageGallery(
+                                    context,
+                                    allImages,
+                                    initialIndex: index,
+                                  ),
+                              child: Container(
+                                width: 100,
+                                margin: EdgeInsets.only(right: 10),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                  image: DecorationImage(
+                                    image: NetworkImage(allImages[index]),
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                child:
+                                    index == 3 && allImages.length > 4
+                                        ? Container(
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(
+                                              10,
+                                            ),
+                                            color: Colors.black.withOpacity(
+                                              0.6,
+                                            ),
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              '+${allImages.length - 3}',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                              ),
+                                            ),
+                                          ),
+                                        )
+                                        : null,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      SizedBox(height: 24),
+                    ],
+
                     // Specifications
                     Text(
                       'Specifications',
@@ -272,58 +429,52 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         children: [
                           _buildSpecificationRow(
                             'Brand',
-                            widget.product['brand'] ?? 'Premium Brand',
+                            widget.product.brand ?? 'Premium Brand',
                             true,
                           ),
-                          if (widget.product.containsKey('weight') &&
-                              widget.product['weight'] != null)
+                          if (widget.product.weight != null)
                             _buildSpecificationRow(
                               'Weight',
-                              widget.product['weight'].toString(),
+                              widget.product.weight!,
                               false,
                             ),
-                          if (widget.product.containsKey('size') &&
-                              widget.product['size'] != null)
+                          if (widget.product.size != null)
                             _buildSpecificationRow(
                               'Size',
-                              widget.product['size'].toString(),
+                              widget.product.size!,
                               true,
                             ),
-                          if (widget.product.containsKey('volume') &&
-                              widget.product['volume'] != null)
+                          if (widget.product.volume != null)
                             _buildSpecificationRow(
                               'Volume',
-                              widget.product['volume'].toString(),
+                              widget.product.volume!,
                               false,
                             ),
-                          if (widget.product.containsKey('length') &&
-                              widget.product['length'] != null)
+                          if (widget.product.length != null)
                             _buildSpecificationRow(
                               'Length',
-                              widget.product['length'].toString(),
+                              widget.product.length!,
                               true,
                             ),
-                          if (widget.product.containsKey('coverage') &&
-                              widget.product['coverage'] != null)
+                          if (widget.product.coverage != null)
                             _buildSpecificationRow(
                               'Coverage',
-                              widget.product['coverage'].toString(),
+                              widget.product.coverage!,
                               false,
                             ),
                           _buildSpecificationRow(
                             'Material',
-                            widget.product['material'] ?? 'Various',
+                            widget.product.material ?? 'Various',
                             true,
                           ),
                           _buildSpecificationRow(
                             'Origin',
-                            widget.product['origin'] ?? 'Local',
+                            widget.product.origin ?? 'Local',
                             false,
                           ),
                           _buildSpecificationRow(
                             'SKU',
-                            widget.product['sku'] ??
-                                'PRD-${widget.product['id'] ?? 'unknown'}',
+                            widget.product.sku ?? 'PRD-${widget.product.id}',
                             true,
                           ),
                         ],
@@ -344,8 +495,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     SizedBox(height: 12),
 
                     Text(
-                      widget.product['description'] ??
-                          'This premium ${widget.product['name'] ?? 'product'} is perfect for your needs. Made with high-quality materials to ensure durability and excellent performance.',
+                      widget.product.description.isNotEmpty
+                          ? widget.product.description
+                          : 'This premium ${widget.product.name} is perfect for your needs. Made with high-quality materials to ensure durability and excellent performance.',
                       style: TextStyle(
                         fontSize: 15,
                         color: Colors.grey[800],
@@ -354,7 +506,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     ),
 
                     // If available options exist
-                    if (availableOptions.isNotEmpty) ...[
+                    if (widget.product.options.isNotEmpty) ...[
                       SizedBox(height: 24),
 
                       Text(
@@ -371,7 +523,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         spacing: 10,
                         runSpacing: 10,
                         children:
-                            availableOptions.map((option) {
+                            widget.product.options.map((option) {
                               final bool isSelected = selectedOptions.contains(
                                 option,
                               );
@@ -447,21 +599,17 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         _buildTipItem(
                           'Use appropriate protective equipment when handling.',
                         ),
-                        if ((widget.product['category'] ?? '').contains(
+                        if (widget.product.categoryName.contains(
                               'Construction',
                             ) ||
-                            (widget.product['name'] ?? '')
-                                .toLowerCase()
-                                .contains('cement'))
+                            widget.product.name.toLowerCase().contains(
+                              'cement',
+                            ))
                           _buildTipItem(
                             'Mix with clean water at the recommended ratio.',
                           ),
-                        if ((widget.product['category'] ?? '').contains(
-                              'Paint',
-                            ) ||
-                            (widget.product['name'] ?? '')
-                                .toLowerCase()
-                                .contains('paint'))
+                        if (widget.product.categoryName.contains('Paint') ||
+                            widget.product.name.toLowerCase().contains('paint'))
                           _buildTipItem(
                             'Apply in thin, even coats and allow proper drying time between applications.',
                           ),
@@ -469,7 +617,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     ),
 
                     // Similar products section
-                    if (similarProducts.isNotEmpty) ...[
+                    if (widget.product.similarProducts.isNotEmpty) ...[
                       SizedBox(height: 32),
 
                       Text(
@@ -486,9 +634,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                         height: 200,
                         child: ListView.builder(
                           scrollDirection: Axis.horizontal,
-                          itemCount: similarProducts.length,
+                          itemCount: widget.product.similarProducts.length,
                           itemBuilder: (context, index) {
-                            final similarProduct = similarProducts[index];
+                            final similarProduct =
+                                widget.product.similarProducts[index];
                             final String similarImageUrl =
                                 similarProduct['image'] ?? '';
                             final bool hasSimilarImage =
@@ -563,7 +712,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                         ),
                                         SizedBox(height: 4),
                                         Text(
-                                          '\$${(similarProduct['price'] ?? 0.0).toStringAsFixed(2)}',
+                                          '${(similarProduct['price'] ?? 0.0).toStringAsFixed(2)} FCFA',
                                           style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                             fontSize: 12,
@@ -617,7 +766,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                     ),
                     Text(
-                      '\$${((widget.product['price'] ?? 0.0) * quantity).toStringAsFixed(2)}',
+                      '${(widget.product.price * quantity).toStringAsFixed(2)} FCFA',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -633,13 +782,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 flex: 2,
                 child: ElevatedButton(
                   onPressed:
-                      (widget.product['inStock'] ?? true)
+                      widget.product.inStock
                           ? () {
                             // Implement add to cart functionality
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
-                                  'Added ${quantity} ${widget.product['name'] ?? 'item'} to cart',
+                                  'Added $quantity ${widget.product.name} to cart',
                                   style: TextStyle(
                                     color: AppColors.secondaryColor,
                                   ),
@@ -658,9 +807,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                     elevation: 0,
                   ),
                   child: Text(
-                    (widget.product['inStock'] ?? true)
-                        ? 'Add to Cart'
-                        : 'Out of Stock',
+                    widget.product.inStock ? 'Add to Cart' : 'Out of Stock',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -672,6 +819,22 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  // Method to show full screen image gallery
+  void _showImageGallery(
+    BuildContext context,
+    List<String> images, {
+    int initialIndex = 0,
+  }) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder:
+            (context) =>
+                ImageGalleryScreen(images: images, initialIndex: initialIndex),
       ),
     );
   }

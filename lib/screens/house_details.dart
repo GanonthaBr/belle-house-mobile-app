@@ -1,35 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:mobile_app/models/houses_model.dart';
 import 'package:mobile_app/widgets/descrption_text.dart';
+import 'package:mobile_app/widgets/image_gallery.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class HouseDetailsScreen extends StatefulWidget {
-  final String imagePath;
-  final String contractType;
-  final String location;
-  final double price;
-  final int bedrooms;
-  final int bathrooms;
-  final int kitchens;
-  final String description;
-  final String agentName;
-  final String agentRole;
-  final String agentImage;
+  final Property
+  property; // Use the Property object instead of individual parameters
 
-  const HouseDetailsScreen({
-    Key? key,
-    required this.imagePath,
-    required this.contractType,
-    required this.location,
-    required this.price,
-    required this.bedrooms,
-    required this.bathrooms,
-    required this.kitchens,
-    required this.description,
-    required this.agentName,
-    required this.agentRole,
-    required this.agentImage,
-  }) : super(key: key);
+  const HouseDetailsScreen({super.key, required this.property});
 
   @override
   State<HouseDetailsScreen> createState() => _HouseDetailsScreenState();
@@ -37,6 +16,14 @@ class HouseDetailsScreen extends StatefulWidget {
 
 class _HouseDetailsScreenState extends State<HouseDetailsScreen> {
   bool isFavorite = false;
+  final PageController _pageController = PageController();
+  int _currentImageIndex = 0;
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +35,9 @@ class _HouseDetailsScreenState extends State<HouseDetailsScreen> {
     const Color primaryColor = Color(0xff61a1d6);
     const Color secondaryColor = Colors.white;
 
+    // Get all images
+    final List<String> allImages = widget.property.allImages;
+
     return Scaffold(
       backgroundColor: Colors.grey[50],
       body: SafeArea(
@@ -56,24 +46,122 @@ class _HouseDetailsScreenState extends State<HouseDetailsScreen> {
             // Content scrolling area
             CustomScrollView(
               slivers: [
-                // Property image and top back button
+                // Property image gallery and top buttons
                 SliverToBoxAdapter(
                   child: Stack(
                     children: [
-                      // Property Image
+                      // Image Gallery
                       Container(
                         height: height * 0.4,
                         width: width,
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                            image: NetworkImage(widget.imagePath),
-                            fit: BoxFit.cover,
-                          ),
-                          borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(25),
-                            bottomRight: Radius.circular(25),
-                          ),
-                        ),
+                        child:
+                            allImages.isNotEmpty
+                                ? Stack(
+                                  children: [
+                                    // Image PageView
+                                    PageView.builder(
+                                      controller: _pageController,
+                                      onPageChanged: (index) {
+                                        setState(() {
+                                          _currentImageIndex = index;
+                                        });
+                                      },
+                                      itemCount: allImages.length,
+                                      itemBuilder: (context, index) {
+                                        return Container(
+                                          decoration: BoxDecoration(
+                                            image: DecorationImage(
+                                              image: NetworkImage(
+                                                allImages[index],
+                                              ),
+                                              fit: BoxFit.cover,
+                                              onError: (exception, stackTrace) {
+                                                // Handle image loading error
+                                              },
+                                            ),
+                                            borderRadius: BorderRadius.only(
+                                              bottomLeft: Radius.circular(25),
+                                              bottomRight: Radius.circular(25),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                    // Image indicators
+                                    if (allImages.length > 1)
+                                      Positioned(
+                                        bottom: 20,
+                                        left: 0,
+                                        right: 0,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: List.generate(
+                                            allImages.length,
+                                            (index) => Container(
+                                              margin: EdgeInsets.symmetric(
+                                                horizontal: 4,
+                                              ),
+                                              width: 8,
+                                              height: 8,
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color:
+                                                    _currentImageIndex == index
+                                                        ? secondaryColor
+                                                        : secondaryColor
+                                                            .withOpacity(0.5),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    // Image counter
+                                    if (allImages.length > 1)
+                                      Positioned(
+                                        bottom: 45,
+                                        right: 20,
+                                        child: Container(
+                                          padding: EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                            vertical: 6,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: Colors.black.withOpacity(
+                                              0.6,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              15,
+                                            ),
+                                          ),
+                                          child: Text(
+                                            '${_currentImageIndex + 1}/${allImages.length}',
+                                            style: TextStyle(
+                                              color: secondaryColor,
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                )
+                                : Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[300],
+                                    borderRadius: BorderRadius.only(
+                                      bottomLeft: Radius.circular(25),
+                                      bottomRight: Radius.circular(25),
+                                    ),
+                                  ),
+                                  child: Center(
+                                    child: Icon(
+                                      Icons.home,
+                                      size: 64,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                ),
                       ),
                       // Back button
                       Positioned(
@@ -88,7 +176,7 @@ class _HouseDetailsScreenState extends State<HouseDetailsScreen> {
                           ),
                         ),
                       ),
-                      // Favorite button (replacing property tag)
+                      // Favorite button
                       Positioned(
                         top: height * 0.02,
                         right: width * 0.05,
@@ -110,6 +198,24 @@ class _HouseDetailsScreenState extends State<HouseDetailsScreen> {
                           ),
                         ),
                       ),
+                      // Gallery button (if more than one image)
+                      if (allImages.length > 1)
+                        Positioned(
+                          top: height * 0.02,
+                          right: width * 0.2,
+                          child: CircleAvatar(
+                            backgroundColor: Colors.black.withOpacity(0.5),
+                            radius: 20,
+                            child: IconButton(
+                              icon: Icon(
+                                Icons.photo_library,
+                                color: secondaryColor,
+                              ),
+                              onPressed:
+                                  () => _showImageGallery(context, allImages),
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 ),
@@ -119,7 +225,7 @@ class _HouseDetailsScreenState extends State<HouseDetailsScreen> {
                   padding: EdgeInsets.all(width * 0.05),
                   sliver: SliverList(
                     delegate: SliverChildListDelegate([
-                      // Contract type tag (moved from top right)
+                      // Contract type tag
                       Container(
                         margin: EdgeInsets.only(bottom: 15),
                         padding: EdgeInsets.symmetric(
@@ -127,24 +233,44 @@ class _HouseDetailsScreenState extends State<HouseDetailsScreen> {
                           vertical: 8,
                         ),
                         decoration: BoxDecoration(
-                          // color: primaryColor,
+                          color: primaryColor.withOpacity(0.1),
                           borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: primaryColor),
                         ),
-                        width: width * 0.25,
+                        width: width * 0.3,
                         child: Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
+                            Icon(
+                              Icons.assignment,
+                              color: primaryColor,
+                              size: 16,
+                            ),
+                            SizedBox(width: 5),
                             Text(
-                              widget.contractType,
+                              widget.property.contractType.toUpperCase(),
                               style: TextStyle(
                                 color: primaryColor,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 14,
+                                fontSize: 12,
                               ),
-                              textAlign: TextAlign.center,
                             ),
                           ],
                         ),
                       ),
+
+                      // Property name (if available)
+                      if (widget.property.name.isNotEmpty) ...[
+                        Text(
+                          widget.property.name,
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                      ],
 
                       // Location and price
                       Row(
@@ -157,10 +283,11 @@ class _HouseDetailsScreenState extends State<HouseDetailsScreen> {
                                 SizedBox(width: 5),
                                 Expanded(
                                   child: Text(
-                                    widget.location,
+                                    widget.property.location,
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w500,
+                                      color: Colors.grey[700],
                                     ),
                                     overflow: TextOverflow.ellipsis,
                                     maxLines: 1,
@@ -170,7 +297,7 @@ class _HouseDetailsScreenState extends State<HouseDetailsScreen> {
                             ),
                           ),
                           Text(
-                            '\$${widget.price.toStringAsFixed(2)}',
+                            '\$${widget.property.price.toStringAsFixed(2)}',
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -184,7 +311,10 @@ class _HouseDetailsScreenState extends State<HouseDetailsScreen> {
 
                       // Property features
                       Container(
-                        padding: EdgeInsets.symmetric(vertical: 15),
+                        padding: EdgeInsets.symmetric(
+                          vertical: 20,
+                          horizontal: 15,
+                        ),
                         decoration: BoxDecoration(
                           color: secondaryColor,
                           borderRadius: BorderRadius.circular(15),
@@ -202,19 +332,19 @@ class _HouseDetailsScreenState extends State<HouseDetailsScreen> {
                           children: [
                             _buildFeatureItem(
                               Icons.king_bed_outlined,
-                              '${widget.bedrooms}',
+                              '${widget.property.bedrooms}',
                               'Bedrooms',
                             ),
                             _buildVerticalDivider(),
                             _buildFeatureItem(
                               Icons.bathtub_outlined,
-                              '${widget.bathrooms}',
+                              '${widget.property.bathrooms}',
                               'Bathrooms',
                             ),
                             _buildVerticalDivider(),
                             _buildFeatureItem(
                               Icons.kitchen_outlined,
-                              '${widget.kitchens}',
+                              '${widget.property.kitchens}',
                               'Kitchens',
                             ),
                           ],
@@ -222,6 +352,80 @@ class _HouseDetailsScreenState extends State<HouseDetailsScreen> {
                       ),
 
                       SizedBox(height: height * 0.03),
+
+                      // Image gallery section (if more images exist)
+                      if (widget.property.moreImages.isNotEmpty) ...[
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Gallery',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            TextButton(
+                              onPressed:
+                                  () => _showImageGallery(context, allImages),
+                              child: Text('View All (${allImages.length})'),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: height * 0.015),
+                        Container(
+                          height: 100,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount:
+                                allImages.length > 4 ? 4 : allImages.length,
+                            itemBuilder: (context, index) {
+                              return GestureDetector(
+                                onTap:
+                                    () => _showImageGallery(
+                                      context,
+                                      allImages,
+                                      initialIndex: index,
+                                    ),
+                                child: Container(
+                                  width: 100,
+                                  margin: EdgeInsets.only(right: 10),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    image: DecorationImage(
+                                      image: NetworkImage(allImages[index]),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                  child:
+                                      index == 3 && allImages.length > 4
+                                          ? Container(
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              color: Colors.black.withOpacity(
+                                                0.6,
+                                              ),
+                                            ),
+                                            child: Center(
+                                              child: Text(
+                                                '+${allImages.length - 3}',
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16,
+                                                ),
+                                              ),
+                                            ),
+                                          )
+                                          : null,
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        SizedBox(height: height * 0.03),
+                      ],
 
                       // Description header
                       Text(
@@ -235,7 +439,12 @@ class _HouseDetailsScreenState extends State<HouseDetailsScreen> {
                       SizedBox(height: height * 0.015),
 
                       // Description text
-                      DescriptionText(text: widget.description),
+                      DescriptionText(
+                        text:
+                            widget.property.description.isNotEmpty
+                                ? widget.property.description
+                                : 'No description available.',
+                      ),
 
                       SizedBox(height: height * 0.03),
 
@@ -258,7 +467,12 @@ class _HouseDetailsScreenState extends State<HouseDetailsScreen> {
                           children: [
                             CircleAvatar(
                               radius: 30,
-                              backgroundImage: AssetImage(widget.agentImage),
+                              backgroundColor: primaryColor.withOpacity(0.1),
+                              child: Icon(
+                                Icons.person,
+                                color: primaryColor,
+                                size: 30,
+                              ),
                             ),
                             SizedBox(width: 15),
                             Expanded(
@@ -266,7 +480,9 @@ class _HouseDetailsScreenState extends State<HouseDetailsScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    widget.agentName,
+                                    widget.property.agentName.isNotEmpty
+                                        ? widget.property.agentName
+                                        : 'Property Agent',
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
@@ -274,7 +490,7 @@ class _HouseDetailsScreenState extends State<HouseDetailsScreen> {
                                   ),
                                   SizedBox(height: 5),
                                   Text(
-                                    widget.agentRole,
+                                    'Real Estate Agent',
                                     style: TextStyle(
                                       color: Colors.grey[600],
                                       fontSize: 14,
@@ -379,10 +595,15 @@ class _HouseDetailsScreenState extends State<HouseDetailsScreen> {
         SizedBox(height: 8),
         Text(
           value,
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+          textAlign: TextAlign.center,
         ),
         SizedBox(height: 4),
-        Text(label, style: TextStyle(color: Colors.grey[600], fontSize: 12)),
+        Text(
+          label,
+          style: TextStyle(color: Colors.grey[600], fontSize: 11),
+          textAlign: TextAlign.center,
+        ),
       ],
     );
   }
@@ -392,10 +613,25 @@ class _HouseDetailsScreenState extends State<HouseDetailsScreen> {
     return Container(height: 40, width: 1, color: Colors.grey[300]);
   }
 
+  // Method to show full screen image gallery
+  void _showImageGallery(
+    BuildContext context,
+    List<String> images, {
+    int initialIndex = 0,
+  }) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder:
+            (context) =>
+                ImageGalleryScreen(images: images, initialIndex: initialIndex),
+      ),
+    );
+  }
+
   // Method to show contact dialog based on action type
   void _showContactDialog(BuildContext context, String actionType) {
-    final phoneNumber =
-        '+1234567890'; // Example phone number, replace with real one from your data
+    final phoneNumber = '+1234567890'; // Default phone number
 
     showDialog(
       context: context,
@@ -411,11 +647,14 @@ class _HouseDetailsScreenState extends State<HouseDetailsScreen> {
               children: [
                 CircleAvatar(
                   radius: 30,
-                  backgroundImage: AssetImage(widget.agentImage),
+                  backgroundColor: Color(0xff61a1d6).withOpacity(0.1),
+                  child: Icon(Icons.person, color: Color(0xff61a1d6), size: 30),
                 ),
                 SizedBox(height: 15),
                 Text(
-                  widget.agentName,
+                  widget.property.agentName.isNotEmpty
+                      ? widget.property.agentName
+                      : 'Property Agent',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 5),

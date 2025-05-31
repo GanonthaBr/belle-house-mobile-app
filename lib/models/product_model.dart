@@ -1,3 +1,27 @@
+class ProductImage {
+  final int id;
+  final String image;
+  final String createdAt;
+
+  const ProductImage({
+    required this.id,
+    required this.image,
+    required this.createdAt,
+  });
+
+  factory ProductImage.fromJson(Map<String, dynamic> json) {
+    return ProductImage(
+      id: json['id'] ?? 0,
+      image: json['image'] ?? '',
+      createdAt: json['created_at'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'id': id, 'image': image, 'created_at': createdAt};
+  }
+}
+
 class Product {
   final int id;
   final String name;
@@ -5,6 +29,7 @@ class Product {
   final String description;
   final String images;
   final int category;
+  final List<ProductImage> moreImages;
 
   // Additional properties that your UI expects (with defaults)
   final String? brand;
@@ -30,6 +55,7 @@ class Product {
     required this.description,
     required this.images,
     required this.category,
+    this.moreImages = const [],
     this.brand,
     this.material,
     this.origin,
@@ -49,6 +75,14 @@ class Product {
 
   // Factory constructor for creating Product from JSON/Map
   factory Product.fromJson(Map<String, dynamic> json) {
+    List<ProductImage> moreImagesList = [];
+    if (json['more_images'] != null) {
+      moreImagesList =
+          (json['more_images'] as List)
+              .map((imageJson) => ProductImage.fromJson(imageJson))
+              .toList();
+    }
+
     return Product(
       id: json['id'] ?? 0,
       name: json['name'] ?? '',
@@ -56,6 +90,7 @@ class Product {
       description: json['description'] ?? '',
       images: json['images'] ?? '',
       category: json['category'] ?? 0,
+      moreImages: moreImagesList,
       brand: json['brand'],
       material: json['material'],
       origin: json['origin'],
@@ -103,6 +138,16 @@ class Product {
     }
   }
 
+  // Get all images (main + more images)
+  List<String> get allImages {
+    List<String> allImagesList = [];
+    if (images.isNotEmpty) {
+      allImagesList.add(images);
+    }
+    allImagesList.addAll(moreImages.map((img) => img.image));
+    return allImagesList;
+  }
+
   // Convert Product to JSON/Map
   Map<String, dynamic> toJson() {
     return {
@@ -112,6 +157,7 @@ class Product {
       'description': description,
       'images': images,
       'category': category,
+      'more_images': moreImages.map((img) => img.toJson()).toList(),
       'brand': brand,
       'material': material,
       'origin': origin,
@@ -154,6 +200,8 @@ class Product {
       'options': options,
       'similarProducts': similarProducts,
       'additionalDetails': additionalDetails,
+      'allImages': allImages, // Include all images for gallery
+      'moreImages': moreImages.map((img) => img.toJson()).toList(),
     };
   }
 
@@ -169,6 +217,7 @@ class Product {
     String? description,
     String? images,
     int? category,
+    List<ProductImage>? moreImages,
     String? brand,
     String? material,
     String? origin,
@@ -192,6 +241,7 @@ class Product {
       description: description ?? this.description,
       images: images ?? this.images,
       category: category ?? this.category,
+      moreImages: moreImages ?? this.moreImages,
       brand: brand ?? this.brand,
       material: material ?? this.material,
       origin: origin ?? this.origin,
@@ -213,7 +263,7 @@ class Product {
   // Optional: toString method for debugging
   @override
   String toString() {
-    return 'Product(id: $id, name: $name, price: $price, category: $categoryName, inStock: $inStock)';
+    return 'Product(id: $id, name: $name, price: $price, category: $categoryName, inStock: $inStock, moreImages: ${moreImages.length})';
   }
 
   // Optional: Equality comparison

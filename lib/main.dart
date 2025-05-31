@@ -61,19 +61,7 @@ class MyApp extends StatelessWidget {
               return buildErrorScreen(context, 'Invalid property data');
             }
 
-            return HouseDetailsScreen(
-              imagePath: property.imagePath,
-              contractType: property.contractType,
-              location: property.location,
-              price: property.price,
-              bedrooms: property.bedrooms,
-              bathrooms: property.bathrooms,
-              kitchens: property.kitchens,
-              description: property.description,
-              agentName: property.agentName,
-              agentRole: 'Real Estate Agent',
-              agentImage: 'images/default_agent.png',
-            );
+            return HouseDetailsScreen(property: property);
           },
 
           // New land route
@@ -94,7 +82,7 @@ class MyApp extends StatelessWidget {
           },
           '/product_details': (context) {
             final args = ModalRoute.of(context)!.settings.arguments;
-            print("ARG $args");
+            // print("ARG $args");
             Product product;
 
             if (args is Product) {
@@ -106,9 +94,7 @@ class MyApp extends StatelessWidget {
             }
 
             // Convert Product to format expected by ProductDetailScreen
-            return ProductDetailScreen(
-              product: product.toProductDetailFormat(),
-            );
+            return ProductDetailScreen(product: product);
           },
 
           '/home_screen': (context) => HomeScreen(),
