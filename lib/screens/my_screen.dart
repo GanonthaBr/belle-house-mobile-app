@@ -1749,7 +1749,7 @@ class _MyScreenState extends State<MyScreen> {
                               SliverGridDelegateWithFixedCrossAxisCount(
                                 crossAxisCount: width > 700 ? 3 : 2,
                                 childAspectRatio: 0.75,
-                                crossAxisSpacing: 5,
+                                crossAxisSpacing: 4,
                                 mainAxisSpacing: 7,
                               ),
                           itemCount: landsList.length,

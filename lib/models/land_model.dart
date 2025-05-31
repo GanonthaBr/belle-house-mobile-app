@@ -1,3 +1,27 @@
+class LandImage {
+  final int id;
+  final String image;
+  final String createdAt;
+
+  const LandImage({
+    required this.id,
+    required this.image,
+    required this.createdAt,
+  });
+
+  factory LandImage.fromJson(Map<String, dynamic> json) {
+    return LandImage(
+      id: json['id'] ?? 0,
+      image: json['image'] ?? '',
+      createdAt: json['created_at'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {'id': id, 'image': image, 'created_at': createdAt};
+  }
+}
+
 class Land {
   final int id;
   final double price;
@@ -8,6 +32,7 @@ class Land {
   final double size;
   final String images;
   final int category;
+  final List<LandImage> moreImages;
 
   const Land({
     required this.id,
@@ -19,10 +44,19 @@ class Land {
     required this.size,
     required this.images,
     required this.category,
+    this.moreImages = const [],
   });
 
   // Factory constructor for creating Land from JSON/Map
   factory Land.fromJson(Map<String, dynamic> json) {
+    List<LandImage> moreImagesList = [];
+    if (json['more_images'] != null) {
+      moreImagesList =
+          (json['more_images'] as List)
+              .map((imageJson) => LandImage.fromJson(imageJson))
+              .toList();
+    }
+
     return Land(
       id: json['id'] ?? 0,
       price: double.tryParse(json['price']?.toString() ?? '0') ?? 0.0,
@@ -33,6 +67,7 @@ class Land {
       size: double.tryParse(json['size']?.toString() ?? '0') ?? 0.0,
       images: json['images'] ?? '',
       category: json['category'] ?? 0,
+      moreImages: moreImagesList,
     );
   }
 
@@ -48,7 +83,18 @@ class Land {
       'size': size,
       'images': images,
       'category': category,
+      'more_images': moreImages.map((img) => img.toJson()).toList(),
     };
+  }
+
+  // Get all images (main + more images)
+  List<String> get allImages {
+    List<String> allImagesList = [];
+    if (images.isNotEmpty) {
+      allImagesList.add(images);
+    }
+    allImagesList.addAll(moreImages.map((img) => img.image));
+    return allImagesList;
   }
 
   // Convenience getters for UI compatibility
@@ -67,6 +113,7 @@ class Land {
     double? size,
     String? images,
     int? category,
+    List<LandImage>? moreImages,
   }) {
     return Land(
       id: id ?? this.id,
@@ -78,13 +125,14 @@ class Land {
       size: size ?? this.size,
       images: images ?? this.images,
       category: category ?? this.category,
+      moreImages: moreImages ?? this.moreImages,
     );
   }
 
   // Optional: toString method for debugging
   @override
   String toString() {
-    return 'Land(id: $id, name: $name, price: $price, area: $area, landType: $landType, size: $size)';
+    return 'Land(id: $id, name: $name, price: $price, area: $area, landType: $landType, size: $size, moreImages: ${moreImages.length})';
   }
 
   // Optional: Equality comparison

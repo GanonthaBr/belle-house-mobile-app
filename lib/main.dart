@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:mobile_app/models/houses_mode.dart';
+import 'package:mobile_app/models/houses_model.dart';
 import 'package:mobile_app/models/land_model.dart';
 import 'package:mobile_app/models/product_model.dart';
 import 'package:mobile_app/providers/auth_provider.dart';
@@ -90,16 +90,7 @@ class MyApp extends StatelessWidget {
               return buildErrorScreen(context, 'Invalid land data');
             }
 
-            return LandDetailsScreen(
-              imagePath: land.imagePath,
-              name: land.name,
-              location: land.location,
-              price: land.price,
-              size: land.size,
-              landType: land.landType,
-              description: land.description,
-              ownerName: land.ownerName,
-            );
+            return LandDetailsScreen(land: land);
           },
           '/product_details': (context) {
             final args = ModalRoute.of(context)!.settings.arguments;

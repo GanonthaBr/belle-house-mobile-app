@@ -1,29 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mobile_app/models/land_model.dart';
 import 'package:mobile_app/widgets/descrption_text.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class LandDetailsScreen extends StatefulWidget {
-  final String imagePath;
-  final String name;
-  final String location;
-  final double price;
-  final double size;
-  final String landType;
-  final String description;
-  final String ownerName;
+  final Land land; // Use the Land object instead of individual parameters
 
-  const LandDetailsScreen({
-    Key? key,
-    required this.imagePath,
-    required this.name,
-    required this.location,
-    required this.price,
-    required this.size,
-    required this.landType,
-    required this.description,
-    required this.ownerName,
-  }) : super(key: key);
+  const LandDetailsScreen({Key? key, required this.land}) : super(key: key);
 
   @override
   State<LandDetailsScreen> createState() => _LandDetailsScreenState();
@@ -31,6 +15,14 @@ class LandDetailsScreen extends StatefulWidget {
 
 class _LandDetailsScreenState extends State<LandDetailsScreen> {
   bool isFavorite = false;
+  PageController _pageController = PageController();
+  int _currentImageIndex = 0;
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +34,9 @@ class _LandDetailsScreenState extends State<LandDetailsScreen> {
     const Color primaryColor = Color(0xff61a1d6);
     const Color secondaryColor = Colors.white;
 
+    // Get all images
+    final List<String> allImages = widget.land.allImages;
+
     return Scaffold(
       backgroundColor: Colors.grey[50],
       body: SafeArea(
@@ -50,30 +45,107 @@ class _LandDetailsScreenState extends State<LandDetailsScreen> {
             // Content scrolling area
             CustomScrollView(
               slivers: [
-                // Land image and top back button
+                // Land image gallery and top buttons
                 SliverToBoxAdapter(
                   child: Stack(
                     children: [
-                      // Land Image
+                      // Image Gallery
                       Container(
                         height: height * 0.4,
                         width: width,
-                        decoration: BoxDecoration(
-                          image: DecorationImage(
-                            image: NetworkImage(widget.imagePath),
-                            fit: BoxFit.cover,
-                            onError: (exception, stackTrace) {
-                              // Handle image loading error
-                            },
-                          ),
-                          borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(25),
-                            bottomRight: Radius.circular(25),
-                          ),
-                        ),
                         child:
-                            widget.imagePath.isEmpty
-                                ? Container(
+                            allImages.isNotEmpty
+                                ? Stack(
+                                  children: [
+                                    // Image PageView
+                                    PageView.builder(
+                                      controller: _pageController,
+                                      onPageChanged: (index) {
+                                        setState(() {
+                                          _currentImageIndex = index;
+                                        });
+                                      },
+                                      itemCount: allImages.length,
+                                      itemBuilder: (context, index) {
+                                        return Container(
+                                          decoration: BoxDecoration(
+                                            image: DecorationImage(
+                                              image: NetworkImage(
+                                                allImages[index],
+                                              ),
+                                              fit: BoxFit.cover,
+                                              onError: (exception, stackTrace) {
+                                                // Handle image loading error
+                                              },
+                                            ),
+                                            borderRadius: BorderRadius.only(
+                                              bottomLeft: Radius.circular(25),
+                                              bottomRight: Radius.circular(25),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                    // Image indicators
+                                    if (allImages.length > 1)
+                                      Positioned(
+                                        bottom: 20,
+                                        left: 0,
+                                        right: 0,
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: List.generate(
+                                            allImages.length,
+                                            (index) => Container(
+                                              margin: EdgeInsets.symmetric(
+                                                horizontal: 4,
+                                              ),
+                                              width: 8,
+                                              height: 8,
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.circle,
+                                                color:
+                                                    _currentImageIndex == index
+                                                        ? secondaryColor
+                                                        : secondaryColor
+                                                            .withOpacity(0.5),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    // Image counter
+                                    if (allImages.length > 1)
+                                      Positioned(
+                                        bottom: 45,
+                                        right: 20,
+                                        child: Container(
+                                          padding: EdgeInsets.symmetric(
+                                            horizontal: 12,
+                                            vertical: 6,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: Colors.black.withOpacity(
+                                              0.6,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              15,
+                                            ),
+                                          ),
+                                          child: Text(
+                                            '${_currentImageIndex + 1}/${allImages.length}',
+                                            style: TextStyle(
+                                              color: secondaryColor,
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                )
+                                : Container(
                                   decoration: BoxDecoration(
                                     color: Colors.grey[300],
                                     borderRadius: BorderRadius.only(
@@ -88,8 +160,7 @@ class _LandDetailsScreenState extends State<LandDetailsScreen> {
                                       color: Colors.grey[600],
                                     ),
                                   ),
-                                )
-                                : null,
+                                ),
                       ),
                       // Back button
                       Positioned(
@@ -126,6 +197,24 @@ class _LandDetailsScreenState extends State<LandDetailsScreen> {
                           ),
                         ),
                       ),
+                      // Gallery button (if more than one image)
+                      if (allImages.length > 1)
+                        Positioned(
+                          top: height * 0.02,
+                          right: width * 0.2,
+                          child: CircleAvatar(
+                            backgroundColor: Colors.black.withOpacity(0.5),
+                            radius: 20,
+                            child: IconButton(
+                              icon: Icon(
+                                Icons.photo_library,
+                                color: secondaryColor,
+                              ),
+                              onPressed:
+                                  () => _showImageGallery(context, allImages),
+                            ),
+                          ),
+                        ),
                     ],
                   ),
                 ),
@@ -154,7 +243,7 @@ class _LandDetailsScreenState extends State<LandDetailsScreen> {
                             Icon(Icons.terrain, color: primaryColor, size: 16),
                             SizedBox(width: 5),
                             Text(
-                              widget.landType.toUpperCase(),
+                              widget.land.landType.toUpperCase(),
                               style: TextStyle(
                                 color: primaryColor,
                                 fontWeight: FontWeight.bold,
@@ -167,7 +256,7 @@ class _LandDetailsScreenState extends State<LandDetailsScreen> {
 
                       // Land name
                       Text(
-                        widget.name,
+                        widget.land.name,
                         style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -188,7 +277,7 @@ class _LandDetailsScreenState extends State<LandDetailsScreen> {
                                 SizedBox(width: 5),
                                 Expanded(
                                   child: Text(
-                                    widget.location,
+                                    widget.land.location,
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w500,
@@ -202,7 +291,7 @@ class _LandDetailsScreenState extends State<LandDetailsScreen> {
                             ),
                           ),
                           Text(
-                            '${widget.price.toStringAsFixed(2)} FCFA',
+                            '${widget.land.price.toStringAsFixed(2)} FCFA',
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.bold,
@@ -237,19 +326,19 @@ class _LandDetailsScreenState extends State<LandDetailsScreen> {
                           children: [
                             _buildSpecificationItem(
                               Icons.square_foot,
-                              '${widget.size.toStringAsFixed(0)}m²',
+                              '${widget.land.size.toStringAsFixed(0)}m²',
                               'Superficie',
                             ),
                             _buildVerticalDivider(),
                             _buildSpecificationItem(
                               Icons.landscape,
-                              widget.landType,
+                              widget.land.landType,
                               'Type',
                             ),
                             _buildVerticalDivider(),
                             _buildSpecificationItem(
                               Icons.calculate,
-                              '${(widget.price / widget.size).toStringAsFixed(2)} FCFA',
+                              '${(widget.land.price / widget.land.size).toStringAsFixed(2)} FCFA',
                               'Prix/m²',
                             ),
                           ],
@@ -257,6 +346,80 @@ class _LandDetailsScreenState extends State<LandDetailsScreen> {
                       ),
 
                       SizedBox(height: height * 0.03),
+
+                      // Image gallery section (if more images exist)
+                      if (widget.land.moreImages.isNotEmpty) ...[
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Plus d\'images',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            TextButton(
+                              onPressed:
+                                  () => _showImageGallery(context, allImages),
+                              child: Text('Voir tout (${allImages.length})'),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: height * 0.015),
+                        Container(
+                          height: 100,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount:
+                                allImages.length > 4 ? 4 : allImages.length,
+                            itemBuilder: (context, index) {
+                              return GestureDetector(
+                                onTap:
+                                    () => _showImageGallery(
+                                      context,
+                                      allImages,
+                                      initialIndex: index,
+                                    ),
+                                child: Container(
+                                  width: 100,
+                                  margin: EdgeInsets.only(right: 10),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10),
+                                    image: DecorationImage(
+                                      image: NetworkImage(allImages[index]),
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                  child:
+                                      index == 3 && allImages.length > 4
+                                          ? Container(
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(10),
+                                              color: Colors.black.withOpacity(
+                                                0.6,
+                                              ),
+                                            ),
+                                            child: Center(
+                                              child: Text(
+                                                '+${allImages.length - 3}',
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontWeight: FontWeight.bold,
+                                                  fontSize: 16,
+                                                ),
+                                              ),
+                                            ),
+                                          )
+                                          : null,
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                        SizedBox(height: height * 0.03),
+                      ],
 
                       // Description header
                       Text(
@@ -272,8 +435,8 @@ class _LandDetailsScreenState extends State<LandDetailsScreen> {
                       // Description text
                       DescriptionText(
                         text:
-                            widget.description.isNotEmpty
-                                ? widget.description
+                            widget.land.description.isNotEmpty
+                                ? widget.land.description
                                 : 'Pas de description.',
                       ),
 
@@ -311,7 +474,7 @@ class _LandDetailsScreenState extends State<LandDetailsScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    widget.ownerName,
+                                    widget.land.ownerName,
                                     style: TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.bold,
@@ -442,6 +605,22 @@ class _LandDetailsScreenState extends State<LandDetailsScreen> {
     return Container(height: 40, width: 1, color: Colors.grey[300]);
   }
 
+  // Method to show full screen image gallery
+  void _showImageGallery(
+    BuildContext context,
+    List<String> images, {
+    int initialIndex = 0,
+  }) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder:
+            (context) =>
+                ImageGalleryScreen(images: images, initialIndex: initialIndex),
+      ),
+    );
+  }
+
   // Method to show contact dialog
   void _showContactDialog(BuildContext context, String actionType) {
     final phoneNumber = '+1234567890'; // Default phone number
@@ -465,7 +644,7 @@ class _LandDetailsScreenState extends State<LandDetailsScreen> {
                 ),
                 SizedBox(height: 15),
                 Text(
-                  widget.ownerName,
+                  widget.land.ownerName,
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 5),
@@ -554,5 +733,151 @@ class _LandDetailsScreenState extends State<LandDetailsScreen> {
   Future<void> _sendMessage(String phoneNumber) async {
     final Uri launchUri = Uri(scheme: 'sms', path: phoneNumber);
     await launchUrl(launchUri);
+  }
+}
+
+// Full screen image gallery
+class ImageGalleryScreen extends StatefulWidget {
+  final List<String> images;
+  final int initialIndex;
+
+  const ImageGalleryScreen({
+    Key? key,
+    required this.images,
+    this.initialIndex = 0,
+  }) : super(key: key);
+
+  @override
+  State<ImageGalleryScreen> createState() => _ImageGalleryScreenState();
+}
+
+class _ImageGalleryScreenState extends State<ImageGalleryScreen> {
+  late PageController _pageController;
+  late int _currentIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
+    _pageController = PageController(initialPage: widget.initialIndex);
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: SafeArea(
+        child: Stack(
+          children: [
+            // Image PageView
+            PageView.builder(
+              controller: _pageController,
+              onPageChanged: (index) {
+                setState(() {
+                  _currentIndex = index;
+                });
+              },
+              itemCount: widget.images.length,
+              itemBuilder: (context, index) {
+                return InteractiveViewer(
+                  panEnabled: false,
+                  boundaryMargin: EdgeInsets.all(20),
+                  minScale: 1,
+                  maxScale: 4,
+                  child: Center(
+                    child: AspectRatio(
+                      aspectRatio: 1,
+                      child: Image.network(
+                        widget.images[index],
+                        fit: BoxFit.contain,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            color: Colors.grey[800],
+                            child: Center(
+                              child: Icon(
+                                Icons.error,
+                                color: Colors.white,
+                                size: 50,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+
+            // Top bar with back button and counter
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [Colors.black.withOpacity(0.7), Colors.transparent],
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.arrow_back, color: Colors.white),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                    Text(
+                      '${_currentIndex + 1} / ${widget.images.length}',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    SizedBox(width: 48), // Balance the back button
+                  ],
+                ),
+              ),
+            ),
+
+            // Bottom indicators
+            if (widget.images.length > 1)
+              Positioned(
+                bottom: 30,
+                left: 0,
+                right: 0,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: List.generate(
+                    widget.images.length,
+                    (index) => Container(
+                      margin: EdgeInsets.symmetric(horizontal: 4),
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color:
+                            _currentIndex == index
+                                ? Colors.white
+                                : Colors.white.withOpacity(0.5),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
   }
 }
