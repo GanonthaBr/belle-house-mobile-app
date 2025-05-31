@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:mobile_app/models/houses_mode.dart';
 import 'package:mobile_app/providers/auth_provider.dart';
 import 'package:mobile_app/providers/house_provider.dart';
 import 'package:mobile_app/providers/lands_provider.dart';
@@ -41,20 +42,64 @@ class MyApp extends StatelessWidget {
           '/main': (context) => MainScreen(),
           '/login': (context) => LoginScreen(),
           '/register': (context) => RegisterScreen(),
-          '/house_details':
-              (context) => HouseDetailsScreen(
-                imagePath: 'images/BH39.jpg',
-                contractType: 'Vente',
-                location: 'location',
-                price: 2000,
-                bedrooms: 2,
-                bathrooms: 2,
-                kitchens: 2,
-                description: "description",
-                agentName: "BH",
-                agentRole: 'agentRole',
-                agentImage: 'images/logo.png',
-              ),
+          '/house_details': (context) {
+            final args = ModalRoute.of(context)!.settings.arguments;
+            Property property;
+
+            // Check if arguments is already a Property object or a Map
+            if (args is Property) {
+              property = args;
+            } else if (args is Map<String, dynamic>) {
+              // Create Property from Map using fromJson
+              property = Property.fromJson(args);
+            } else {
+              // Handle error case
+              return Scaffold(
+                appBar: AppBar(
+                  title: Text('Error'),
+                  backgroundColor: Color(0xff61a1d6),
+                ),
+                body: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.error_outline, size: 64, color: Colors.red),
+                      SizedBox(height: 16),
+                      Text(
+                        'Invalid property data',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Text('Please try again or contact support.'),
+                      SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: Text('Go Back'),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }
+            return HouseDetailsScreen(
+              imagePath: property.imagePath, // Uses images from API
+              contractType:
+                  property.contractType, // Uses type_of_contract from API
+              location: property.location, // Uses area from API
+              price: property.price,
+              bedrooms: property.bedrooms,
+              bathrooms: property.bathrooms,
+              kitchens: property.kitchens, // Uses kitchen from API
+              description: property.description,
+              agentName: property.agentName, // Uses agent_name from API
+              agentRole: 'Real Estate Agent', // Default role since not in API
+              agentImage:
+                  'images/default_agent.png', // Default image since not in API
+            );
+          },
 
           '/home_screen': (context) => HomeScreen(),
           "/message_details":

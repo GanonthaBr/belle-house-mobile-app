@@ -66,7 +66,7 @@ class _HouseDetailsScreenState extends State<HouseDetailsScreen> {
                         width: width,
                         decoration: BoxDecoration(
                           image: DecorationImage(
-                            image: AssetImage(widget.imagePath),
+                            image: NetworkImage(widget.imagePath),
                             fit: BoxFit.cover,
                           ),
                           borderRadius: BorderRadius.only(

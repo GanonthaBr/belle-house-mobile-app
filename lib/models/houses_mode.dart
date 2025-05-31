@@ -1,41 +1,89 @@
-// models/house.dart
-class House {
+//
+class PropertyCategory {
   final int id;
-  final Category category;
   final String name;
-  final double price;
   final String description;
-  final String typeOfContract;
-  final String area;
-  final String? images;
+  final String createdAt;
 
-  House({
+  const PropertyCategory({
     required this.id,
-    required this.category,
     required this.name,
-    required this.price,
     required this.description,
-    required this.typeOfContract,
-    required this.area,
-    this.images,
+    required this.createdAt,
   });
 
-  factory House.fromJson(Map<String, dynamic> json) {
-    return House(
+  factory PropertyCategory.fromJson(Map<String, dynamic> json) {
+    return PropertyCategory(
       id: json['id'] ?? 0,
-      category: Category.fromJson(json['category'] ?? {}),
       name: json['name'] ?? '',
-      price: double.tryParse(json['price'].toString()) ?? 0.0,
       description: json['description'] ?? '',
-      typeOfContract: json['type_of_contract'] ?? '',
-      area: json['area'] ?? '',
-      images: json['images'],
+      createdAt: json['created_at'] ?? '',
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'name': name,
+      'description': description,
+      'created_at': createdAt,
+    };
+  }
+}
+
+class Property {
+  final PropertyCategory category;
+  final String name;
+  final double price;
+  final String description;
+  final String typeOfContract;
+  final String area;
+  final String images;
+  final double size;
+  final String agentName;
+  final int
+  kitchen; // Note: your API has "kichen" (typo), but I'll use correct spelling
+  final int bedrooms;
+  final int bathrooms;
+
+  const Property({
+    required this.category,
+    required this.name,
+    required this.price,
+    required this.description,
+    required this.typeOfContract,
+    required this.area,
+    required this.images,
+    required this.size,
+    required this.agentName,
+    required this.kitchen,
+    required this.bedrooms,
+    required this.bathrooms,
+  });
+
+  // Factory constructor for creating Property from JSON/Map
+  factory Property.fromJson(Map<String, dynamic> json) {
+    return Property(
+      category: PropertyCategory.fromJson(json['category'] ?? {}),
+      name: json['name'] ?? '',
+      price: double.tryParse(json['price']?.toString() ?? '0') ?? 0.0,
+      description: json['description'] ?? '',
+      typeOfContract: json['type_of_contract'] ?? '',
+      area: json['area'] ?? '',
+      images: json['images'] ?? '',
+      size: double.tryParse(json['size']?.toString() ?? '0') ?? 0.0,
+      agentName: json['agent_name'] ?? '',
+      kitchen:
+          int.tryParse(json['kichen']?.toString() ?? '0') ??
+          0, // Note the typo in API
+      bedrooms: int.tryParse(json['bedrooms']?.toString() ?? '0') ?? 0,
+      bathrooms: int.tryParse(json['bathrooms']?.toString() ?? '0') ?? 0,
+    );
+  }
+
+  // Convert Property to JSON/Map
+  Map<String, dynamic> toJson() {
+    return {
       'category': category.toJson(),
       'name': name,
       'price': price,
@@ -43,7 +91,92 @@ class House {
       'type_of_contract': typeOfContract,
       'area': area,
       'images': images,
+      'size': size,
+      'agent_name': agentName,
+      'kichen': kitchen, // Keep the API typo for consistency
+      'bedrooms': bedrooms,
+      'bathrooms': bathrooms,
     };
+  }
+
+  // Convenience getters for backward compatibility with your existing UI
+  String get imagePath => images;
+  String get contractType => typeOfContract;
+  String get location => area;
+  int get kitchens => kitchen;
+
+  // Optional: Copy method for creating modified copies
+  Property copyWith({
+    PropertyCategory? category,
+    String? name,
+    double? price,
+    String? description,
+    String? typeOfContract,
+    String? area,
+    String? images,
+    double? size,
+    String? agentName,
+    int? kitchen,
+    int? bedrooms,
+    int? bathrooms,
+  }) {
+    return Property(
+      category: category ?? this.category,
+      name: name ?? this.name,
+      price: price ?? this.price,
+      description: description ?? this.description,
+      typeOfContract: typeOfContract ?? this.typeOfContract,
+      area: area ?? this.area,
+      images: images ?? this.images,
+      size: size ?? this.size,
+      agentName: agentName ?? this.agentName,
+      kitchen: kitchen ?? this.kitchen,
+      bedrooms: bedrooms ?? this.bedrooms,
+      bathrooms: bathrooms ?? this.bathrooms,
+    );
+  }
+
+  // Optional: toString method for debugging
+  @override
+  String toString() {
+    return 'Property(name: $name, price: $price, area: $area, typeOfContract: $typeOfContract, size: $size, agentName: $agentName, bedrooms: $bedrooms, bathrooms: $bathrooms, kitchen: $kitchen)';
+  }
+
+  // Optional: Equality comparison
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is Property &&
+        other.category == category &&
+        other.name == name &&
+        other.price == price &&
+        other.description == description &&
+        other.typeOfContract == typeOfContract &&
+        other.area == area &&
+        other.images == images &&
+        other.size == size &&
+        other.agentName == agentName &&
+        other.kitchen == kitchen &&
+        other.bedrooms == bedrooms &&
+        other.bathrooms == bathrooms;
+  }
+
+  @override
+  int get hashCode {
+    return Object.hash(
+      category,
+      name,
+      price,
+      description,
+      typeOfContract,
+      area,
+      images,
+      size,
+      agentName,
+      kitchen,
+      bedrooms,
+      bathrooms,
+    );
   }
 }
 

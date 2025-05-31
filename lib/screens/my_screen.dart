@@ -998,7 +998,7 @@ class _MyScreenState extends State<MyScreen> {
     return Consumer<HouseProvider>(
       builder: (context, houseProvider, child) {
         final housesList = houseProvider.housesInfos;
-
+        print(housesList);
         return SliverToBoxAdapter(
           child: Container(
             padding: EdgeInsets.all(width * 0.05),
@@ -1405,10 +1405,24 @@ class _MyScreenState extends State<MyScreen> {
                         color: Colors.grey[100],
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(
-                        Icons.favorite_border,
-                        size: 20,
-                        color: Colors.grey[600],
+                      child: Row(
+                        children: [
+                          Text(
+                            'Par: ',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            property['agent_name'],
+                            style: TextStyle(
+                              color: AppColors.primaryColor,
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -1464,7 +1478,7 @@ class _MyScreenState extends State<MyScreen> {
                       )
                     else
                       Text(
-                        'ID: ${property['id'] ?? 'N/A'}',
+                        'Superficie: ${property['size'] ?? 'N/A'}',
                         style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                       ),
                     Text(
@@ -2198,7 +2212,7 @@ class _MyScreenState extends State<MyScreen> {
                 // Loading state for initial load
                 if (productsProvider.isLoading &&
                     (productsList == null || productsList.isEmpty))
-                  Container(
+                  SizedBox(
                     height: height * 0.28,
                     child: Center(
                       child: Column(
@@ -2222,7 +2236,7 @@ class _MyScreenState extends State<MyScreen> {
                 // Empty state (no data and no loading)
                 else if ((productsList == null || productsList.isEmpty) &&
                     !productsProvider.isLoading)
-                  Container(
+                  SizedBox(
                     height: height * 0.28,
                     child: Center(
                       child: Column(
@@ -2459,14 +2473,15 @@ class _MyScreenState extends State<MyScreen> {
                       topRight: Radius.circular(10),
                     ),
                     child:
-                        product['image'] != null
-                            ? Image.asset(
-                              product['image'],
+                        product['images'] != null
+                            ? Image.network(
+                              product['images'],
                               width: double.infinity,
                               height: 120,
                               fit: BoxFit.cover,
                               errorBuilder:
                                   (context, error, stackTrace) => Container(
+                                    width: double.infinity,
                                     color: Colors.grey[300],
                                     child: Column(
                                       mainAxisAlignment:
@@ -2528,7 +2543,7 @@ class _MyScreenState extends State<MyScreen> {
                       ),
                       child: Text(
                         (product['inStock'] ?? true)
-                            ? 'In Stock'
+                            ? 'Disponible'
                             : 'Out of Stock',
                         style: TextStyle(
                           color: Colors.white,
@@ -2559,8 +2574,8 @@ class _MyScreenState extends State<MyScreen> {
                     ),
                     SizedBox(height: 4),
                     // Display product specifications
-                    if (product.containsKey('weight'))
-                      _buildSpecText('Weight: ${product['weight']}'),
+                    if (product.containsKey('description'))
+                      _buildSpecText(product['description']),
                     if (product.containsKey('size'))
                       _buildSpecText('Size: ${product['size']}'),
                     if (product.containsKey('volume'))
@@ -2577,10 +2592,10 @@ class _MyScreenState extends State<MyScreen> {
                       children: [
                         Expanded(
                           child: Text(
-                            '\$${(product['price'] ?? 0.0).toString()}/${product['unit'] ?? 'item'}',
+                            '${(product['price'] ?? 0.0).toString()} FCFA',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              fontSize: 14,
+                              fontSize: 12,
                               color: AppColors.primaryColor,
                             ),
                             maxLines: 1,
@@ -2598,7 +2613,7 @@ class _MyScreenState extends State<MyScreen> {
                               shape: BoxShape.circle,
                             ),
                             child: Icon(
-                              Icons.add_shopping_cart,
+                              Icons.add_circle_outline,
                               color: Colors.white,
                               size: 18,
                             ),
@@ -2622,32 +2637,11 @@ class _MyScreenState extends State<MyScreen> {
       child: Text(
         text,
         style: TextStyle(color: Colors.grey[600], fontSize: 11),
-        maxLines: 1,
+        maxLines: 2,
         overflow: TextOverflow.ellipsis,
       ),
     );
   }
-  // Helper method for building category filter buttons
-  // Widget _buildCategoryButton(String label, bool isSelected) {
-  //   return Container(
-  //     margin: EdgeInsets.only(right: 10),
-  //     child: ElevatedButton(
-  //       onPressed: () {
-  //         // Filter products based on category
-  //       },
-  //       style: ElevatedButton.styleFrom(
-  //         foregroundColor: isSelected ? AppColors.primaryColor : Colors.white,
-  //         backgroundColor: isSelected ? Colors.white : Colors.black87,
-  //         shape: RoundedRectangleBorder(
-  //           borderRadius: BorderRadius.circular(20),
-  //           side: BorderSide(color: AppColors.primaryColor),
-  //         ),
-  //         elevation: isSelected ? 2 : 0,
-  //       ),
-  //       child: Text(label),
-  //     ),
-  //   );
-  // }
 
   // Method to show annonce details modal
   void _showAnnonceDetails(BuildContext context) {
