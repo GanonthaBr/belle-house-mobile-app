@@ -13,6 +13,7 @@ class AppDimension {
   static double distance50 = 0;
   static double distance70 = 0;
   static double distance45 = 0;
+  static double distance5 = 0;
 
   static double radius14 = 0;
   static double radius8 = 0;
@@ -32,6 +33,7 @@ class AppDimension {
     distance50 = screenHeight / 18.64;
     distance70 = screenHeight / 13.314;
     distance45 = screenHeight / 20.71;
+    distance5 = screenHeight / 156.8;
 
     radius14 = screenHeight / 66.57;
     radius8 = screenHeight / 116.5;

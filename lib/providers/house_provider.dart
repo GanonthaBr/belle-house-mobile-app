@@ -77,7 +77,7 @@ class HouseProvider with ChangeNotifier {
 
       if (response.containsKey('data')) {
         _housesInfos = response['data'];
-        print(_houseInfos);
+        // print(_houseInfos);
         _lastFetchTime = DateTime.now();
         _error = null;
         print('Successfully fetched ${_housesInfos?.length ?? 0} houses');
@@ -216,13 +216,13 @@ class HouseProvider with ChangeNotifier {
   }
 
   // Delete house with retry
-  Future<bool> deleteHouse(String id) async {
+  Future<bool> deleteHouse(String id, Map<String, dynamic> body) async {
     setLoading(true);
     _error = null;
 
     try {
-      print('Deleting house with ID: $id');
-      final response = await _homeServices.deleteHouse(id);
+      // print('Deleting house with ID: $id');
+      final response = await _homeServices.deleteHouse(id, body);
 
       if (response.containsKey('data') || !response.containsKey('error')) {
         // Remove the house from the local list

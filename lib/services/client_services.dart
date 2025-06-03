@@ -13,6 +13,7 @@ class HomeServices {
   ) {
     try {
       if (response.statusCode == 200) {
+        print("it is 200");
         final data = jsonDecode(response.body);
         return {'data': data};
       } else if (response.statusCode == 401) {
@@ -95,11 +96,15 @@ class HomeServices {
   }
 
   // Delete house
-  Future<Map<String, dynamic>> deleteHouse(String id) async {
+  Future<Map<String, dynamic>> deleteHouse(
+    String id,
+    Map<String, dynamic> body,
+  ) async {
     try {
       // print('Deleting house with ID: $id');
       final response = await _apiServices.delete(
         '${ApiConstants.baseUrl}/houses/$id/',
+        body,
       );
       return _handleResponse(response, 'delete house');
     } catch (e) {
@@ -171,11 +176,15 @@ class HomeServices {
   }
 
   // Delete parcelle
-  Future<Map<String, dynamic>> deleteParcelle(String id) async {
+  Future<Map<String, dynamic>> deleteParcelle(
+    String id,
+    Map<String, dynamic> body,
+  ) async {
     try {
       // print('Deleting parcelle with ID: $id');
       final response = await _apiServices.delete(
         '${ApiConstants.baseUrl}/lands/$id/',
+        body,
       );
       return _handleResponse(response, 'delete parcelle');
     } catch (e) {
@@ -311,6 +320,57 @@ class HomeServices {
     } catch (e) {
       // print('Retry operation failed: $e');
       return {'error': 'Retry failed: $e'};
+    }
+  }
+
+  // Fetch favorite items with automatic retry
+  Future<Map<String, dynamic>> fetchFavorites() async {
+    try {
+      print('Fetching favorites...');
+      final response = await _apiServices.get(
+        '${ApiConstants.baseUrl}/favorites/',
+      );
+      print("Favorite list: $response");
+      return _handleResponse(response, 'fetch favorites');
+    } catch (e) {
+      print('Error fetching favorites: $e');
+      return {'error': 'Network error: $e'};
+    }
+  }
+
+  // add to favorites
+  Future<Map<String, dynamic>> addFavorite({
+    required int contentTypeId,
+    required int objectId,
+  }) async {
+    try {
+      // print('Creating new house...');
+      final response = await _apiServices.post(
+        '${ApiConstants.baseUrl}/favorites/add/',
+        {'content_type': contentTypeId, 'object_id': objectId},
+      );
+      return _handleResponse(response, 'create house');
+    } catch (e) {
+      print('Error Adding Favorite: $e');
+      return {'error': 'Network error: $e'};
+    }
+  }
+
+  //
+  Future<Map<String, dynamic>> removeFavorite({
+    required int contentTypeId,
+    required int objectId,
+  }) async {
+    try {
+      // Assuming you have a _performDelete method, or modify _performPost for DELETE
+      final response = await _apiServices.delete(
+        '${ApiConstants.baseUrl}/favorites/remove/',
+        {'content_type': contentTypeId, 'object_id': objectId},
+      );
+      return _handleResponse(response, 'remove from favorite list');
+    } catch (e) {
+      // print('Error creating house: $e');
+      return {'error': 'Network error: $e'};
     }
   }
 }

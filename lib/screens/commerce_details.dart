@@ -286,7 +286,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          '${widget.product.price.toStringAsFixed(2)} FCFA',
+                          '${widget.product.price.toString()} FCFA',
                           style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
@@ -712,7 +712,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                         ),
                                         SizedBox(height: 4),
                                         Text(
-                                          '${(similarProduct['price'] ?? 0.0).toStringAsFixed(2)} FCFA',
+                                          '${(similarProduct['price'] ?? 0.0).toString()} FCFA',
                                           style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                             fontSize: 12,
@@ -766,7 +766,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                     ),
                     Text(
-                      '${(widget.product.price * quantity).toStringAsFixed(2)} FCFA',
+                      '${(widget.product.price * quantity).toString()} FCFA',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,

@@ -237,14 +237,17 @@ class ApiServices {
   }
 
   // DELETE method with retry
-  Future<http.Response> delete(String url) async {
+  Future<http.Response> delete(String url, Map<String, dynamic>? body) async {
     return await _executeWithRetry(
-      () async => _performDelete(url),
+      () async => _performDelete(url, body),
       shouldRetry: _shouldRetryError,
     );
   }
 
-  Future<http.Response> _performDelete(String url) async {
+  Future<http.Response> _performDelete(
+    String url,
+    Map<String, dynamic>? body,
+  ) async {
     final accessToken = await _tokenStorage.getAccessToken();
 
     final response = await http

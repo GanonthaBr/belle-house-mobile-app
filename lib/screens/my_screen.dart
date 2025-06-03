@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:mobile_app/providers/auth_provider.dart';
 import 'package:mobile_app/providers/house_provider.dart';
@@ -22,6 +24,7 @@ class _MyScreenState extends State<MyScreen> {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       final houseProvider = Provider.of<HouseProvider>(context, listen: false);
       final landProvider = Provider.of<LandsProvider>(context, listen: false);
+
       Provider.of<LandsProvider>(context, listen: false).startAutoRefresh();
       Provider.of<HouseProvider>(context, listen: false).startAutoRefresh();
       final productsProvider = Provider.of<ProductsProvider>(
@@ -114,13 +117,19 @@ class _MyScreenState extends State<MyScreen> {
                               ),
                             ),
                             SizedBox(width: 10),
-                            Text(
-                              "${locationInfos?['city'].substring(0, 12)} ",
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16,
-                              ),
-                            ),
+                            (locationInfos?['city'] != null &&
+                                    locationInfos!['city']
+                                        .toString()
+                                        .isNotEmpty)
+                                ? Text(
+                                  "${locationInfos['city'].toString().substring(0, 5)} ",
+
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16,
+                                  ),
+                                )
+                                : Text('Ville'),
                             Icon(
                               Icons.keyboard_arrow_down,
                               color: Colors.grey[600],
@@ -272,7 +281,8 @@ class _MyScreenState extends State<MyScreen> {
           ),
           SizedBox(height: 15),
           Container(
-            height: 90,
+            // color: Colors.red,
+            height: 80,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               itemCount: _categories.length,
@@ -285,7 +295,16 @@ class _MyScreenState extends State<MyScreen> {
                   },
                   child: Container(
                     width: width * 0.2,
+                    padding: EdgeInsets.only(top: 2),
+
                     margin: EdgeInsets.only(right: 15),
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: AppColors.primaryColor.withOpacity(.2),
+                      ),
+                      color: AppColors.primaryColor.withOpacity(.1),
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                    ),
                     child: Column(
                       children: [
                         Container(
@@ -588,12 +607,19 @@ class _MyScreenState extends State<MyScreen> {
                                   width: width * 0.65,
                                   margin: EdgeInsets.only(right: 15),
                                   decoration: BoxDecoration(
-                                    color: AppColors.secondaryColor,
+                                    color: AppColors.primaryColor.withOpacity(
+                                      0.12,
+                                    ),
                                     borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(
+                                      color: AppColors.primaryColor.withOpacity(
+                                        .2,
+                                      ),
+                                    ),
                                     boxShadow: [
                                       BoxShadow(
                                         color: Colors.grey.withOpacity(0.1),
-                                        spreadRadius: 0,
+                                        spreadRadius: 4,
                                         blurRadius: 10,
                                         offset: Offset(0, 3),
                                       ),

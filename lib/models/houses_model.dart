@@ -55,6 +55,7 @@ class PropertyCategory {
 }
 
 class Property {
+  final int id;
   final PropertyCategory category;
   final String name;
   final double price;
@@ -71,6 +72,7 @@ class Property {
 
   const Property({
     required this.category,
+    required this.id,
     required this.name,
     required this.price,
     required this.description,
@@ -98,6 +100,7 @@ class Property {
     return Property(
       category: PropertyCategory.fromJson(json['category'] ?? {}),
       name: json['name'] ?? '',
+      id: json['id'] ?? '',
       price: double.tryParse(json['price']?.toString() ?? '0') ?? 0.0,
       description: json['description'] ?? '',
       typeOfContract: json['type_of_contract'] ?? '',
@@ -119,6 +122,7 @@ class Property {
     return {
       'category': category.toJson(),
       'name': name,
+      'id': id,
       'price': price,
       'description': description,
       'type_of_contract': typeOfContract,
@@ -166,6 +170,7 @@ class Property {
     List<PropertyImage>? moreImages,
   }) {
     return Property(
+      id: id,
       category: category ?? this.category,
       name: name ?? this.name,
       price: price ?? this.price,

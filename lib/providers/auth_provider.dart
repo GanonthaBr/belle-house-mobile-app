@@ -1,22 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/services/auth_service.dart';
 import 'package:mobile_app/services/client_services.dart';
+import 'package:mobile_app/services/token_storage.dart';
 import 'package:mobile_app/utils/country_helper_code.dart';
 
 class AuthProvider with ChangeNotifier {
   final AuthService _authService = AuthService();
   final HomeServices _homeServices = HomeServices();
   final CountryCodeHelper _countryhelper = CountryCodeHelper();
+  final TokenStorage _tokenStorage = TokenStorage();
+
   bool _isLoading = false;
+  bool _isAuthenticated = false;
   Map<String, dynamic>? _userInfo;
   Map<String, dynamic>? _countryCity;
 
   bool get isLoading => _isLoading;
+  bool get isAuthenticated => _isAuthenticated;
   Map<String, dynamic>? get userInfo => _userInfo;
   Map<String, dynamic>? get countryCity => _countryCity;
 
   void setLoading(bool value) {
     _isLoading = value;
+    notifyListeners();
+  }
+
+  void setIsAuthenticated(bool value) {
+    _isAuthenticated = value;
     notifyListeners();
   }
 
@@ -38,6 +48,13 @@ class AuthProvider with ChangeNotifier {
     return result;
   }
 
+  Future<void> checkLogin() async {
+    final accessToken = await _tokenStorage.getAccessToken();
+    if (accessToken != null) {
+      setIsAuthenticated(true);
+    }
+  }
+
   Future<Map<String, dynamic>> register({
     required String username,
     required String phoneNumber,
@@ -56,6 +73,7 @@ class AuthProvider with ChangeNotifier {
   //Logout
   Future<void> logout() async {
     await _authService.logoutUser();
+    setIsAuthenticated(false);
     notifyListeners();
   }
 
@@ -63,7 +81,7 @@ class AuthProvider with ChangeNotifier {
   Future<void> fetchUserInfo() async {
     setLoading(true);
     final result = await _homeServices.getUserInfos();
-    print("THE result: $result");
+    // print("THE result: $result");
     setLoading(false);
 
     if (result.containsKey('data')) {

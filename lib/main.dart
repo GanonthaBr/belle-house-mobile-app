@@ -4,6 +4,7 @@ import 'package:mobile_app/models/houses_model.dart';
 import 'package:mobile_app/models/land_model.dart';
 import 'package:mobile_app/models/product_model.dart';
 import 'package:mobile_app/providers/auth_provider.dart';
+import 'package:mobile_app/providers/favorites_provider.dart';
 import 'package:mobile_app/providers/house_provider.dart';
 import 'package:mobile_app/providers/lands_provider.dart';
 import 'package:mobile_app/providers/products_provider.dart';
@@ -36,11 +37,12 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => HouseProvider()),
         ChangeNotifierProvider(create: (_) => LandsProvider()),
         ChangeNotifierProvider(create: (_) => ProductsProvider()),
+        ChangeNotifierProvider(create: (_) => FavoritesProvider()),
       ],
       child: MaterialApp(
         title: 'Belle House Immobilier',
         debugShowCheckedModeBanner: false,
-        home: SplashScreen(),
+        home: AppInitializer(),
 
         routes: {
           '/main': (context) => MainScreen(),
@@ -109,13 +111,55 @@ class MyApp extends StatelessWidget {
   }
 }
 
-// CommerceDetailsScreen(
-//         imagePath: 'images/lands.jpg',
-//         contractType: 'Vente',
-//         location: 'Franco',
-//         price: 20000,
-//         description: 'descriptipn',
-//         agentImage: 'images/logo.png',
-//         agentName: 'BH',
-//         agentRole: 'immobieier',
-//       ),
+class AppInitializer extends StatefulWidget {
+  const AppInitializer({super.key});
+
+  @override
+  _AppInitializerState createState() => _AppInitializerState();
+}
+
+class _AppInitializerState extends State<AppInitializer> {
+  bool _isInitialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeApp();
+  }
+
+  void _initializeApp() async {
+    // print('🚀 Initializing app data');
+
+    try {
+      // Check if user is logged in first
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      await authProvider.checkLogin();
+      // If user is authenticated, load favorites
+      if (authProvider.isAuthenticated == true) {
+        final favoritesProvider = Provider.of<FavoritesProvider>(
+          context,
+          listen: false,
+        );
+
+        await favoritesProvider.getFavorites();
+      } else {
+        print('👤 User not authenticated, skipping favorites load');
+      }
+    } catch (e) {
+      print('❌ Error during app initialization: $e');
+    } finally {
+      setState(() {
+        _isInitialized = true;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_isInitialized) {
+      return Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
+    return SplashScreen();
+  }
+}
