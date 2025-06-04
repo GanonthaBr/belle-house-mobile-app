@@ -40,7 +40,7 @@ class HomeServices {
       );
       return _handleResponse(response, 'fetch houses');
     } catch (e) {
-      print('Error fetching houses: $e');
+      // print('Error fetching houses: $e');
       return {'error': 'Network error: $e'};
     }
   }

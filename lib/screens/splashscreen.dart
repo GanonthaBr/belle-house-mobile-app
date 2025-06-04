@@ -25,17 +25,14 @@ class _SplashScreenState extends State<SplashScreen> {
     final accessToken = await _tokenStorage.getAccessToken();
     if (accessToken != null) {
       // Navigate to the main screen if the user is already logged in
+
+      await Future.delayed(Duration(seconds: 3)); // Add a delay
       if (mounted) {
         Navigator.pushReplacementNamed(context, '/main');
       }
     } else {
+      await Future.delayed(Duration(seconds: 3)); // Add a delay
       if (mounted) {
-        // Navigator.pushReplacement(
-        //   context,
-        //   MaterialPageRoute(
-        //     builder: (BuildContext context) => Center(child: Text('Here')),
-        //   ),
-        // );
         Navigator.pushReplacementNamed(context, '/login');
       }
     }
@@ -43,7 +40,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    AppDimension.init(context); // Initialize dimensions if needed
+    AppDimension.init(context);
     return Scaffold(
       backgroundColor: AppColors.secondaryColor,
       body: Center(
@@ -52,7 +49,7 @@ class _SplashScreenState extends State<SplashScreen> {
           children: [
             // App Logo
             Image.asset(
-              'images/logo.png', // Replace with your app's logo
+              'images/logo.png',
               width: AppDimension.screenWidth * 0.5,
             ),
             SizedBox(height: AppDimension.distance20),

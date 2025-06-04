@@ -32,7 +32,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (password != confirmPassword) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('Passwords do not match')));
+      ).showSnackBar(SnackBar(content: Text('Mot de passe non identique')));
       return;
     }
 
@@ -44,16 +44,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     if (result['success']) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Registration successful!')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Votre compte a été crée avec succès')),
+        );
         Navigator.pushNamed(context, '/login');
       }
       // Navigate to another screen or save the token
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(result['message'] ?? 'Registration failed')),
+          SnackBar(
+            content: Text(
+              result['message'] ?? 'Erreur lors de la création de votre compte',
+            ),
+          ),
         );
       }
     }
@@ -63,128 +67,125 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     AppDimension.init(context);
     return Scaffold(
-      body: Consumer<AuthProvider>(
-        builder: (context, authProvider, child) {
-          return Center(
-            child: Container(
-              height: AppDimension.screenHeight,
-              width: AppDimension.screenWidth,
-              color: AppColors.secondaryColor,
-              child: Padding(
-                padding: EdgeInsets.only(top: AppDimension.distance50),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    TitleText(
-                      text: 'Créer votre compte',
-                      fontSize: AppDimension.fontSize24,
-                      color: AppColors.primaryColor,
-                    ),
-                    Expanded(
-                      flex: 2,
-                      child: Image.asset('images/logo.png', width: 200),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: AppDimension.radius14,
-                        vertical: 0.0,
+      body: SafeArea(
+        child: Consumer<AuthProvider>(
+          builder: (context, authProvider, child) {
+            return Center(
+              child: Container(
+                height: AppDimension.screenHeight,
+                width: AppDimension.screenWidth,
+                color: AppColors.secondaryColor,
+                child: Padding(
+                  padding: EdgeInsets.only(top: AppDimension.distance50),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      TitleText(
+                        text: 'Créer votre compte',
+                        fontSize: AppDimension.fontSize24,
+                        color: AppColors.primaryColor,
                       ),
-                      child: SizedBox(
-                        height: AppDimension.screenHeight * 0.08,
-                        child: PhoneInputField(controller: _phoneController),
+                      Expanded(
+                        flex: 2,
+                        child: Image.asset('images/logo.png', width: 200),
                       ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: AppDimension.radius14,
-                        vertical: 0.0,
-                      ),
-                      child: SizedBox(
-                        height: AppDimension.screenHeight * 0.08,
-                        child: InputTextField(
-                          hintText: 'Votre nom d\'utilisateur',
-                          fillcolor: AppColors.primaryColor,
-                          focuscolor: AppColors.primaryColor,
-                          bordercolor: AppColors.primaryColor,
-                          // helperText: 'Enter your name',
-                          labelText: 'Prenom',
-                          fontsize: AppDimension.fontSize18,
-                          borderRadius: AppDimension.radius8,
-                          labelColor: AppColors.secondaryColor,
-                          passwordField: false,
-                          fillBg: true,
-                          controller: _usernameController,
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: AppDimension.radius14,
+                          vertical: 0.0,
+                        ),
+                        child: SizedBox(
+                          height: AppDimension.screenHeight * 0.08,
+                          child: PhoneInputField(controller: _phoneController),
                         ),
                       ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: AppDimension.radius14,
-                        vertical: 5.0,
-                      ),
-                      child: SizedBox(
-                        height: AppDimension.screenHeight * 0.08,
-                        child: InputTextField(
-                          controller: _passwordController,
-                          hintText: 'Mot de passe',
-                          fillcolor: AppColors.primaryColor,
-                          focuscolor: AppColors.primaryColor,
-                          bordercolor: AppColors.primaryColor,
-                          // helperText: "Créer un mot de passe",
-                          labelText: "Mot de passe",
-                          fontsize: AppDimension.fontSize18,
-                          borderRadius: AppDimension.radius14,
-                          labelColor: AppColors.secondaryColor,
-                          passwordField: true,
-                          fillBg: true,
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: AppDimension.radius14,
+                          vertical: 0.0,
+                        ),
+                        child: SizedBox(
+                          height: AppDimension.screenHeight * 0.08,
+                          child: InputTextField(
+                            hintText: 'Votre nom d\'utilisateur',
+                            fillcolor: AppColors.primaryColor,
+                            focuscolor: AppColors.primaryColor,
+                            bordercolor: AppColors.primaryColor,
+                            // helperText: 'Enter your name',
+                            labelText: 'Prenom',
+                            fontsize: AppDimension.fontSize18,
+                            borderRadius: AppDimension.radius8,
+                            labelColor: AppColors.secondaryColor,
+                            passwordField: false,
+                            fillBg: true,
+                            controller: _usernameController,
+                          ),
                         ),
                       ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: AppDimension.radius14,
-                        vertical: 0.0,
-                      ),
-                      child: SizedBox(
-                        height: AppDimension.screenHeight * 0.08,
-                        child: InputTextField(
-                          controller: _confirmPasswordController,
-                          hintText: 'Confirmer le mot de passe',
-                          fillcolor: AppColors.primaryColor,
-                          focuscolor: AppColors.primaryColor,
-                          bordercolor: AppColors.primaryColor,
-                          // helperText: "Répétez le mot de passe",
-                          labelText: "Confirmer le mot de passe",
-                          fontsize: AppDimension.fontSize18,
-                          borderRadius: AppDimension.radius14,
-                          labelColor: AppColors.secondaryColor,
-                          passwordField: true,
-                          fillBg: true,
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: AppDimension.radius14,
+                          vertical: 5.0,
+                        ),
+                        child: SizedBox(
+                          height: AppDimension.screenHeight * 0.08,
+                          child: InputTextField(
+                            controller: _passwordController,
+                            hintText: 'Mot de passe',
+                            fillcolor: AppColors.primaryColor,
+                            focuscolor: AppColors.primaryColor,
+                            bordercolor: AppColors.primaryColor,
+                            // helperText: "Créer un mot de passe",
+                            labelText: "Mot de passe",
+                            fontsize: AppDimension.fontSize18,
+                            borderRadius: AppDimension.radius14,
+                            labelColor: AppColors.secondaryColor,
+                            passwordField: true,
+                            fillBg: true,
+                          ),
                         ),
                       ),
-                    ),
-                    authProvider.isLoading
-                        ? CircularProgressIndicator(
-                          color: AppColors.primaryColor,
-                        )
-                        : TextButton(
-                          onPressed: _register,
-                          style: TextButton.styleFrom(
-                            backgroundColor: AppColors.primaryColor,
-                            padding: EdgeInsets.symmetric(
-                              horizontal: AppDimension.distance30,
-                              vertical: AppDimension.distance20 / 2,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(
-                                AppDimension.radius14,
+                      Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: AppDimension.radius14,
+                          vertical: 0.0,
+                        ),
+                        child: SizedBox(
+                          height: AppDimension.screenHeight * 0.08,
+                          child: InputTextField(
+                            controller: _confirmPasswordController,
+                            hintText: 'Confirmer le mot de passe',
+                            fillcolor: AppColors.primaryColor,
+                            focuscolor: AppColors.primaryColor,
+                            bordercolor: AppColors.primaryColor,
+                            // helperText: "Répétez le mot de passe",
+                            labelText: "Confirmer le mot de passe",
+                            fontsize: AppDimension.fontSize18,
+                            borderRadius: AppDimension.radius14,
+                            labelColor: AppColors.secondaryColor,
+                            passwordField: true,
+                            fillBg: true,
+                          ),
+                        ),
+                      ),
+                      authProvider.isLoading
+                          ? CircularProgressIndicator(
+                            color: AppColors.primaryColor,
+                          )
+                          : TextButton(
+                            onPressed: _register,
+                            style: TextButton.styleFrom(
+                              backgroundColor: AppColors.primaryColor,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: AppDimension.distance30,
+                                vertical: AppDimension.distance20 / 2,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(
+                                  AppDimension.radius14,
+                                ),
                               ),
                             ),
-                          ),
-                          child: GestureDetector(
-                            onTap: () {
-                              Navigator.pushReplacementNamed(context, '/login');
-                            },
                             child: Text(
                               'S\'inscrire',
                               style: TextStyle(
@@ -193,14 +194,31 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ),
                             ),
                           ),
+                      Center(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text('Deja un compte?'),
+                            const SizedBox(width: 10),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.pushNamed(context, '/login');
+                              },
+                              child: Text(
+                                'Connecter à votre compte',
+                                style: TextStyle(color: AppColors.primaryColor),
+                              ),
+                            ),
+                          ],
                         ),
-                    Text('Deja un compte?'),
-                  ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }

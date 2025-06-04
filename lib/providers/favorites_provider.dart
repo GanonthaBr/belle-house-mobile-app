@@ -28,8 +28,6 @@ class FavoritesProvider with ChangeNotifier {
 
   // Check if item is favorited
   bool isFavorited(int contentTypeId, int objectId) {
-    // print('checking...');
-    // print(_favoriteItems);
     return _favoriteItems.contains('${contentTypeId}_$objectId');
   }
 

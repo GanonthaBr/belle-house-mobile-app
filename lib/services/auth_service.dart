@@ -42,7 +42,7 @@ class AuthService {
         return {'success': false, 'message': 'An unknown error occurred'};
       }
     } catch (e) {
-      return {'success': false, 'message': 'An error occurred: $e'};
+      return {'success': false, 'message': 'An error occurred'};
     }
   }
 
@@ -77,7 +77,10 @@ class AuthService {
           'refresh': data['refresh'],
         };
       } else if (response.statusCode == 401) {
-        return {'success': false, 'message': 'Invalid credentials'};
+        return {
+          'success': false,
+          'message': 'Vos informations sont incorrectes',
+        };
       } else {
         return {'success': false, 'message': 'An unknown error occurred'};
       }
@@ -94,7 +97,7 @@ class AuthService {
   //refresh access token
   Future<bool> refreshAccessToken() async {
     final refreshToken = await _tokenStorage.getRefreshToken();
-    print("RefreshT: $refreshToken");
+    // print("RefreshT: $refreshToken");
     if (refreshToken == null) {
       //no refresh token available
       return false;
@@ -106,10 +109,10 @@ class AuthService {
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'refresh': refreshToken}),
       );
-      print("SC: ${response.statusCode}");
+      // print("SC: ${response.statusCode}");
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        print("DATA: $data");
+        // print("DATA: $data");
         await _tokenStorage.saveTokens(data['access']);
         // print("It WENT WELL");
 
@@ -120,7 +123,7 @@ class AuthService {
         return false;
       }
     } catch (e) {
-      print('Error refreshing: $e');
+      // print('Error refreshing: $e');
       return false;
     }
   }

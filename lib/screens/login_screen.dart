@@ -55,133 +55,143 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     AppDimension.init(context);
     return Scaffold(
-      body: Consumer<AuthProvider>(
-        builder: (context, authProvider, child) {
-          return Container(
-            height: AppDimension.screenHeight,
-            width: AppDimension.screenWidth,
-            color: AppColors.secondaryColor,
-            child: Padding(
-              padding: EdgeInsets.only(top: AppDimension.distance50),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  TitleText(
-                    text: 'Connecter à votre compte',
-                    fontSize: AppDimension.fontSize24,
-                    color: AppColors.primaryColor,
-                  ),
-                  // Logo
-                  Expanded(
-                    flex: 2,
-                    child: Image.asset('images/logo.png', width: 300),
-                  ),
-                  // Phone
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: AppDimension.radius14,
-                      vertical: 0.0,
+      body: SafeArea(
+        child: Consumer<AuthProvider>(
+          builder: (context, authProvider, child) {
+            return Container(
+              height: AppDimension.screenHeight,
+              width: AppDimension.screenWidth,
+              color: AppColors.secondaryColor,
+              child: Padding(
+                padding: EdgeInsets.only(top: AppDimension.distance50),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    TitleText(
+                      text: 'Connecter à votre compte',
+                      fontSize: AppDimension.fontSize24,
+                      color: AppColors.primaryColor,
                     ),
-                    child: SizedBox(
-                      height: AppDimension.screenHeight * 0.08,
-                      child: InputTextField(
-                        controller: _phoneController,
-                        fillBg: true,
-                        hintText: 'Numéro de téléphone',
-                        fillcolor: AppColors.primaryColor,
-                        focuscolor: AppColors.primaryColor,
-                        bordercolor: AppColors.primaryColor,
-                        // helperText: 'Entrer votre numero de téléphone',
-                        labelText: "Numéro de téléphone",
-                        fontsize: AppDimension.fontSize18,
-                        borderRadius: AppDimension.radius14,
-                        labelColor: AppColors.secondaryColor,
-                        passwordField: false,
+                    // Logo
+                    Expanded(
+                      flex: 2,
+                      child: Image.asset('images/logo.png', width: 300),
+                    ),
+                    // Phone
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: AppDimension.radius14,
+                        vertical: 0.0,
+                      ),
+                      child: SizedBox(
+                        height: AppDimension.screenHeight * 0.08,
+                        child: InputTextField(
+                          controller: _phoneController,
+                          fillBg: true,
+                          hintText: 'Numéro de téléphone',
+                          fillcolor: AppColors.primaryColor,
+                          focuscolor: AppColors.primaryColor,
+                          bordercolor: AppColors.primaryColor,
+                          // helperText: 'Entrer votre numero de téléphone',
+                          labelText: "Numéro de téléphone",
+                          fontsize: AppDimension.fontSize18,
+                          borderRadius: AppDimension.radius14,
+                          labelColor: AppColors.secondaryColor,
+                          passwordField: false,
+                        ),
                       ),
                     ),
-                  ),
-                  // Username
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: AppDimension.radius14,
-                      vertical: 0.0,
-                    ),
-                    child: SizedBox(
-                      height: AppDimension.screenHeight * 0.08,
-                      child: InputTextField(
-                        controller: _usernameController,
-                        fillBg: true,
-                        hintText: 'username',
-                        fillcolor: AppColors.primaryColor,
-                        focuscolor: AppColors.primaryColor,
-                        bordercolor: AppColors.primaryColor,
-                        // helperText: 'Enter your username',
-                        labelText: "Username",
-                        fontsize: AppDimension.fontSize18,
-                        borderRadius: AppDimension.radius14,
-                        labelColor: AppColors.secondaryColor,
-                        passwordField: false,
+                    // Username
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: AppDimension.radius14,
+                        vertical: 0.0,
+                      ),
+                      child: SizedBox(
+                        height: AppDimension.screenHeight * 0.08,
+                        child: InputTextField(
+                          controller: _usernameController,
+                          fillBg: true,
+                          hintText: 'username',
+                          fillcolor: AppColors.primaryColor,
+                          focuscolor: AppColors.primaryColor,
+                          bordercolor: AppColors.primaryColor,
+                          // helperText: 'Enter your username',
+                          labelText: "Username",
+                          fontsize: AppDimension.fontSize18,
+                          borderRadius: AppDimension.radius14,
+                          labelColor: AppColors.secondaryColor,
+                          passwordField: false,
+                        ),
                       ),
                     ),
-                  ),
-                  // Password field
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: AppDimension.radius14,
-                      vertical: 0.0,
-                    ),
-                    child: SizedBox(
-                      height: AppDimension.screenHeight * 0.08,
-                      child: InputTextField(
-                        controller: _passwordController,
-                        fillBg: true,
-                        hintText: 'Mot de passe',
-                        fillcolor: AppColors.primaryColor,
-                        focuscolor: AppColors.primaryColor,
-                        bordercolor: AppColors.primaryColor,
-                        // helperText: "Entrez votre mot de passe",
-                        labelText: "Mot de passe",
-                        fontsize: AppDimension.fontSize18,
-                        borderRadius: AppDimension.radius14,
-                        labelColor: AppColors.secondaryColor,
-                        passwordField: true,
+                    // Password field
+                    Padding(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: AppDimension.radius14,
+                        vertical: 0.0,
+                      ),
+                      child: SizedBox(
+                        height: AppDimension.screenHeight * 0.08,
+                        child: InputTextField(
+                          controller: _passwordController,
+                          fillBg: true,
+                          hintText: 'Mot de passe',
+                          fillcolor: AppColors.primaryColor,
+                          focuscolor: AppColors.primaryColor,
+                          bordercolor: AppColors.primaryColor,
+                          // helperText: "Entrez votre mot de passe",
+                          labelText: "Mot de passe",
+                          fontsize: AppDimension.fontSize18,
+                          borderRadius: AppDimension.radius14,
+                          labelColor: AppColors.secondaryColor,
+                          passwordField: true,
+                        ),
                       ),
                     ),
-                  ),
-                  // Login Button
-                  authProvider.isLoading
-                      ? CircularProgressIndicator(color: AppColors.primaryColor)
-                      : TextButtonWidget(
-                        text: 'Se connecter',
-                        height: AppDimension.distance50,
-                        fontSize: AppDimension.fontSize18,
-                        bgcolor: AppColors.primaryColor,
-                        borderRadius: AppDimension.radius14,
-                        textcolor: AppColors.secondaryColor,
-                        onPressed: _login,
+                    // Login Button
+                    authProvider.isLoading
+                        ? CircularProgressIndicator(
+                          color: AppColors.primaryColor,
+                        )
+                        : TextButtonWidget(
+                          text: 'Se connecter',
+                          height: AppDimension.distance50,
+                          fontSize: AppDimension.fontSize18,
+                          bgcolor: AppColors.primaryColor,
+                          borderRadius: AppDimension.radius14,
+                          textcolor: AppColors.secondaryColor,
+                          onPressed: _login,
+                        ),
+                    // CTA
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text('Pas encore de compte?'),
+                          SizedBox(width: 10),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.pushReplacementNamed(
+                                context,
+                                '/register',
+                              );
+                            },
+                            child: Text(
+                              "S'incrire",
+                              style: TextStyle(color: AppColors.primaryColor),
+                            ),
+                          ),
+                        ],
                       ),
-                  // CTA
-                  Padding(
-                    padding: EdgeInsets.only(
-                      top: AppDimension.distance20 / 2,
-                      bottom: AppDimension.distance20 * 2,
                     ),
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.pushReplacementNamed(context, '/register');
-                      },
-                      child: CTAComponent(
-                        text: 'Pas encore de compte?',
-                        actionText: "S'incrire",
-                        actionTextColor: AppColors.primaryColor,
-                      ),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }

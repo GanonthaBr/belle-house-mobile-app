@@ -786,6 +786,7 @@ class _HouseDetailsScreenState extends State<HouseDetailsScreen> {
                         ),
                       ),
                     ),
+
                   ],
                 ),
               ],
