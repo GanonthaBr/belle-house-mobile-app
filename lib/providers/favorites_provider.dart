@@ -181,13 +181,13 @@ class FavoritesProvider with ChangeNotifier {
   }
 
   void _setError(String error) {
-    _errorMessage = error ?? 'Unknown error';
+    _errorMessage = error;
     _successMessage = null;
     notifyListeners();
   }
 
   void _setSuccessMessage(String message) {
-    _successMessage = message ?? '';
+    _successMessage = message;
     _errorMessage = null;
     notifyListeners();
   }
