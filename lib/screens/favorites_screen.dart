@@ -101,49 +101,46 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           }
 
           // Error state
-          if (favoriteProvider.errorMessage != null) {
-            return Center(
-              child: Padding(
-                padding: EdgeInsets.all(AppDimension.distance20),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.error_outline, size: 64, color: AppColors.red),
-                    SizedBox(height: 16),
-                    TitleText(
-                      text: 'Erreur',
-                      color: AppColors.red,
-                      fontSize: AppDimension.fontSize18,
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      favoriteProvider.errorMessage!,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: AppColors.red),
-                    ),
-                    SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () {
-                        favoriteProvider.getFavorites();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryColor,
-                      ),
-                      child: Text('Réessayer'),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          }
+          // if (favoriteProvider.errorMessage != null) {
+          //   return Center(
+          //     child: Padding(
+          //       padding: EdgeInsets.all(AppDimension.distance20),
+          //       child: Column(
+          //         mainAxisAlignment: MainAxisAlignment.center,
+          //         children: [
+          //           Icon(Icons.error_outline, size: 64, color: AppColors.red),
+          //           SizedBox(height: 16),
+          //           TitleText(
+          //             text: 'Erreur',
+          //             color: AppColors.red,
+          //             fontSize: AppDimension.fontSize18,
+          //           ),
+          //           SizedBox(height: 8),
+          //           Text(
+          //             favoriteProvider.errorMessage!,
+          //             textAlign: TextAlign.center,
+          //             style: TextStyle(color: AppColors.red),
+          //           ),
+          //           SizedBox(height: 16),
+          //           ElevatedButton(
+          //             onPressed: () {
+          //               favoriteProvider.getFavorites();
+          //             },
+          //             style: ElevatedButton.styleFrom(
+          //               backgroundColor: AppColors.primaryColor,
+          //             ),
+          //             child: Text('Réessayer'),
+          //           ),
+          //         ],
+          //       ),
+          //     ),
+          //   );
+          // }
 
           // Get favorites data
           final favoritesByType = favoriteProvider.favoritesInfos;
           final totalCount = favoritesByType?['total_count'];
-
-          // print("📦 Favorites by type: $favoritesByType");
-          // print("📊 Total count: $totalCount");
-          // print("FAV: ${favoritesByType?['favorites']['houses']}");
+          // print(favoritesByType);
           // Empty state
           if (totalCount == 0) {
             return Center(

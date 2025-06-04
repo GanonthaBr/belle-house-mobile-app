@@ -66,13 +66,12 @@ class _HouseDetailsScreenState extends State<HouseDetailsScreen> {
             ContentType.property.id,
             widget.property.id,
           );
+          // print("IS IT: $isFavorited");
+          // final isItemLoading = favoriteProvider.isItemLoading(
+          //   ContentType.property.id,
+          //   widget.property.id,
+          // );
 
-          final isItemLoading = favoriteProvider.isItemLoading(
-            ContentType.property.id,
-            widget.property.id,
-          );
-          final ls = favoriteProvider.favoriteItems;
-          print('ITEMS: $ls');
           return SafeArea(
             child: Stack(
               children: [
@@ -230,11 +229,11 @@ class _HouseDetailsScreenState extends State<HouseDetailsScreen> {
                               radius: 20,
                               child: IconButton(
                                 icon: Icon(
-                                  isFavorite
+                                  isFavorited
                                       ? Icons.favorite
                                       : Icons.favorite_border,
                                   color:
-                                      isFavorite ? Colors.red : secondaryColor,
+                                      isFavorited ? Colors.red : secondaryColor,
                                 ),
                                 onPressed: () async {
                                   await favoriteProvider.toggleFavorite(

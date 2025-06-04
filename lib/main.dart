@@ -9,6 +9,7 @@ import 'package:mobile_app/providers/house_provider.dart';
 import 'package:mobile_app/providers/lands_provider.dart';
 import 'package:mobile_app/providers/products_provider.dart';
 import 'package:mobile_app/screens/commerce_details.dart';
+import 'package:mobile_app/screens/favorites_screen.dart';
 import 'package:mobile_app/screens/home_screen.dart';
 import 'package:mobile_app/screens/house_details.dart';
 import 'package:mobile_app/screens/land_details.dart';
@@ -49,6 +50,7 @@ class MyApp extends StatelessWidget {
           '/login': (context) => LoginScreen(),
           '/register': (context) => RegisterScreen(),
           '/lands': (context) => RegisterScreen(),
+          '/favorites': (context) => FavoritesScreen(),
 
           '/house_details': (context) {
             final args = ModalRoute.of(context)!.settings.arguments;

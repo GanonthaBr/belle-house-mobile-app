@@ -238,6 +238,7 @@ class ApiServices {
 
   // DELETE method with retry
   Future<http.Response> delete(String url, Map<String, dynamic>? body) async {
+    print("URL: $url");
     return await _executeWithRetry(
       () async => _performDelete(url, body),
       shouldRetry: _shouldRetryError,

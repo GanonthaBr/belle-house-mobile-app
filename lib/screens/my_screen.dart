@@ -2,11 +2,13 @@
 
 import 'package:flutter/material.dart';
 import 'package:mobile_app/providers/auth_provider.dart';
+import 'package:mobile_app/providers/favorites_provider.dart';
 import 'package:mobile_app/providers/house_provider.dart';
 import 'package:mobile_app/providers/lands_provider.dart';
 import 'package:mobile_app/providers/products_provider.dart';
 import 'package:mobile_app/utils/colors.dart';
 import 'package:intl/intl.dart';
+import 'package:mobile_app/utils/content_types.dart';
 import 'package:provider/provider.dart';
 
 class MyScreen extends StatefulWidget {
@@ -24,6 +26,10 @@ class _MyScreenState extends State<MyScreen> {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       final houseProvider = Provider.of<HouseProvider>(context, listen: false);
       final landProvider = Provider.of<LandsProvider>(context, listen: false);
+      final favoritesProvider = Provider.of<FavoritesProvider>(
+        context,
+        listen: false,
+      );
 
       Provider.of<LandsProvider>(context, listen: false).startAutoRefresh();
       Provider.of<HouseProvider>(context, listen: false).startAutoRefresh();
@@ -383,8 +389,8 @@ class _MyScreenState extends State<MyScreen> {
 
   // Home content with real API data integration
   Widget _buildHomeContent(double width, double height) {
-    return Consumer<HouseProvider>(
-      builder: (context, houseProvider, child) {
+    return Consumer2<HouseProvider, FavoritesProvider>(
+      builder: (context, houseProvider, favoritesProvider, child) {
         final housesList = houseProvider.housesInfos;
 
         return SliverList(
@@ -589,7 +595,10 @@ class _MyScreenState extends State<MyScreen> {
                                     : housesList.length,
                             itemBuilder: (context, index) {
                               final house = housesList[index];
-
+                              final isFavorited = favoritesProvider.isFavorited(
+                                ContentType.property.id,
+                                house['id'],
+                              );
                               // Type checking to ensure house is a Map
                               if (house is! Map<String, dynamic>) {
                                 return SizedBox.shrink();
@@ -662,8 +671,14 @@ class _MyScreenState extends State<MyScreen> {
                                                 shape: BoxShape.circle,
                                               ),
                                               child: Icon(
-                                                Icons.favorite_border,
-                                                color: Colors.grey[600],
+                                                isFavorited
+                                                    ? Icons.favorite
+                                                    : Icons.favorite_border,
+                                                color:
+                                                    isFavorited
+                                                        ? Colors.red
+                                                        : AppColors
+                                                            .primaryColor,
                                                 size: 20,
                                               ),
                                             ),

@@ -28,6 +28,8 @@ class FavoritesProvider with ChangeNotifier {
 
   // Check if item is favorited
   bool isFavorited(int contentTypeId, int objectId) {
+    // print('checking...');
+    // print(_favoriteItems);
     return _favoriteItems.contains('${contentTypeId}_$objectId');
   }
 
@@ -43,8 +45,7 @@ class FavoritesProvider with ChangeNotifier {
     String? itemName,
   }) async {
     final itemKey = '${contentTypeId}_$objectId';
-    print(itemName);
-    print(itemKey);
+
     _setItemLoading(itemKey, true);
     _clearMessages();
 
@@ -53,22 +54,15 @@ class FavoritesProvider with ChangeNotifier {
         contentTypeId: contentTypeId,
         objectId: objectId,
       );
-      print("HERE");
-      print(result);
+
       if (result['data'] != null) {
-        print("SUCCESS");
         // Add to local cache
         _favoriteItems.add(itemKey);
-        _setSuccessMessage(result['message']);
+        _setSuccessMessage(result['message'] ?? 'Added to favorites');
         notifyListeners();
         return true;
       } else {
-        print('not Success');
-        // Handle case where item is already favorited
-        if (result['isAlreadyFavorited'] == true) {
-          _favoriteItems.add(itemKey); // Update local state
-        }
-        _setError(result['message']);
+        _setError(result['message'] ?? 'Failed to add to favorites');
         return false;
       }
     } on SocketException {
@@ -78,7 +72,6 @@ class FavoritesProvider with ChangeNotifier {
       _setError('Request timeout. Please try again.');
       return false;
     } catch (e) {
-      print("ERR: $e");
       // Handle different types of errors
       String errorMessage = 'Failed to add to favorites';
 
@@ -106,18 +99,20 @@ class FavoritesProvider with ChangeNotifier {
     required int objectId,
   }) async {
     final itemKey = '${contentTypeId}_$objectId';
+    late final String modelName;
 
     _setItemLoading(itemKey, true);
     _clearMessages();
+    if (contentTypeId == 11) {
+      modelName = 'Houses';
+    }
 
     try {
       final result = await _apiService.removeFavorite(
-        contentTypeId: contentTypeId,
+        model: modelName,
         objectId: objectId,
       );
-      print("REmoved Fav: $result");
       if (result['data'] != null) {
-        print('Removed from Favorite');
         // Remove from local cache
         _favoriteItems.remove(itemKey);
         _setSuccessMessage(result['message']);
@@ -159,15 +154,13 @@ class FavoritesProvider with ChangeNotifier {
     required int objectId,
     String? itemName,
   }) async {
-    print("Toggle");
     if (isFavorited(contentTypeId, objectId)) {
-      print("FAVE BABE RV: $contentTypeId");
       return await removeFavorite(
         contentTypeId: contentTypeId,
         objectId: objectId,
       );
     } else {
-      print("FAVE BABE: $contentTypeId");
+      // print("Adding to Favorite list");
       return await addFavorite(
         contentTypeId: contentTypeId,
         objectId: objectId,
@@ -188,13 +181,13 @@ class FavoritesProvider with ChangeNotifier {
   }
 
   void _setError(String error) {
-    _errorMessage = error;
+    _errorMessage = error ?? 'Unknown error';
     _successMessage = null;
     notifyListeners();
   }
 
   void _setSuccessMessage(String message) {
-    _successMessage = message;
+    _successMessage = message ?? '';
     _errorMessage = null;
     notifyListeners();
   }
@@ -205,7 +198,8 @@ class FavoritesProvider with ChangeNotifier {
   }
 
   // Extract clean error message from exception string
-  String _extractErrorMessage(String fullError) {
+  String _extractErrorMessage(String? fullError) {
+    if (fullError == null) return 'Unknown error';
     // Remove "Exception: " prefix if present
     if (fullError.startsWith('Exception: ')) {
       return fullError.substring(11);

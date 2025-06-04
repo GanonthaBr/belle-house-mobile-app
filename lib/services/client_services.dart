@@ -13,7 +13,6 @@ class HomeServices {
   ) {
     try {
       if (response.statusCode == 200) {
-        print("it is 200");
         final data = jsonDecode(response.body);
         return {'data': data};
       } else if (response.statusCode == 401) {
@@ -326,14 +325,14 @@ class HomeServices {
   // Fetch favorite items with automatic retry
   Future<Map<String, dynamic>> fetchFavorites() async {
     try {
-      print('Fetching favorites...');
+      // print('Fetching favorites...');
       final response = await _apiServices.get(
         '${ApiConstants.baseUrl}/favorites/',
       );
-      print("Favorite list: $response");
+      // print("Favorite list: $response");
       return _handleResponse(response, 'fetch favorites');
     } catch (e) {
-      print('Error fetching favorites: $e');
+      // print('Error fetching favorites: $e');
       return {'error': 'Network error: $e'};
     }
   }
@@ -358,14 +357,13 @@ class HomeServices {
 
   //
   Future<Map<String, dynamic>> removeFavorite({
-    required int contentTypeId,
+    required String model,
     required int objectId,
   }) async {
     try {
-      // Assuming you have a _performDelete method, or modify _performPost for DELETE
       final response = await _apiServices.delete(
-        '${ApiConstants.baseUrl}/favorites/remove/',
-        {'content_type': contentTypeId, 'object_id': objectId},
+        '${ApiConstants.baseUrl}/favorites/remove/$model/$objectId/',
+        {},
       );
       return _handleResponse(response, 'remove from favorite list');
     } catch (e) {
