@@ -13,6 +13,19 @@ class FavoritesScreen extends StatefulWidget {
 }
 
 class _FavoritesScreenState extends State<FavoritesScreen> {
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final favoriteProvider = Provider.of<FavoritesProvider>(
+        context,
+        listen: false,
+      );
+
+      await favoriteProvider.getFavorites();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

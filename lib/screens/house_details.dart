@@ -1,8 +1,5 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:mobile_app/models/houses_model.dart';
-import 'package:mobile_app/models/product_model.dart';
 import 'package:mobile_app/providers/favorites_provider.dart';
 import 'package:mobile_app/widgets/descrption_text.dart';
 import 'package:mobile_app/widgets/image_gallery.dart';
@@ -348,11 +345,12 @@ class _HouseDetailsScreenState extends State<HouseDetailsScreen> {
                                 ),
                               ),
                               Text(
-                                '\$${widget.property.price.toStringAsFixed(2)}',
+                                '${widget.property.price.toStringAsFixed(2)}FCFA',
                                 style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
                                   color: primaryColor,
+
                                 ),
                               ),
                             ],
@@ -606,7 +604,7 @@ class _HouseDetailsScreenState extends State<HouseDetailsScreen> {
                               children: [
                                 Icon(Icons.call, size: 20),
                                 SizedBox(width: 8),
-                                Text('Call'),
+                                Text('Appeler'),
                               ],
                             ),
                           ),
@@ -718,11 +716,13 @@ class _HouseDetailsScreenState extends State<HouseDetailsScreen> {
                 ),
                 SizedBox(height: 5),
                 Text(
-                  actionType == 'call' ? 'Call Agent' : 'Message Agent',
+                  actionType == 'Appeler'
+                      ? 'Appeler le démarcheur'
+                      : 'Message Agent',
                   style: TextStyle(color: Colors.grey[600]),
                 ),
                 SizedBox(height: 20),
-                actionType == 'call'
+                actionType == 'Appeler'
                     ? Text(
                       phoneNumber,
                       style: TextStyle(
@@ -779,7 +779,11 @@ class _HouseDetailsScreenState extends State<HouseDetailsScreen> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        child: Text(actionType == 'call' ? 'Call Now' : 'Send'),
+                        child: Text(
+                          actionType == 'Appeler'
+                              ? 'Appeler Maintenant'
+                              : 'Envoyer',
+                        ),
                       ),
                     ),
                   ],

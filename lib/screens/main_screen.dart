@@ -17,13 +17,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   int _currentIndex = 0;
   late AnimationController _animationController;
   late Animation<double> _scaleAnimation;
-
-  final List<Widget> _pages = [
-    MyScreen(),
-    FavoritesScreen(),
-    ConversationsScreen(),
-    ProfileScreen(),
-  ];
+  late PageController _pageController;
 
   final List<IconData> _icons = [
     Icons.home_rounded,
@@ -37,6 +31,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
+    _pageController = PageController(initialPage: 0);
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 200),
       vsync: this,
@@ -48,15 +43,33 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
   @override
   void dispose() {
+    _pageController.dispose();
     _animationController.dispose();
     super.dispose();
   }
 
   void onTapNav(int index) {
+    // Don't animate if same tab is pressed
+    if (_currentIndex == index) return;
+
     _animationController.forward().then((_) {
       _animationController.reverse();
     });
 
+    setState(() {
+      _currentIndex = index;
+    });
+
+    // Animate to the selected page
+    _pageController.animateToPage(
+      index,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  // Handle page changes from swipe gestures (if you want to enable them)
+  void onPageChanged(int index) {
     setState(() {
       _currentIndex = index;
     });
@@ -67,13 +80,20 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     AppDimension.init(context);
     return Scaffold(
       backgroundColor: Colors.white,
-      body: IndexedStack(index: _currentIndex, children: _pages),
+      body: PageView(
+        controller: _pageController,
+        onPageChanged: onPageChanged,
+        // Set to NeverScrollableScrollPhysics() if you don't want swipe navigation
+        physics: const ClampingScrollPhysics(), // Allow swipe navigation
+        children: [
+          MyScreen(),
+          FavoritesScreen(),
+          ConversationsScreen(),
+          ProfileScreen(),
+        ],
+      ),
       bottomNavigationBar: Container(
-        margin: EdgeInsets.only(
-          // left: AppDimension.distance20 / 4,
-          // right: AppDimension.distance20,
-          // bottom: AppDimension.distance20 / 5,
-        ),
+        margin: const EdgeInsets.only(),
         padding: EdgeInsets.only(top: AppDimension.distance20 / 2),
         decoration: BoxDecoration(
           color: AppColors.primaryColor,
@@ -99,7 +119,6 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             height: AppDimension.distance70 * 2,
             padding: EdgeInsets.symmetric(
               horizontal: AppDimension.distance20 / 2,
-              // vertical: AppDimension.distance20 / 10,
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -183,7 +202,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             child: Icon(
               icon,
               size: AppDimension.distance20 + 2,
-              color: isSelected ? Colors.white : Colors.white,
+              color: Colors.white,
             ),
           ),
           SizedBox(height: AppDimension.distance5 / 2),
@@ -192,10 +211,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             style: TextStyle(
               fontSize: AppDimension.distance20 / 1.3,
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-              color:
-                  isSelected
-                      ? AppColors.secondaryColor
-                      : AppColors.secondaryColor,
+              color: AppColors.secondaryColor,
               letterSpacing: 0.5,
             ),
             child: Text(
