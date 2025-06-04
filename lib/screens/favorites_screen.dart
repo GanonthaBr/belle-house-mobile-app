@@ -181,7 +181,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                       // Navigate back to home or explore
                       DefaultTabController.of(
                         context,
-                      )?.animateTo(0); // Go to home tab
+                      ).animateTo(0); // Go to home tab
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primaryColor,
@@ -199,37 +199,39 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
               ),
             );
           }
-
+          if (favoritesByType == null) {
+            return Center(child: Text('Votre liste de Favoris est vide!'));
+          }
           // Display favorites grouped by type
           return ListView(
             padding: EdgeInsets.all(AppDimension.distance20 / 2),
             children: [
               // Houses section
-              if (favoritesByType?['favorites'].containsKey('houses') &&
-                  favoritesByType?['favorites']['houses']!.isNotEmpty)
+              if (favoritesByType['favorites'].containsKey('houses') &&
+                  favoritesByType['favorites']['houses']!.isNotEmpty)
                 _buildFavoriteSection(
                   'Maisons',
-                  favoritesByType?['favorites']['houses']!,
+                  favoritesByType['favorites']['houses']!,
                   Icons.home_rounded,
                   favoriteProvider,
                 ),
 
               // Lands section
-              if (favoritesByType?['favorites'].containsKey('lands') &&
-                  favoritesByType?['favorites']['lands']!.isNotEmpty)
+              if (favoritesByType['favorites'].containsKey('lands') &&
+                  favoritesByType['favorites']['lands']!.isNotEmpty)
                 _buildFavoriteSection(
                   'Terrains',
-                  favoritesByType?['favorites']['lands']!,
+                  favoritesByType['favorites']['lands']!,
                   Icons.landscape_rounded,
                   favoriteProvider,
                 ),
 
               // Products section
-              if (favoritesByType?['favorites'].containsKey('products') &&
-                  favoritesByType?['favorites']['products']!.isNotEmpty)
+              if (favoritesByType['favorites'].containsKey('products') &&
+                  favoritesByType['favorites']['products']!.isNotEmpty)
                 _buildFavoriteSection(
                   'Produits',
-                  favoritesByType?['favorites']['products']!,
+                  favoritesByType['favorites']['products']!,
                   Icons.shopping_bag_rounded,
                   favoriteProvider,
                 ),
@@ -302,19 +304,17 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         ),
 
         // Favorites list
-        ...favorites
-            .map(
-              (favorite) => FavoriteItem(
-                favorite: favorite,
-                onDelete: () async {
-                  await favoriteProvider.removeFavorite(
-                    contentTypeId: favorite['content_type_id'],
-                    objectId: favorite['object_id'],
-                  );
-                },
-              ),
-            )
-            .toList(),
+        ...favorites.map(
+          (favorite) => FavoriteItem(
+            favorite: favorite,
+            onDelete: () async {
+              await favoriteProvider.removeFavorite(
+                contentTypeId: favorite['content_type_id'],
+                objectId: favorite['object_id'],
+              );
+            },
+          ),
+        ),
 
         SizedBox(height: AppDimension.distance20),
       ],
@@ -341,7 +341,7 @@ class FavoriteItem extends StatelessWidget {
     final String agentName = objectData['agentName'] ?? 'Agent non spécifié';
     final double price = (objectData['price'] ?? 0.0).toDouble();
     final String createdAt = favorite['created_at'] ?? '';
-    final String image = favorite['image'] ?? '';
+    final List images = objectData['more_images'] ?? '';
 
     // Format date
     String formattedDate = 'Date inconnue';
@@ -390,9 +390,12 @@ class FavoriteItem extends StatelessWidget {
                         ),
                         image: DecorationImage(
                           fit: BoxFit.cover,
-                          image: AssetImage(
-                            'images/BH39.jpg',
-                          ), // You can add image URL from API
+                          image:
+                              images.isNotEmpty
+                                  ? NetworkImage(
+                                    "http://data.bellehouseniger.com${images.first}",
+                                  )
+                                  : AssetImage('images/BH39.jpg'),
                         ),
                       ),
                     ),

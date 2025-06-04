@@ -122,7 +122,7 @@ class _MyScreenState extends State<MyScreen> {
                                         .toString()
                                         .isNotEmpty)
                                 ? Text(
-                                  "${locationInfos['city'].toString().substring(0, 5)} ",
+                                  "${locationInfos['city'].toString()} ",
 
                                   style: TextStyle(
                                     fontWeight: FontWeight.w600,
@@ -1020,6 +1020,7 @@ class _MyScreenState extends State<MyScreen> {
     return Consumer<HouseProvider>(
       builder: (context, houseProvider, child) {
         final housesList = houseProvider.housesInfos;
+        // print("HL: ${housesList}");
         return SliverToBoxAdapter(
           child: Container(
             padding: EdgeInsets.all(width * 0.05),
