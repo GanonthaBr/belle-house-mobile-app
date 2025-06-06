@@ -25,11 +25,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
     final phoneNumber = _phoneController.text.trim();
     final password = _passwordController.text.trim();
-    final username = _usernameController.text.trim();
+    // final username = _usernameController.text.trim();
 
     //authentication logic
     final result = await authProvider.login(
-      username: username,
+      // username: username,
       password: password,
       phoneNumber: phoneNumber,
     );
@@ -102,29 +102,30 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     // Username
-                    Padding(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: AppDimension.radius14,
-                        vertical: 0.0,
-                      ),
-                      child: SizedBox(
-                        height: AppDimension.screenHeight * 0.08,
-                        child: InputTextField(
-                          controller: _usernameController,
-                          fillBg: true,
-                          hintText: 'username',
-                          fillcolor: AppColors.primaryColor,
-                          focuscolor: AppColors.primaryColor,
-                          bordercolor: AppColors.primaryColor,
-                          // helperText: 'Enter your username',
-                          labelText: "Username",
-                          fontsize: AppDimension.fontSize18,
-                          borderRadius: AppDimension.radius14,
-                          labelColor: AppColors.secondaryColor,
-                          passwordField: false,
-                        ),
-                      ),
-                    ),
+                    // Padding(
+                    //   padding: EdgeInsets.symmetric(
+                    //     horizontal: AppDimension.radius14,
+                    //     vertical: 0.0,
+                    //   ),
+                    //   child: SizedBox(
+                    //     height: AppDimension.screenHeight * 0.08,
+                    //     child: InputTextField(
+                    //       controller: _usernameController,
+                    //       fillBg: true,
+                    //       hintText: 'username',
+                    //       fillcolor: AppColors.primaryColor,
+                    //       focuscolor: AppColors.primaryColor,
+                    //       bordercolor: AppColors.primaryColor,
+                    //       // helperText: 'Enter your username',
+                    //       labelText: "Username",
+                    //       fontsize: AppDimension.fontSize18,
+                    //       borderRadius: AppDimension.radius14,
+                    //       labelColor: AppColors.secondaryColor,
+                    //       passwordField: false,
+                    //     ),
+                    //   ),
+                    // ),
+
                     // Password field
                     Padding(
                       padding: EdgeInsets.symmetric(

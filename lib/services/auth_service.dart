@@ -48,7 +48,6 @@ class AuthService {
 
   //login
   Future<Map<String, dynamic>> loginUser({
-    required String username,
     required String password,
     required String phoneNumber,
   }) async {
@@ -57,13 +56,9 @@ class AuthService {
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'username': username,
-          'password': password,
-          'phone_number': phoneNumber,
-        }),
+        body: jsonEncode({'password': password, 'phone_number': phoneNumber}),
       );
-
+      // print("LOGIN: ${response.body}");
       if (response.body.isEmpty) {
         return {'success': false, 'message': 'Empty response from server'};
       }
