@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/providers/auth_provider.dart';
+import 'package:mobile_app/providers/favorites_provider.dart';
 import 'package:mobile_app/utils/colors.dart';
 import 'package:mobile_app/utils/dimensions.dart';
 import 'package:mobile_app/widgets/title_text.dart';
@@ -19,6 +20,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       Provider.of<AuthProvider>(context, listen: false).fetchUserInfo();
       Provider.of<AuthProvider>(context, listen: false).getCountryAndCity();
+      Provider.of<FavoritesProvider>(context, listen: false).getFavorites();
 
       // print("City: ${countryCity['city']}");
     });
@@ -34,6 +36,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Scaffold(
       backgroundColor: AppColors.secondaryColor,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         centerTitle: true,
         toolbarHeight: AppDimension.distance50 * 2,
         backgroundColor: AppColors.primaryColor,
@@ -43,8 +46,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           color: AppColors.secondaryColor,
         ),
       ),
-      body: Consumer<AuthProvider>(
-        builder: (context, authProvider, child) {
+      body: Consumer2<AuthProvider, FavoritesProvider>(
+        builder: (context, authProvider, favoritesProvider, child) {
           if (authProvider.isLoading) {
             return Center(
               child: CircularProgressIndicator(color: AppColors.primaryColor),
@@ -53,6 +56,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
           final userInfo = authProvider.userInfo;
           final result = authProvider.countryCity;
+          final favorites = favoritesProvider.favoriteItems;
 
           // print(userInfo);
 
@@ -185,7 +189,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       color: AppColors.primaryColor,
                     ),
                     title: Text(
-                      'Favorites: 8',
+                      'Favorites: ${favorites.length}',
                       style: TextStyle(
                         fontSize: AppDimension.fontSize18,
                         color: AppColors.primaryColor,
