@@ -2,15 +2,27 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:mobile_app/services/token_storage.dart';
 import 'package:mobile_app/utils/api_constants.dart';
+import 'package:mobile_app/services/connectivity_service.dart';
 
 class AuthService {
   final TokenStorage _tokenStorage = TokenStorage();
+  final ConnectivityService _connectivityService = ConnectivityService();
+
   //register
   Future<Map<String, dynamic>> registerUser({
     required String phoneNumber,
     required String password,
     required String username,
   }) async {
+    // Check internet connectivity before making API call
+    if (!await _connectivityService.hasInternetConnection()) {
+      return {
+        'success': false,
+        'message':
+            'No internet connection. Please check your network and try again.',
+      };
+    }
+
     final url = Uri.parse('${ApiConstants.baseUrlAuth}/register/');
     try {
       final response = await http.post(
@@ -22,7 +34,6 @@ class AuthService {
           'username': username,
         }),
       );
-
       if (response.body.isEmpty) {
         return {'success': false, 'message': 'Empty response from server'};
       }
@@ -51,6 +62,15 @@ class AuthService {
     required String password,
     required String phoneNumber,
   }) async {
+    // Check internet connectivity before making API call
+    if (!await _connectivityService.hasInternetConnection()) {
+      return {
+        'success': false,
+        'message':
+            'No internet connection. Please check your network and try again.',
+      };
+    }
+
     final url = Uri.parse('${ApiConstants.baseUrlAuth}/login/');
     try {
       final response = await http.post(
@@ -91,6 +111,11 @@ class AuthService {
 
   //refresh access token
   Future<bool> refreshAccessToken() async {
+    // Check internet connectivity before making API call
+    if (!await _connectivityService.hasInternetConnection()) {
+      return false;
+    }
+
     final refreshToken = await _tokenStorage.getRefreshToken();
     // print("RefreshT: $refreshToken");
     if (refreshToken == null) {

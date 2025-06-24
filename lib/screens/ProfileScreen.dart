@@ -29,6 +29,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> logout() async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     await authProvider.logout();
+    Navigator.pushNamed(context, '/login');
   }
 
   @override
@@ -56,7 +57,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
           final userInfo = authProvider.userInfo;
           final result = authProvider.countryCity;
-          final favorites = favoritesProvider.favoriteItems;
+          final favorites = favoritesProvider.favoritesInfos?['total_count'];
 
           // print(userInfo);
 
@@ -173,39 +174,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   SizedBox(height: AppDimension.distance20),
-                  // ListTile(
-                  //   leading: Icon(Icons.home, color: AppColors.primaryColor),
-                  //   title: Text(
-                  //     'Properties Listed: 12',
-                  //     style: TextStyle(
-                  //       fontSize: AppDimension.fontSize18,
-                  //       color: AppColors.primaryColor,
-                  //     ),
-                  //   ),
-                  // ),
+
                   ListTile(
                     leading: Icon(
                       Icons.favorite,
                       color: AppColors.primaryColor,
                     ),
                     title: Text(
-                      'Favorites: ${favorites.length}',
+                      'Favorites: $favorites',
                       style: TextStyle(
                         fontSize: AppDimension.fontSize18,
                         color: AppColors.primaryColor,
                       ),
                     ),
+                    onTap: () {
+                      Navigator.pushNamed(context, '/favorites');
+                    },
                   ),
-                  // ListTile(
-                  //   leading: Icon(Icons.chat, color: AppColors.primaryColor),
-                  //   title: Text(
-                  //     'Messages: 5',
-                  //     style: TextStyle(
-                  //       fontSize: AppDimension.fontSize18,
-                  //       color: AppColors.primaryColor,
-                  //     ),
-                  //   ),
-                  // ),
+
                   SizedBox(height: AppDimension.distance30),
 
                   // Logout Button
@@ -214,7 +200,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       onPressed: () async {
                         // Logout action
                         await logout();
-                        Navigator.pushReplacementNamed(context, '/login');
+                        // Navigator.pushReplacementNamed(context, '/login');
                       },
                       icon: Icon(Icons.logout, color: AppColors.secondaryColor),
                       label: Text(

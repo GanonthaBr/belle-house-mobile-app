@@ -1,61 +1,81 @@
+// Practical example for your login screen
+// This shows how to modify your existing login screen to receive arguments
+
 import 'package:flutter/material.dart';
 import 'package:mobile_app/providers/auth_provider.dart';
 import 'package:mobile_app/widgets/button_text.dart';
-import 'package:mobile_app/widgets/call_to_action.dart';
 import 'package:mobile_app/widgets/text_field_input.dart';
 import 'package:mobile_app/widgets/title_text.dart';
 import 'package:mobile_app/utils/colors.dart';
 import 'package:mobile_app/utils/dimensions.dart';
 import 'package:provider/provider.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+// Arguments class for login screen
+class LoginScreenArguments {
+  final String? prefilledPhoneNumber;
+  final String? userType;
+  final bool isFromRegistration;
+  final Map<String, dynamic>? userData;
+  final String? successMessage;
 
-  @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  LoginScreenArguments({
+    this.prefilledPhoneNumber,
+    this.userType,
+    this.isFromRegistration = false,
+    this.userData,
+    this.successMessage,
+  });
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class LoginScreenWithArguments extends StatefulWidget {
+  const LoginScreenWithArguments({super.key});
+
+  @override
+  State<LoginScreenWithArguments> createState() =>
+      _LoginScreenWithArgumentsState();
+}
+
+class _LoginScreenWithArgumentsState extends State<LoginScreenWithArguments> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _usernameController = TextEditingController();
 
-  // Variables to store route arguments
-  String? prefilledPhoneNumber;
-  bool isFromRegistration = false;
-  String? successMessage;
+  LoginScreenArguments? args;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    // Get arguments from navigation route
-    final arguments = ModalRoute.of(context)!.settings.arguments;
+    // Get the arguments passed from navigation
+    final routeArgs = ModalRoute.of(context)!.settings.arguments;
 
-    if (arguments != null) {
-      if (arguments is Map<String, dynamic>) {
+    if (routeArgs != null) {
+      if (routeArgs is LoginScreenArguments) {
+        args = routeArgs;
+      } else if (routeArgs is Map<String, dynamic>) {
         // Handle Map arguments
-        prefilledPhoneNumber = arguments['phone_number'] as String?;
-        isFromRegistration = arguments['isFromRegistration'] as bool? ?? false;
-        successMessage = arguments['successMessage'] as String?;
-      } else if (arguments is String) {
+        args = LoginScreenArguments(
+          prefilledPhoneNumber: routeArgs['phoneNumber'] as String?,
+          userType: routeArgs['userType'] as String?,
+          isFromRegistration: routeArgs['isFromRegistration'] as bool? ?? false,
+          userData: routeArgs['userData'] as Map<String, dynamic>?,
+          successMessage: routeArgs['successMessage'] as String?,
+        );
+      } else if (routeArgs is String) {
         // Handle simple string argument (phone number)
-        prefilledPhoneNumber = arguments;
+        args = LoginScreenArguments(prefilledPhoneNumber: routeArgs);
       }
 
       // Pre-fill phone number if provided
-      if (prefilledPhoneNumber != null) {
-        setState(() {
-          _phoneController.text = prefilledPhoneNumber!;
-        });
+      if (args?.prefilledPhoneNumber != null) {
+        _phoneController.text = args!.prefilledPhoneNumber!;
       }
 
       // Show success message if provided
-      if (successMessage != null) {
+      if (args?.successMessage != null) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(successMessage!),
+              content: Text(args!.successMessage!),
               backgroundColor: Colors.green,
             ),
           );
@@ -69,11 +89,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
     final phoneNumber = _phoneController.text.trim();
     final password = _passwordController.text.trim();
-    // final username = _usernameController.text.trim();
 
-    //authentication logic
+    // Authentication logic
     final result = await authProvider.login(
-      // username: username,
       password: password,
       phoneNumber: phoneNumber,
     );
@@ -82,10 +100,9 @@ class _LoginScreenState extends State<LoginScreen> {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Connecté avec succès')));
+        ).showSnackBar(const SnackBar(content: Text('Connecté avec succès')));
         Navigator.pushReplacementNamed(context, '/main');
       }
-      // Navigate to another screen or save the token
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -98,6 +115,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     AppDimension.init(context);
+
     return Scaffold(
       body: SafeArea(
         child: Consumer<AuthProvider>(
@@ -111,20 +129,35 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
+                    // Show different title based on arguments
                     TitleText(
                       text:
-                          isFromRegistration
+                          args?.isFromRegistration == true
                               ? 'Finaliser votre connexion'
                               : 'Connecter à votre compte',
                       fontSize: AppDimension.fontSize24,
                       color: AppColors.primaryColor,
                     ),
+                    // Show user type if provided
+                    if (args?.userType != null)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Text(
+                          'Type: ${args!.userType}',
+                          style: TextStyle(
+                            color: AppColors.primaryColor,
+                            fontSize: AppDimension.fontSize18,
+                          ),
+                        ),
+                      ),
+
                     // Logo
                     Expanded(
                       flex: 2,
                       child: Image.asset('images/logo.png', width: 300),
                     ),
-                    // Phone
+
+                    // Phone field
                     Padding(
                       padding: EdgeInsets.symmetric(
                         horizontal: AppDimension.radius14,
@@ -139,7 +172,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           fillcolor: AppColors.primaryColor,
                           focuscolor: AppColors.primaryColor,
                           bordercolor: AppColors.primaryColor,
-                          // helperText: 'Entrer votre numero de téléphone',
                           labelText: "Numéro de téléphone",
                           fontsize: AppDimension.fontSize18,
                           borderRadius: AppDimension.radius14,
@@ -148,30 +180,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                     ),
-                    // Username
-                    // Padding(
-                    //   padding: EdgeInsets.symmetric(
-                    //     horizontal: AppDimension.radius14,
-                    //     vertical: 0.0,
-                    //   ),
-                    //   child: SizedBox(
-                    //     height: AppDimension.screenHeight * 0.08,
-                    //     child: InputTextField(
-                    //       controller: _usernameController,
-                    //       fillBg: true,
-                    //       hintText: 'username',
-                    //       fillcolor: AppColors.primaryColor,
-                    //       focuscolor: AppColors.primaryColor,
-                    //       bordercolor: AppColors.primaryColor,
-                    //       // helperText: 'Enter your username',
-                    //       labelText: "Username",
-                    //       fontsize: AppDimension.fontSize18,
-                    //       borderRadius: AppDimension.radius14,
-                    //       labelColor: AppColors.secondaryColor,
-                    //       passwordField: false,
-                    //     ),
-                    //   ),
-                    // ),
 
                     // Password field
                     Padding(
@@ -188,7 +196,6 @@ class _LoginScreenState extends State<LoginScreen> {
                           fillcolor: AppColors.primaryColor,
                           focuscolor: AppColors.primaryColor,
                           bordercolor: AppColors.primaryColor,
-                          // helperText: "Entrez votre mot de passe",
                           labelText: "Mot de passe",
                           fontsize: AppDimension.fontSize18,
                           borderRadius: AppDimension.radius14,
@@ -197,13 +204,17 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                     ),
+
                     // Login Button
                     authProvider.isLoading
                         ? CircularProgressIndicator(
                           color: AppColors.primaryColor,
                         )
                         : TextButtonWidget(
-                          text: 'Se connecter',
+                          text:
+                              args?.isFromRegistration == true
+                                  ? 'Finaliser la connexion'
+                                  : 'Se connecter',
                           height: AppDimension.distance50,
                           fontSize: AppDimension.fontSize18,
                           bgcolor: AppColors.primaryColor,
@@ -211,29 +222,31 @@ class _LoginScreenState extends State<LoginScreen> {
                           textcolor: AppColors.secondaryColor,
                           onPressed: _login,
                         ),
-                    // CTA
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text('Pas encore de compte?'),
-                          SizedBox(width: 10),
-                          GestureDetector(
-                            onTap: () {
-                              Navigator.pushReplacementNamed(
-                                context,
-                                '/register',
-                              );
-                            },
-                            child: Text(
-                              "S'incrire",
-                              style: TextStyle(color: AppColors.primaryColor),
+
+                    // CTA - Hide if coming from registration
+                    if (args?.isFromRegistration != true)
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Text('Pas encore de compte?'),
+                            const SizedBox(width: 10),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.pushReplacementNamed(
+                                  context,
+                                  '/register',
+                                );
+                              },
+                              child: Text(
+                                "S'incrire",
+                                style: TextStyle(color: AppColors.primaryColor),
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
                   ],
                 ),
               ),
@@ -241,6 +254,77 @@ class _LoginScreenState extends State<LoginScreen> {
           },
         ),
       ),
+    );
+  }
+}
+
+// Example of how to navigate to this login screen from other screens:
+class NavigationExamples {
+  // From registration screen after successful registration
+  static void navigateFromRegistration(
+    BuildContext context,
+    String phoneNumber,
+  ) {
+    Navigator.pushReplacementNamed(
+      context,
+      '/login',
+      arguments: LoginScreenArguments(
+        prefilledPhoneNumber: phoneNumber,
+        isFromRegistration: true,
+        successMessage: 'Inscription réussie! Veuillez vous connecter.',
+      ),
+    );
+  }
+
+  // From home screen with user type
+  static void navigateWithUserType(BuildContext context, String userType) {
+    Navigator.pushNamed(
+      context,
+      '/login',
+      arguments: LoginScreenArguments(userType: userType),
+    );
+  }
+
+  // From forgot password screen
+  static void navigateFromForgotPassword(
+    BuildContext context,
+    String phoneNumber,
+  ) {
+    Navigator.pushReplacementNamed(
+      context,
+      '/login',
+      arguments: LoginScreenArguments(
+        prefilledPhoneNumber: phoneNumber,
+        successMessage:
+            'Mot de passe réinitialisé. Connectez-vous avec votre nouveau mot de passe.',
+      ),
+    );
+  }
+
+  // Simple navigation with just phone number
+  static void navigateWithPhoneNumber(
+    BuildContext context,
+    String phoneNumber,
+  ) {
+    Navigator.pushNamed(
+      context,
+      '/login',
+      arguments: phoneNumber, // Simple string argument
+    );
+  }
+
+  // Using Map arguments (alternative approach)
+  static void navigateWithMapArguments(BuildContext context) {
+    Navigator.pushNamed(
+      context,
+      '/login',
+      arguments: {
+        'phoneNumber': '+1234567890',
+        'userType': 'premium',
+        'isFromRegistration': true,
+        'successMessage': 'Welcome!',
+        'userData': {'name': 'John Doe', 'email': 'john@example.com'},
+      },
     );
   }
 }

@@ -29,225 +29,454 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: TitleText(
-          text: 'Mes Sauvegardes',
-          color: AppColors.secondaryColor,
-          fontSize: AppDimension.fontSize24,
-        ),
-        backgroundColor: AppColors.primaryColor,
-        toolbarHeight: AppDimension.distance50 * 2,
-        actions: [
-          Consumer<FavoritesProvider>(
-            builder: (context, favoriteProvider, child) {
-              final favorites = favoriteProvider.favoritesInfos;
-              final totalFavoritesCount = favorites?['total_count'] ?? 0;
-              return Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Total count badge
-                  if (totalFavoritesCount > 0)
-                    Container(
-                      margin: EdgeInsets.only(right: 8),
-                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: AppColors.secondaryColor,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        '$totalFavoritesCount',
-                        style: TextStyle(
-                          color: AppColors.primaryColor,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  // Refresh button
-                  IconButton(
-                    icon:
-                        favoriteProvider.isLoading
-                            ? SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: AppColors.secondaryColor,
-                              ),
-                            )
-                            : Icon(
-                              Icons.refresh,
-                              color: AppColors.secondaryColor,
-                            ),
-                    onPressed:
-                        favoriteProvider.isLoading
-                            ? null
-                            : () async {
-                              await favoriteProvider.getFavorites();
-                            },
-                  ),
-                ],
-              );
-            },
-          ),
-        ],
-      ),
       body: Consumer<FavoritesProvider>(
         builder: (context, favoriteProvider, child) {
           // Loading state
           if (favoriteProvider.isLoading) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(color: AppColors.primaryColor),
-                  SizedBox(height: 16),
-                  TitleText(
-                    text: 'Chargement des favoris...',
-                    color: AppColors.primaryColor,
-                    fontSize: AppDimension.fontSize18,
+            return CustomScrollView(
+              slivers: [
+                SliverAppBar(
+                  automaticallyImplyLeading: false,
+                  centerTitle: true,
+                  expandedHeight: AppDimension.distance50 * 2,
+                  floating: true,
+                  pinned: true,
+                  snap: true,
+                  backgroundColor: AppColors.primaryColor,
+                  flexibleSpace: FlexibleSpaceBar(
+                    title: TitleText(
+                      text: 'Mes Sauvegardes',
+                      color: AppColors.secondaryColor,
+                      fontSize: AppDimension.fontSize24,
+                    ),
+                    centerTitle: true,
                   ),
-                ],
-              ),
+                  actions: [
+                    Consumer<FavoritesProvider>(
+                      builder: (context, favoriteProvider, child) {
+                        final favorites = favoriteProvider.favoritesInfos;
+                        final totalFavoritesCount =
+                            favorites?['total_count'] ?? 0;
+                        return Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // Total count badge
+                            if (totalFavoritesCount > 0)
+                              Container(
+                                margin: EdgeInsets.only(right: 8),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.secondaryColor,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  '$totalFavoritesCount',
+                                  style: TextStyle(
+                                    color: AppColors.primaryColor,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            // Refresh button
+                            IconButton(
+                              icon:
+                                  favoriteProvider.isLoading
+                                      ? SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: AppColors.secondaryColor,
+                                        ),
+                                      )
+                                      : Icon(
+                                        Icons.refresh,
+                                        color: AppColors.secondaryColor,
+                                      ),
+                              onPressed:
+                                  favoriteProvider.isLoading
+                                      ? null
+                                      : () async {
+                                        await favoriteProvider.getFavorites();
+                                      },
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ],
+                ),
+                SliverFillRemaining(
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CircularProgressIndicator(
+                          color: AppColors.primaryColor,
+                        ),
+                        SizedBox(height: 16),
+                        TitleText(
+                          text: 'Chargement des favoris...',
+                          color: AppColors.primaryColor,
+                          fontSize: AppDimension.fontSize18,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             );
           }
-
-          // Error state
-          // if (favoriteProvider.errorMessage != null) {
-          //   return Center(
-          //     child: Padding(
-          //       padding: EdgeInsets.all(AppDimension.distance20),
-          //       child: Column(
-          //         mainAxisAlignment: MainAxisAlignment.center,
-          //         children: [
-          //           Icon(Icons.error_outline, size: 64, color: AppColors.red),
-          //           SizedBox(height: 16),
-          //           TitleText(
-          //             text: 'Erreur',
-          //             color: AppColors.red,
-          //             fontSize: AppDimension.fontSize18,
-          //           ),
-          //           SizedBox(height: 8),
-          //           Text(
-          //             favoriteProvider.errorMessage!,
-          //             textAlign: TextAlign.center,
-          //             style: TextStyle(color: AppColors.red),
-          //           ),
-          //           SizedBox(height: 16),
-          //           ElevatedButton(
-          //             onPressed: () {
-          //               favoriteProvider.getFavorites();
-          //             },
-          //             style: ElevatedButton.styleFrom(
-          //               backgroundColor: AppColors.primaryColor,
-          //             ),
-          //             child: Text('Réessayer'),
-          //           ),
-          //         ],
-          //       ),
-          //     ),
-          //   );
-          // }
 
           // Get favorites data
           final favoritesByType = favoriteProvider.favoritesInfos;
           final totalCount = favoritesByType?['total_count'];
-          // print(favoritesByType);
+
           // Empty state
           if (totalCount == 0) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.favorite_border,
-                    size: 80,
-                    color: AppColors.primaryColorLoose,
-                  ),
-                  SizedBox(height: 24),
-                  TitleText(
-                    text: 'Aucun favori',
-                    color: AppColors.primaryColor,
-                    fontSize: AppDimension.fontSize24,
-                  ),
-                  SizedBox(height: 8),
-                  Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: AppDimension.distance20 * 2,
+            return CustomScrollView(
+              slivers: [
+                SliverAppBar(
+                  automaticallyImplyLeading: false,
+                  centerTitle: true,
+                  expandedHeight: AppDimension.distance50 * 2,
+                  floating: true,
+                  pinned: true,
+                  snap: true,
+                  backgroundColor: AppColors.primaryColor,
+                  flexibleSpace: FlexibleSpaceBar(
+                    title: TitleText(
+                      text: 'Mes Sauvegardes',
+                      color: AppColors.secondaryColor,
+                      fontSize: AppDimension.fontSize24,
                     ),
-                    child: Text(
-                      'Vous n\'avez pas encore ajouté d\'éléments à vos favoris. Explorez nos biens et ajoutez ceux qui vous intéressent !',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: AppColors.primaryColorLoose,
-                        fontSize: AppDimension.fontSize18,
-                      ),
+                    centerTitle: true,
+                  ),
+                  actions: [
+                    Consumer<FavoritesProvider>(
+                      builder: (context, favoriteProvider, child) {
+                        final favorites = favoriteProvider.favoritesInfos;
+                        final totalFavoritesCount =
+                            favorites?['total_count'] ?? 0;
+                        return Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // Total count badge
+                            if (totalFavoritesCount > 0)
+                              Container(
+                                margin: EdgeInsets.only(right: 8),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.secondaryColor,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  '$totalFavoritesCount',
+                                  style: TextStyle(
+                                    color: AppColors.primaryColor,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            // Refresh button
+                            IconButton(
+                              icon:
+                                  favoriteProvider.isLoading
+                                      ? SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: AppColors.secondaryColor,
+                                        ),
+                                      )
+                                      : Icon(
+                                        Icons.refresh,
+                                        color: AppColors.secondaryColor,
+                                      ),
+                              onPressed:
+                                  favoriteProvider.isLoading
+                                      ? null
+                                      : () async {
+                                        await favoriteProvider.getFavorites();
+                                      },
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ],
+                ),
+                SliverFillRemaining(
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.favorite_border,
+                          size: 80,
+                          color: AppColors.primaryColorLoose,
+                        ),
+                        SizedBox(height: 24),
+                        TitleText(
+                          text: 'Aucun favori',
+                          color: AppColors.primaryColor,
+                          fontSize: AppDimension.fontSize24,
+                        ),
+                        SizedBox(height: 8),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: AppDimension.distance20 * 2,
+                          ),
+                          child: Text(
+                            'Vous n\'avez pas encore ajouté d\'éléments à vos favoris. Explorez nos biens et ajoutez ceux qui vous intéressent !',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: AppColors.primaryColorLoose,
+                              fontSize: AppDimension.fontSize18,
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 24),
+                        ElevatedButton(
+                          onPressed: () {
+                            // Navigate back to home or explore
+                            DefaultTabController.of(
+                              context,
+                            ).animateTo(0); // Go to home tab
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.primaryColor,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: AppDimension.distance20 * 2,
+                              vertical: AppDimension.distance20 / 2,
+                            ),
+                          ),
+                          child: Text(
+                            'Explorer',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  SizedBox(height: 24),
-                  ElevatedButton(
-                    onPressed: () {
-                      // Navigate back to home or explore
-                      DefaultTabController.of(
-                        context,
-                      ).animateTo(0); // Go to home tab
+                ),
+              ],
+            );
+          }
+
+          if (favoritesByType == null) {
+            return CustomScrollView(
+              slivers: [
+                SliverAppBar(
+                  automaticallyImplyLeading: false,
+                  centerTitle: true,
+                  expandedHeight: AppDimension.distance50 * 2,
+                  floating: true,
+                  pinned: true,
+                  snap: true,
+                  backgroundColor: AppColors.primaryColor,
+                  flexibleSpace: FlexibleSpaceBar(
+                    title: TitleText(
+                      text: 'Mes Sauvegardes',
+                      color: AppColors.secondaryColor,
+                      fontSize: AppDimension.fontSize24,
+                    ),
+                    centerTitle: true,
+                  ),
+                  actions: [
+                    Consumer<FavoritesProvider>(
+                      builder: (context, favoriteProvider, child) {
+                        final favorites = favoriteProvider.favoritesInfos;
+                        final totalFavoritesCount =
+                            favorites?['total_count'] ?? 0;
+                        return Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // Total count badge
+                            if (totalFavoritesCount > 0)
+                              Container(
+                                margin: EdgeInsets.only(right: 8),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.secondaryColor,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  '$totalFavoritesCount',
+                                  style: TextStyle(
+                                    color: AppColors.primaryColor,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            // Refresh button
+                            IconButton(
+                              icon:
+                                  favoriteProvider.isLoading
+                                      ? SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          color: AppColors.secondaryColor,
+                                        ),
+                                      )
+                                      : Icon(
+                                        Icons.refresh,
+                                        color: AppColors.secondaryColor,
+                                      ),
+                              onPressed:
+                                  favoriteProvider.isLoading
+                                      ? null
+                                      : () async {
+                                        await favoriteProvider.getFavorites();
+                                      },
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ],
+                ),
+                SliverFillRemaining(
+                  child: Center(
+                    child: Text('Votre liste de Favoris est vide!'),
+                  ),
+                ),
+              ],
+            );
+          }
+
+          // Display favorites grouped by type
+          return CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                automaticallyImplyLeading: false,
+                centerTitle: true,
+                expandedHeight: AppDimension.distance50 * 2,
+                floating: true,
+                pinned: true,
+                snap: true,
+                backgroundColor: AppColors.primaryColor,
+                flexibleSpace: FlexibleSpaceBar(
+                  title: TitleText(
+                    text: 'Mes Sauvegardes',
+                    color: AppColors.secondaryColor,
+                    fontSize: AppDimension.fontSize18 * 1.3,
+                  ),
+                  centerTitle: true,
+                ),
+                actions: [
+                  Consumer<FavoritesProvider>(
+                    builder: (context, favoriteProvider, child) {
+                      final favorites = favoriteProvider.favoritesInfos;
+                      final totalFavoritesCount =
+                          favorites?['total_count'] ?? 0;
+                      return Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Total count badge
+                          if (totalFavoritesCount > 0)
+                            Container(
+                              margin: EdgeInsets.only(right: 8),
+                              padding: EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.secondaryColor,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                '$totalFavoritesCount',
+                                style: TextStyle(
+                                  color: AppColors.primaryColor,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          // Refresh button
+                          IconButton(
+                            icon:
+                                favoriteProvider.isLoading
+                                    ? SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2,
+                                        color: AppColors.secondaryColor,
+                                      ),
+                                    )
+                                    : Icon(
+                                      Icons.refresh,
+                                      color: AppColors.secondaryColor,
+                                    ),
+                            onPressed:
+                                favoriteProvider.isLoading
+                                    ? null
+                                    : () async {
+                                      await favoriteProvider.getFavorites();
+                                    },
+                          ),
+                        ],
+                      );
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryColor,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: AppDimension.distance20 * 2,
-                        vertical: AppDimension.distance20 / 2,
-                      ),
-                    ),
-                    child: Text(
-                      'Explorer',
-                      style: TextStyle(color: Colors.white),
-                    ),
                   ),
                 ],
               ),
-            );
-          }
-          if (favoritesByType == null) {
-            return Center(child: Text('Votre liste de Favoris est vide!'));
-          }
-          // Display favorites grouped by type
-          return ListView(
-            padding: EdgeInsets.all(AppDimension.distance20 / 2),
-            children: [
-              // Houses section
-              if (favoritesByType['favorites'].containsKey('houses') &&
-                  favoritesByType['favorites']['houses']!.isNotEmpty)
-                _buildFavoriteSection(
-                  'Maisons',
-                  favoritesByType['favorites']['houses']!,
-                  Icons.home_rounded,
-                  favoriteProvider,
-                ),
+              SliverPadding(
+                padding: EdgeInsets.all(AppDimension.distance20 / 2),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate([
+                    // Houses section
+                    if (favoritesByType['favorites'].containsKey('houses') &&
+                        favoritesByType['favorites']['houses']!.isNotEmpty)
+                      _buildFavoriteSection(
+                        'Maisons',
+                        favoritesByType['favorites']['houses']!,
+                        Icons.home_rounded,
+                        favoriteProvider,
+                      ),
 
-              // Lands section
-              if (favoritesByType['favorites'].containsKey('lands') &&
-                  favoritesByType['favorites']['lands']!.isNotEmpty)
-                _buildFavoriteSection(
-                  'Terrains',
-                  favoritesByType['favorites']['lands']!,
-                  Icons.landscape_rounded,
-                  favoriteProvider,
-                ),
+                    // Lands section
+                    if (favoritesByType['favorites'].containsKey('lands') &&
+                        favoritesByType['favorites']['lands']!.isNotEmpty)
+                      _buildFavoriteSection(
+                        'Terrains',
+                        favoritesByType['favorites']['lands']!,
+                        Icons.landscape_rounded,
+                        favoriteProvider,
+                      ),
 
-              // Products section
-              if (favoritesByType['favorites'].containsKey('products') &&
-                  favoritesByType['favorites']['products']!.isNotEmpty)
-                _buildFavoriteSection(
-                  'Produits',
-                  favoritesByType['favorites']['products']!,
-                  Icons.shopping_bag_rounded,
-                  favoriteProvider,
-                ),
+                    // Products section
+                    if (favoritesByType['favorites'].containsKey('products') &&
+                        favoritesByType['favorites']['products']!.isNotEmpty)
+                      _buildFavoriteSection(
+                        'Produits',
+                        favoritesByType['favorites']['products']!,
+                        Icons.shopping_bag_rounded,
+                        favoriteProvider,
+                      ),
 
-              // Add spacing at the bottom
-              SizedBox(height: AppDimension.distance20 * 2),
+                    // Add spacing at the bottom
+                    SizedBox(height: AppDimension.distance20 * 2),
+                  ]),
+                ),
+              ),
             ],
           );
         },

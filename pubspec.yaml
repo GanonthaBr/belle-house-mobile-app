@@ -46,6 +46,7 @@ dependencies:
   geocoding: ^3.0.0
   url_launcher: ^6.3.1
   intl: ^0.20.2
+  connectivity_plus: ^6.0.5
 
 dev_dependencies:
   flutter_test:

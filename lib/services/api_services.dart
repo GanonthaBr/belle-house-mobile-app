@@ -1,5 +1,6 @@
 import 'package:mobile_app/services/auth_service.dart';
 import 'package:mobile_app/services/token_storage.dart';
+import 'package:mobile_app/services/connectivity_service.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io';
@@ -7,6 +8,7 @@ import 'dart:io';
 class ApiServices {
   final AuthService _authService = AuthService();
   final TokenStorage _tokenStorage = TokenStorage();
+  final ConnectivityService _connectivityService = ConnectivityService();
 
   // Retry configuration
   static const int maxRetries = 3;
@@ -76,6 +78,13 @@ class ApiServices {
 
   // Internal GET method
   Future<http.Response> _performGet(String url) async {
+    // Check internet connectivity before making API call
+    if (!await _connectivityService.hasInternetConnection()) {
+      throw Exception(
+        'No internet connection. Please check your network and try again.',
+      );
+    }
+
     final accessToken = await _tokenStorage.getAccessToken();
 
     final response = await http
@@ -137,6 +146,13 @@ class ApiServices {
     String url,
     Map<String, dynamic> body,
   ) async {
+    // Check internet connectivity before making API call
+    if (!await _connectivityService.hasInternetConnection()) {
+      throw Exception(
+        'No internet connection. Please check your network and try again.',
+      );
+    }
+
     final accessToken = await _tokenStorage.getAccessToken();
 
     final response = await http
@@ -197,6 +213,13 @@ class ApiServices {
     String url,
     Map<String, dynamic> body,
   ) async {
+    // Check internet connectivity before making API call
+    if (!await _connectivityService.hasInternetConnection()) {
+      throw Exception(
+        'No internet connection. Please check your network and try again.',
+      );
+    }
+
     final accessToken = await _tokenStorage.getAccessToken();
 
     final response = await http
@@ -249,6 +272,13 @@ class ApiServices {
     String url,
     Map<String, dynamic>? body,
   ) async {
+    // Check internet connectivity before making API call
+    if (!await _connectivityService.hasInternetConnection()) {
+      throw Exception(
+        'No internet connection. Please check your network and try again.',
+      );
+    }
+
     final accessToken = await _tokenStorage.getAccessToken();
 
     final response = await http

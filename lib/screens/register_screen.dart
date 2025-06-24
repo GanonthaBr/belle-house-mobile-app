@@ -41,13 +41,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
       password: password,
       username: username,
     );
-
+    print('Res: $result');
     if (result['success']) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Votre compte a été crée avec succès')),
         );
-        Navigator.pushNamed(context, '/login');
+        Navigator.pushNamed(
+          context,
+          '/login',
+          arguments: {
+            'phone_number': phoneNumber,
+            'isFromRegistration': true,
+            'successMessage': 'Registration successful!',
+          },
+        );
       }
       // Navigate to another screen or save the token
     } else {
