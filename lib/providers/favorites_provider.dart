@@ -42,6 +42,7 @@ class FavoritesProvider with ChangeNotifier {
     required int objectId,
     String? itemName,
   }) async {
+    _isLoading = true;
     final itemKey = '${contentTypeId}_$objectId';
 
     _setItemLoading(itemKey, true);
@@ -87,6 +88,7 @@ class FavoritesProvider with ChangeNotifier {
       _setError(errorMessage);
       return false;
     } finally {
+      _isLoading = false;
       _setItemLoading(itemKey, false);
     }
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_app/models/houses_model.dart';
 import 'package:mobile_app/providers/favorites_provider.dart';
+import 'package:mobile_app/utils/colors.dart';
 import 'package:mobile_app/widgets/descrption_text.dart';
 import 'package:mobile_app/widgets/image_gallery.dart';
 import 'package:provider/provider.dart';
@@ -224,22 +225,34 @@ class _HouseDetailsScreenState extends State<HouseDetailsScreen> {
                             child: CircleAvatar(
                               backgroundColor: Colors.black.withOpacity(0.5),
                               radius: 20,
-                              child: IconButton(
-                                icon: Icon(
-                                  isFavorited
-                                      ? Icons.favorite
-                                      : Icons.favorite_border,
-                                  color:
-                                      isFavorited ? Colors.red : secondaryColor,
-                                ),
-                                onPressed: () async {
-                                  await favoriteProvider.toggleFavorite(
-                                    contentTypeId: ContentType.property.id,
-                                    objectId: widget.property.id,
-                                    itemName: widget.property.name,
-                                  );
-                                },
-                              ),
+                              child:
+                                  favoriteProvider.isLoading
+                                      ? SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                          color: AppColors.secondaryColor,
+                                        ),
+                                      )
+                                      : IconButton(
+                                        icon: Icon(
+                                          isFavorited
+                                              ? Icons.favorite
+                                              : Icons.favorite_border,
+                                          color:
+                                              isFavorited
+                                                  ? Colors.red
+                                                  : secondaryColor,
+                                        ),
+                                        onPressed: () async {
+                                          await favoriteProvider.toggleFavorite(
+                                            contentTypeId:
+                                                ContentType.property.id,
+                                            objectId: widget.property.id,
+                                            itemName: widget.property.name,
+                                          );
+                                        },
+                                      ),
                             ),
                           ),
                           // Gallery button (if more than one image)
@@ -350,7 +363,6 @@ class _HouseDetailsScreenState extends State<HouseDetailsScreen> {
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
                                   color: primaryColor,
-
                                 ),
                               ),
                             ],
@@ -382,19 +394,19 @@ class _HouseDetailsScreenState extends State<HouseDetailsScreen> {
                                 _buildFeatureItem(
                                   Icons.king_bed_outlined,
                                   '${widget.property.bedrooms}',
-                                  'Bedrooms',
+                                  'Chambres',
                                 ),
                                 _buildVerticalDivider(),
                                 _buildFeatureItem(
                                   Icons.bathtub_outlined,
                                   '${widget.property.bathrooms}',
-                                  'Bathrooms',
+                                  'Douches',
                                 ),
                                 _buildVerticalDivider(),
                                 _buildFeatureItem(
                                   Icons.kitchen_outlined,
                                   '${widget.property.kitchens}',
-                                  'Kitchens',
+                                  'Cuisines',
                                 ),
                               ],
                             ),
@@ -418,12 +430,14 @@ class _HouseDetailsScreenState extends State<HouseDetailsScreen> {
                                   onPressed:
                                       () =>
                                           _showImageGallery(context, allImages),
-                                  child: Text('View All (${allImages.length})'),
+                                  child: Text(
+                                    'Voir Tout (${allImages.length})',
+                                  ),
                                 ),
                               ],
                             ),
                             SizedBox(height: height * 0.015),
-                            Container(
+                            SizedBox(
                               height: 100,
                               child: ListView.builder(
                                 scrollDirection: Axis.horizontal,
@@ -493,7 +507,7 @@ class _HouseDetailsScreenState extends State<HouseDetailsScreen> {
                             text:
                                 widget.property.description.isNotEmpty
                                     ? widget.property.description
-                                    : 'No description available.',
+                                    : 'Aucune description n\'est disponible.',
                           ),
 
                           SizedBox(height: height * 0.03),
@@ -535,7 +549,7 @@ class _HouseDetailsScreenState extends State<HouseDetailsScreen> {
                                       Text(
                                         widget.property.agentName.isNotEmpty
                                             ? widget.property.agentName
-                                            : 'Property Agent',
+                                            : 'Agent immobilier',
                                         style: TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.bold,
@@ -543,7 +557,7 @@ class _HouseDetailsScreenState extends State<HouseDetailsScreen> {
                                       ),
                                       SizedBox(height: 5),
                                       Text(
-                                        'Real Estate Agent',
+                                        'Agent immobilier',
                                         style: TextStyle(
                                           color: Colors.grey[600],
                                           fontSize: 14,
@@ -658,7 +672,7 @@ class _HouseDetailsScreenState extends State<HouseDetailsScreen> {
         SizedBox(height: 4),
         Text(
           label,
-          style: TextStyle(color: Colors.grey[600], fontSize: 11),
+          style: TextStyle(color: AppColors.primaryColor, fontSize: 11),
           textAlign: TextAlign.center,
         ),
       ],
@@ -786,7 +800,6 @@ class _HouseDetailsScreenState extends State<HouseDetailsScreen> {
                         ),
                       ),
                     ),
-
                   ],
                 ),
               ],

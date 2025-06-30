@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:mobile_app/models/houses_model.dart';
 import 'package:mobile_app/providers/favorites_provider.dart';
+import 'package:mobile_app/screens/houses.dart';
 import 'package:mobile_app/utils/colors.dart';
 import 'package:mobile_app/utils/dimensions.dart';
 import 'package:mobile_app/widgets/title_text.dart';
@@ -249,9 +251,10 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                         ElevatedButton(
                           onPressed: () {
                             // Navigate back to home or explore
-                            DefaultTabController.of(
+                            Navigator.pushNamed(
                               context,
-                            ).animateTo(0); // Go to home tab
+                              '/main',
+                            ); // Go to home tab
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primaryColor,
@@ -544,14 +547,24 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
         // Favorites list
         ...favorites.map(
-          (favorite) => FavoriteItem(
-            favorite: favorite,
-            onDelete: () async {
-              await favoriteProvider.removeFavorite(
-                contentTypeId: favorite['content_type_id'],
-                objectId: favorite['object_id'],
+          (favorite) => GestureDetector(
+            onTap: () {
+              print('FAV: $favorite');
+              Navigator.pushNamed(
+                context,
+                '/house_details',
+                arguments: {'property': favorite['object_data'] as Property},
               );
             },
+            child: FavoriteItem(
+              favorite: favorite,
+              onDelete: () async {
+                await favoriteProvider.removeFavorite(
+                  contentTypeId: favorite['content_type_id'],
+                  objectId: favorite['object_id'],
+                );
+              },
+            ),
           ),
         ),
 
