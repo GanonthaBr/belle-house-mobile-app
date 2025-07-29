@@ -1,9 +1,10 @@
 # Student Management System - Mobile App Planning Document
+*Based on the GanonthaBr/student-management project*
 
 ## 1. Project Overview
 
 ### 1.1 Project Description
-A comprehensive mobile application for managing student information, academic records, attendance, grades, and communication between students, teachers, and parents.
+A comprehensive mobile application for managing student information, academic records, attendance, grades, and communication between students, teachers, and parents. This mobile app will complement the existing student management system and provide mobile access to core functionalities.
 
 ### 1.2 Target Platforms
 - **Primary**: iOS and Android
